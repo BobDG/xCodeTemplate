@@ -1,0 +1,1 @@
+../../../BDGTableViewController/BDGTableViewController/CollectionViewCells/BDGTileCollectionViewCell.h

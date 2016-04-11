@@ -1,0 +1,57 @@
+PODS:
+  - AFNetworking (3.1.0):
+    - AFNetworking/NSURLSession (= 3.1.0)
+    - AFNetworking/Reachability (= 3.1.0)
+    - AFNetworking/Security (= 3.1.0)
+    - AFNetworking/Serialization (= 3.1.0)
+    - AFNetworking/UIKit (= 3.1.0)
+  - AFNetworking/NSURLSession (3.1.0):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (3.1.0)
+  - AFNetworking/Security (3.1.0)
+  - AFNetworking/Serialization (3.1.0)
+  - AFNetworking/UIKit (3.1.0):
+    - AFNetworking/NSURLSession
+  - BDGCategories (0.0.8)
+  - BDGImagePicker (0.0.6)
+  - BDGMacros (0.0.15)
+  - BDGScreenshot (0.0.2)
+  - BDGShare (0.0.10)
+  - BDGTableViewController (0.0.11):
+    - AFNetworking
+    - DZNEmptyDataSet
+  - DTTJailbreakDetection (0.4.0)
+  - DZNEmptyDataSet (1.7.3)
+  - HockeySDK (3.8.6):
+    - HockeySDK/AllFeaturesLib (= 3.8.6)
+  - HockeySDK/AllFeaturesLib (3.8.6)
+  - SVProgressHUD (2.0.2)
+
+DEPENDENCIES:
+  - AFNetworking
+  - BDGCategories
+  - BDGImagePicker
+  - BDGMacros
+  - BDGScreenshot
+  - BDGShare
+  - BDGTableViewController
+  - DTTJailbreakDetection
+  - HockeySDK
+  - SVProgressHUD
+
+SPEC CHECKSUMS:
+  AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
+  BDGCategories: 942fcc34510bd1b8b8ee537020320d76db821a02
+  BDGImagePicker: a43a9c2e7929a6fa769c9ca799fde0373efbc11b
+  BDGMacros: 19c1e04b83ed87cffffc245ba126d357c958af9b
+  BDGScreenshot: f493d124c9935132da9e0ca9e8f2e6be180f7dd5
+  BDGShare: db4dd743a9f3876828eb3f081d7d022e33596fe3
+  BDGTableViewController: 782c6463a1caa018f91aa2e671f73cafbf8ad814
+  DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
+  DZNEmptyDataSet: dd7cca17c1d07dfa78956859b1e70a52505678ef
+  HockeySDK: ab68303eec6680f6b539de65d747742dd276e934
+  SVProgressHUD: e4020e23badbd7cc61bc4a80d3c1da57f166a978
+
+COCOAPODS: 0.39.0

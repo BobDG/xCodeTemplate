@@ -1,0 +1,6 @@
+framework module BDGScreenshot {
+  umbrella header "BDGScreenshot-umbrella.h"
+
+  export *
+  module * { export * }
+}

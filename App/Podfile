@@ -1,0 +1,21 @@
+platform :ios, '8.0'
+use_frameworks!
+inhibit_all_warnings!
+
+def shared_pods
+    pod 'BDGShare'
+    pod 'BDGMacros'
+    pod 'BDGCategories'
+    pod 'BDGScreenshot'
+    pod 'BDGImagePicker'
+    pod 'BDGTableViewController'
+    
+    pod 'HockeySDK'
+    pod 'AFNetworking'
+    pod 'SVProgressHUD'
+    pod 'DTTJailbreakDetection'
+end
+
+target "Template" do
+    shared_pods
+end

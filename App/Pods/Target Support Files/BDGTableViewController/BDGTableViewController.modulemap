@@ -1,0 +1,6 @@
+framework module BDGTableViewController {
+  umbrella header "BDGTableViewController-umbrella.h"
+
+  export *
+  module * { export * }
+}

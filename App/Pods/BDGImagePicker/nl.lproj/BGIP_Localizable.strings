@@ -1,0 +1,5 @@
+/* Localized versions of Info.plist keys */
+
+"TakePicture"           =           "Neem een foto";
+"ChoosePicture"         =           "Kies een foto";
+"Cancel"                =           "Annuleer";

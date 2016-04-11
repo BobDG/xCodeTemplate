@@ -1,0 +1,1 @@
+../../../BDGCategories/NSManagedObject+Mapping.h
