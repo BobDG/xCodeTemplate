@@ -22,7 +22,7 @@
 
 @implementation APIManager
 
-#pragma mark - API Calls
+#pragma mark - API Manager & Parameters
 
 +(AFHTTPSessionManager *)managerForCall:(NSString *)call
 {
@@ -37,6 +37,15 @@
     
     return manager;
 }
+
++(NSMutableDictionary *)getFinalParametersForParameters:(NSDictionary *)parameters
+{
+    NSMutableDictionary *finalParameters = [[NSMutableDictionary alloc] initWithDictionary:parameters];
+    //Add default parameter?
+    return finalParameters;
+}
+
+#pragma mark - API Calls
 
 +(void)getAPICall:(NSString *)call success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))failure
 {
@@ -78,13 +87,6 @@
     [self postAPICall:call parameters:parameters checkObject:nil success:success failure:failure];
 }
 
-+(NSMutableDictionary *)getFinalParametersForParameters:(NSDictionary *)parameters
-{
-    NSMutableDictionary *finalParameters = [[NSMutableDictionary alloc] initWithDictionary:parameters];
-    
-    return finalParameters;
-}
-
 +(void)getAPICall:(NSString *)call parameters:(id)parameters checkObject:(NSString *)object success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))failure
 {
     DLog(@"API-Call: %@, parameters: %@", call, parameters);
@@ -105,9 +107,7 @@
         }
         success(responseObject);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        DLog(@"API Call failure error: %@", error.description);
-        DLog(@"API Call failure statuscode: %d", (int)((NSHTTPURLResponse *)task.response).statusCode);
-        DLog(@"API Call failure response: %@", task.response);
+        [self logAPIError:task error:error];
         failure(error);
     }];
 }
@@ -116,7 +116,6 @@
 {
     DLog(@"API-Call: %@, parameters: %@", call, parameters);
     AFHTTPSessionManager *manager = [self managerForCall:call];
-    
     NSMutableDictionary *finalParameters = [self getFinalParametersForParameters:parameters];
     [manager POST:call parameters:finalParameters progress:^(NSProgress * _Nonnull uploadProgress) {
         
@@ -132,9 +131,7 @@
         }
         success(responseObject);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        DLog(@"API Call failure error: %@", error.description);
-        DLog(@"API Call failure statuscode: %d", (int)((NSHTTPURLResponse *)task.response).statusCode);
-        DLog(@"API Call failure response: %@", task.response);
+        [self logAPIError:task error:error];
         failure(error);
     }];
 }
@@ -155,9 +152,7 @@
         }
         success(responseObject);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        DLog(@"API Call failure error: %@", error.description);
-        DLog(@"API Call failure statuscode: %d", (int)((NSHTTPURLResponse *)task.response).statusCode);
-        DLog(@"API Call failure response: %@", task.response);
+        [self logAPIError:task error:error];
         failure(error);
     }];
 }
@@ -178,11 +173,40 @@
         }
         success(responseObject);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        DLog(@"API Call failure error: %@", error.description);
-        DLog(@"API Call failure statuscode: %d", (int)((NSHTTPURLResponse *)task.response).statusCode);
-        DLog(@"API Call failure response: %@", task.response);
+        [self logAPIError:task error:error];
         failure(error);
     }];
+}
+
+#pragma mark - Error logging
+
++(void)logAPIError:(NSURLSessionDataTask *)task error:(NSError *)error
+{
+    DLog(@"API Call failure error: %@", error.description);
+    DLog(@"API Call failure statuscode: %d", (int)((NSHTTPURLResponse *)task.response).statusCode);
+    DLog(@"API Call failure response: %@", task.response);
+    
+    NSString *errorString = [[NSString alloc] initWithData:error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey] encoding:NSUTF8StringEncoding];
+    DLog(@"API CALL failure error string: %@", errorString);
+    
+    NSDictionary *userinfo = [[NSDictionary alloc] initWithDictionary:error.userInfo];
+    if(!userinfo) {
+        DLog(@"No user info within the error...");
+        return;
+    }
+    NSError *innerError = [userinfo valueForKey:@"NSUnderlyingError"];
+    if(innerError) {
+        NSDictionary *innerUserInfo = [[NSDictionary alloc] initWithDictionary:innerError.userInfo];
+        if(innerUserInfo) {
+            if([innerUserInfo objectForKey:AFNetworkingOperationFailingURLResponseDataErrorKey]) {
+                NSString *errorString = [[NSString alloc] initWithData:[innerUserInfo objectForKey:AFNetworkingOperationFailingURLResponseDataErrorKey] encoding:NSUTF8StringEncoding];
+                DLog(@"Error is 1: %@",errorString);
+            }
+        }
+    } else {
+        NSString *errorString = [[NSString alloc] initWithData:[userinfo valueForKey:@"AFNetworkingOperationFailingURLResponseDataErrorKey"] encoding:NSUTF8StringEncoding];
+        DLog(@"Error is 2: %@",errorString);
+    }
 }
 
 @end

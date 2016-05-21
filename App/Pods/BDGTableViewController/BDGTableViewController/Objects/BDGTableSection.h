@@ -19,6 +19,7 @@
 @property(nonatomic) int ID;
 @property(nonatomic,strong) NSString *text;
 @property(nonatomic,strong) NSString *footer;
+@property(nonatomic,strong) NSString *xibName;
 @property(nonatomic,strong) NSMutableArray *rows;
 @property(nonatomic,strong) UIColor *backgroundColor;
 

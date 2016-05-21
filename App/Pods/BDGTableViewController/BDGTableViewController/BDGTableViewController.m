@@ -285,9 +285,9 @@
     return [NSIndexPath indexPathForRow:0 inSection:sectionIndex];
 }
 
-#pragma mark - Next field responders
+#pragma mark - Next/Previous Field Responders
 
--(UITableViewCell *)nextCellFromRow:(BDGTableRow *)row
+-(BDGTableViewCell *)nextCellFromRow:(BDGTableRow *)row
 {
     //Get current indexPath
     NSIndexPath *indexPath = [self indexPathForRowID:row.ID];
@@ -295,16 +295,32 @@
         return nil;
     }
     
+    return [self nextCellFromIndexPath:indexPath];
+}
+
+-(BDGTableViewCell *)previousCellFromRow:(BDGTableRow *)row
+{
+    //Get current indexPath
+    NSIndexPath *indexPath = [self indexPathForRowID:row.ID];
+    if(!indexPath) {
+        return nil;
+    }
+    
+    return [self previousCellFromIndexPath:indexPath];
+}
+
+-(BDGTableViewCell *)nextCellFromIndexPath:(NSIndexPath *)indexPath
+{
     //Get next indexPath in the same section
     NSIndexPath *nextRowIndexPath = [NSIndexPath indexPathForRow:indexPath.row+1 inSection:indexPath.section];
-    UITableViewCell *nextRowCell = [self.tableView cellForRowAtIndexPath:nextRowIndexPath];
+    BDGTableViewCell *nextRowCell = [self.tableView cellForRowAtIndexPath:nextRowIndexPath];
     if(nextRowCell) {
         return nextRowCell;
     }
     
     //Get next indexpath for the next section
     NSIndexPath *nextSectionIndexPath = [NSIndexPath indexPathForRow:0 inSection:indexPath.section+1];
-    UITableViewCell *nextSectionCell = [self.tableView cellForRowAtIndexPath:nextSectionIndexPath];
+    BDGTableViewCell *nextSectionCell = [self.tableView cellForRowAtIndexPath:nextSectionIndexPath];
     if(nextSectionCell) {
         return nextSectionCell;
     }
@@ -313,45 +329,58 @@
     return nil;
 }
 
--(id)keyboardResponderForCell:(UITableViewCell *)cell
+-(BDGTableViewCell *)previousCellFromIndexPath:(NSIndexPath *)indexPath
 {
-    //Textfield?
-    if([cell respondsToSelector:NSSelectorFromString(@"textField")]) {
-        return [cell valueForKey:@"textField"];
+    //Get previous indexPath in the same section
+    NSIndexPath *previousRowIndexPath = [NSIndexPath indexPathForRow:indexPath.row-1 inSection:indexPath.section];
+    BDGTableViewCell *previousRowCell = [self.tableView cellForRowAtIndexPath:previousRowIndexPath];
+    if(previousRowCell) {
+        return previousRowCell;
     }
     
-    //TextView?
-    if([cell respondsToSelector:NSSelectorFromString(@"textView")]) {
-        return [cell valueForKey:@"textView"];
+    //Get previous indexpath for the previous section
+    int previouSectionIndex = (int)indexPath.section-1;
+    if(!previouSectionIndex || previouSectionIndex>=self.tableArray.count) {
+        return nil;
     }
     
+    BDGTableSection *section = self.tableArray[previouSectionIndex];
+    if(!section.rows.count) {
+        return nil;
+    }
+    
+    NSIndexPath *previousSectionIndexPath = [NSIndexPath indexPathForRow:section.rows.count-1 inSection:previouSectionIndex];
+    BDGTableViewCell *previousSectionCell = [self.tableView cellForRowAtIndexPath:previousSectionIndexPath];
+    if(previousSectionCell) {
+        return previousSectionCell;
+    }
+    
+    //Nothing..
     return nil;
 }
 
--(void)nextTextField:(BDGTableRow *)row
+-(void)activateFirstResponderForCell:(BDGTableViewCell *)cell
 {
-    //Automatic?
-    if(!row.automaticNextField) {
-        [self.view endEditing:TRUE];
-        return;
-    }
-    
-    //Get next cell
-    UITableViewCell *cell = [self nextCellFromRow:row];
-    if(!cell) {
-        return;
-    }
-    
-    //Get keyboard responder
-    id responder = [self keyboardResponderForCell:cell];
-    if(responder) {
-        //Go
-        [responder becomeFirstResponder];
+    if(cell && cell.canBecomeFirstResponder) {
+        [cell becomeFirstResponder];
     }
     else {
-        //Did not find it, let's remove keyboard if any
         [self.view endEditing:TRUE];
     }
+}
+
+-(void)activateNextFieldFromIndexPath:(NSIndexPath *)indexPath
+{
+    //Get next cell
+    BDGTableViewCell *cell = [self nextCellFromIndexPath:indexPath];
+    [self activateFirstResponderForCell:cell];
+}
+
+-(void)activatePreviousFieldFromIndexPath:(NSIndexPath *)indexPath
+{
+    //Get next cell
+    BDGTableViewCell *cell = [self previousCellFromIndexPath:indexPath];
+    [self activateFirstResponderForCell:cell];
 }
 
 #pragma mark Adding/Removing Rows/Sections
@@ -554,27 +583,41 @@
 
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
-    if(section == self.tableArray.count-1) {
-        return 20.0f;
-    }
     return CGFLOAT_MIN;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    BDGTableSection *s = self.tableArray[indexPath.section];
-    BDGTableRow *row = s.rows[indexPath.row];
+    BDGTableSection *section = self.tableArray[indexPath.section];
+    BDGTableRow *row = section.rows[indexPath.row];
     
-    NSString *cellName = row.xibName.length ? row.xibName : [self defaultXIBForEnum:row.rowType];
+    NSString *cellName;
+    if(row.xibName.length) {
+        cellName = row.xibName;
+    }
+    else if(section.xibName.length) {
+        cellName = section.xibName;
+    }
+    else if(self.xibName.length) {
+        cellName = self.xibName;
+    }
+    else {
+        cellName = [self defaultXIBForEnum:row.rowType];
+    }
+    
     BDGTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellName forIndexPath:indexPath];
     cell.row = row;
     [cell setHeightUpdated:^{
         [tableView beginUpdates];
         [tableView endUpdates];
     }];
-    [cell setNextTextField:^{
-        [self nextTextField:row];
+    [cell setNextField:^{
+        [self activateNextFieldFromIndexPath:indexPath];
     }];
+    [cell setPreviousField:^{
+        [self activatePreviousFieldFromIndexPath:indexPath];
+    }];
+    
     return cell;
 }
 

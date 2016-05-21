@@ -16,7 +16,9 @@
 +(void)setupAppearance
 {
     //Progress circle
-    //[SVProgressHUD setForegroundColor:UIColorFromRGB(0xDDDDD)];
+    [SVProgressHUD setDefaultStyle:SVProgressHUDStyleCustom];
+    [SVProgressHUD setForegroundColor:[UIColor blueColor]];
+    [SVProgressHUD setBackgroundColor:[UIColor whiteColor]];
     
     //Navigation Bar
     /*

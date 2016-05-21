@@ -35,7 +35,7 @@
     self.collectionView.delegate = self;
     self.collectionView.ID = self.row.ID;
     [self.collectionView reloadData];
-    [self.row updatedValue:@(self.row.selectedTile)];
+    [self.row updatedValue:self.row.value];
     
     //Editable
     self.collectionView.userInteractionEnabled = !self.row.disableEditing;
@@ -53,7 +53,7 @@
     BDGTileCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"BDGTileCollectionViewCell" forIndexPath:indexPath];
     NSArray *tilesArray = self.row.tilesValues;
     cell.inputTile = tilesArray[indexPath.row];
-    cell.selected = cell.inputTile.ID == self.row.selectedTile;
+    cell.selected = indexPath.row == [self.row.value intValue];
     return cell;
 }
 
@@ -73,8 +73,8 @@
 {
     NSArray *tilesArray = self.row.tilesValues;
     BDGInputTile *tile = tilesArray[indexPath.row];
-    self.row.selectedTile = (int)indexPath.row;
-    [self.row updatedValue:@(self.row.selectedTile)];
+    self.row.value = @(indexPath.row);
+    [self.row updatedValue:self.row.value];
     for(BDGTileCollectionViewCell *cell in collectionView.visibleCells) {
         cell.selected = cell.inputTile == tile;
     }

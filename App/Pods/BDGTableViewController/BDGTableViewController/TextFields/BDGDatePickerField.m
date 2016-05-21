@@ -28,13 +28,14 @@
     self.datePicker = [[UIDatePicker alloc] init];
     self.datePicker.datePickerMode = UIDatePickerModeDate;
     self.datePicker.backgroundColor = [UIColor whiteColor];
+    [self.datePicker addTarget:self action:@selector(dateValueChanged) forControlEvents:UIControlEventValueChanged];
     self.inputView = self.datePicker;
     
     UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectZero];
     toolBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     UIBarButtonItem *cancel = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(dateFieldCancelled)];
-    UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dateFieldSelected)];
+    UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(dateFieldSelected)];
     [toolBar setItems:@[cancel, space, done]];
     [toolBar sizeToFit];
     self.inputAccessoryView = toolBar;
@@ -54,6 +55,14 @@
     if(self.dateCancelled) {
         self.dateCancelled();
     }    
+}
+
+-(void)dateValueChanged
+{
+    if(self.dateSelectionChanged) {
+        self.date = self.datePicker.date;
+        self.dateSelectionChanged(self.datePicker.date);
+    }
 }
 
 -(void)dateFieldSelected

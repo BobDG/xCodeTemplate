@@ -14,6 +14,7 @@
     
 }
 
+@property(nonatomic) bool takingPicture;
 @property(nonatomic) bool statusBarStyleSet;
 
 @end
@@ -24,6 +25,11 @@
 
 -(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing
 {
+    return [self initWithTitle:title allowsEditing:allowsEditing saveInCameraRoll:FALSE];
+}
+
+-(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll
+{
     self = [super init];
     if(!self) {
         return nil;
@@ -31,6 +37,7 @@
     
     self.title = title;
     self.allowsEditing = allowsEditing;
+    self.saveInCameraRoll = saveInCameraRoll;
     
     return self;
 }
@@ -48,6 +55,7 @@
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:@"" preferredStyle:UIAlertControllerStyleActionSheet];
     if([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedStringFromTable(@"TakePicture", kLocalizedTableName, @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            self.takingPicture = TRUE;
             UIImagePickerController * picker = [[UIImagePickerController alloc] init];
             picker.delegate = self;
             picker.allowsEditing = self.allowsEditing;
@@ -64,6 +72,7 @@
         }]];
     }
     [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedStringFromTable(@"ChoosePicture", kLocalizedTableName, @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        self.takingPicture = FALSE;
         UIImagePickerController * picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
         picker.allowsEditing = self.allowsEditing;
@@ -130,11 +139,20 @@
     if(!selectedImage) {
         selectedImage = [info objectForKey:UIImagePickerControllerOriginalImage];
     }
+    
+    //Completion block
     if(!self.imagePicked) {
         NSLog(@"CRASHING: You haven't set a imagePicked completion block yet....");
         //Will crash now because this is important :)
     }
     self.imagePicked(selectedImage);
+    
+    //Save camera roll
+    if(self.takingPicture && self.saveInCameraRoll) {
+        UIImageWriteToSavedPhotosAlbum(selectedImage, nil, nil, nil);
+    }
+    
+    //Dismiss
     [picker dismissViewControllerAnimated:TRUE completion:^{
         if(self.pickerDismissed) {
             self.pickerDismissed();

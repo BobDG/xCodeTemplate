@@ -18,6 +18,7 @@
 
 //Utility methods
 -(NSArray *)objectsForEntity:(NSString *)entityName;
+-(void)deleteObjectsForEntity:(NSString *)entityName;
 -(NSManagedObject *)firstObjectForEntity:(NSString *)entityName;
 -(NSManagedObject *)objectWithID:(NSString *)idStr forEntity:(NSString *)entity;
 -(NSArray *)objectsWithPredicate:(NSPredicate *)predicate entityName:(NSString *)entityName;

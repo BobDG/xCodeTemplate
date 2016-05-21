@@ -19,8 +19,15 @@
 -(void)updateCell;
 
 //Callbacks
+@property(nonatomic,copy) void (^nextField)(void);
+@property(nonatomic,copy) void (^previousField)(void);
 @property(nonatomic,copy) void (^heightUpdated)(void);
-@property(nonatomic,copy) void (^nextTextField)(void);
+
+//Next/Previous field
+-(UIToolbar *)defaultInputAccessoryViewToolbar;
+-(IBAction)doneField:(UIBarButtonItem *)sender;
+-(IBAction)nextField:(UIBarButtonItem *)sender;
+-(IBAction)previousField:(UIBarButtonItem *)sender;
 
 //Properties
 @property(nonatomic,strong) BDGTableRow *row;

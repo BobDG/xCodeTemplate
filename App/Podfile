@@ -4,6 +4,7 @@ inhibit_all_warnings!
 
 def shared_pods
     pod 'BDGShare'
+    pod 'BDGViews'
     pod 'BDGMacros'
     pod 'BDGCategories'
     pod 'BDGScreenshot'

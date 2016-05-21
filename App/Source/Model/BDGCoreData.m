@@ -97,6 +97,15 @@
     return results;
 }
 
+-(void)deleteObjectsForEntity:(NSString *)entityName
+{
+    NSArray *allObjects = [self objectsForEntity:entityName];
+    for(NSManagedObject *object in allObjects) {
+        [self.managedObjectContext deleteObject:object];
+    }
+    [self saveContext];
+}
+
 #pragma mark Saving
 
 -(void)saveContext

@@ -10,11 +10,15 @@
 
 #import "BDGTableRow.h"
 #import "BDGTableSection.h"
+#import "NSObject+PropertyName.h"
 
 @interface BDGTableViewController : UITableViewController
 {
     
 }
+
+//Xibname for all rows
+@property(nonatomic,strong) NSString *xibName;
 
 //Empty set
 @property(nonatomic) bool emptyScrollable;
@@ -42,7 +46,6 @@
 -(void)reloadCellForID:(int)rowID withRowAnimation:(UITableViewRowAnimation)animation;
 -(void)removeRowWithID:(int)rowID;
 -(BDGTableRow *)rowForID:(int)rowID;
--(void)nextTextField:(BDGTableRow *)row;
 -(void)removeSectionWithID:(int)sectionID;
 -(void)addSection:(BDGTableSection *)section;
 -(NSIndexPath *)indexPathForRowID:(int)rowID;

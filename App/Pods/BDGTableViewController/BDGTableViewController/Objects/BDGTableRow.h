@@ -20,6 +20,11 @@ typedef NS_ENUM(NSInteger, BDGTableRowType) {
     BDGRowSlider,
 };
 
+typedef NS_ENUM(NSInteger, InputAccessoryViewType) {
+    InputAccessoryViewDefault,
+    InputAccessoryViewCancelSave,
+};
+
 @interface BDGTableRow : NSObject
 {
     
@@ -31,7 +36,20 @@ typedef NS_ENUM(NSInteger, BDGTableRowType) {
 -(id)initWithID:(int)ID rowType:(BDGTableRowType)rowType;
 -(id)initWithID:(int)ID rowType:(BDGTableRowType)rowType title:(NSString *)title;
 -(id)initWithID:(int)ID rowType:(BDGTableRowType)rowType title:(NSString *)title placeholder:(NSString *)placeholder;
--(id)initWithID:(int)ID rowType:(BDGTableRowType)rowType title:(NSString *)title textValue:(NSString *)textValue placeholder:(NSString *)placeholder;
+-(id)initWithID:(int)ID rowType:(BDGTableRowType)rowType title:(NSString *)title value:(id)value placeholder:(NSString *)placeholder;
+-(id)initWithXibName:(NSString *)xibName;
+-(id)initWithXibName:(NSString *)xibName title:(NSString *)title;
+-(id)initWithXibName:(NSString *)xibName rowType:(BDGTableRowType)rowType;
+-(id)initWithXibName:(NSString *)xibName rowType:(BDGTableRowType)rowType title:(NSString *)title;
+-(id)initWithXibName:(NSString *)xibName rowType:(BDGTableRowType)rowType title:(NSString *)title placeholder:(NSString *)placeholder;
+-(id)initWithXibName:(NSString *)xibName rowType:(BDGTableRowType)rowType title:(NSString *)title value:(id)value placeholder:(NSString *)placeholder;
+-(id)initWithTitle:(NSString *)title;
+-(id)initWithRowType:(BDGTableRowType)rowType;
+-(id)initWithRowType:(BDGTableRowType)rowType title:(NSString *)title;
+-(id)initWithRowType:(BDGTableRowType)rowType title:(NSString *)title value:(id)value;
+-(id)initWithRowType:(BDGTableRowType)rowType title:(NSString *)title placeholder:(NSString *)placeholder;
+-(id)initWithRowType:(BDGTableRowType)rowType title:(NSString *)title value:(id)value placeholder:(NSString *)placeholder;
+
 
 //Methods
 -(void)updatedValue:(id)value;
@@ -47,11 +65,17 @@ typedef NS_ENUM(NSInteger, BDGTableRowType) {
 @property(nonatomic,copy) void (^doneChanging)(void);
 @property(nonatomic,copy) void (^multipleSelectionFinished)(NSMutableArray *selectedIndexPaths);
 
-//Row
+//Row primitives
 @property(nonatomic) int ID;
 @property(nonatomic) int rowHeight;
 @property(nonatomic) bool disableEditing;
+
+//Row Enums
 @property(nonatomic) BDGTableRowType rowType;
+@property(nonatomic) InputAccessoryViewType inputAccessoryViewType;
+
+//Row Reference types
+@property(nonatomic,strong) id value;
 @property(nonatomic,strong) NSString *xibName;
 
 //Object & Possible property name
@@ -106,24 +130,19 @@ typedef NS_ENUM(NSInteger, BDGTableRowType) {
 //Slider
 @property(nonatomic) int sliderMin;
 @property(nonatomic) int sliderMax;
-@property(nonatomic) float sliderValue;
 @property(nonatomic,strong) NSString *sliderLeftText;
 @property(nonatomic,strong) NSString *sliderCenterText;
 @property(nonatomic,strong) NSString *sliderRightText;
 @property(nonatomic,strong) NSString *sliderBackgroundImageName;
 
-//Switch
-@property(nonatomic) bool booleanValue;
-
 //Tiles
 @property(nonatomic) int tileHeight;
 @property(nonatomic) int tilesPerRow;
-@property(nonatomic) int selectedTile;
 @property(nonatomic,strong) NSArray *tilesValues;
 
 //Pickerview
-@property(nonatomic) int pickerSelectedIndex;
 @property(nonatomic,strong) NSArray *selectorOptions;
+@property(nonatomic,strong) NSString *pickerObjectPropertyName;
 
 //Checkmark
 @property(nonatomic) int selectedCheckmark;
@@ -133,22 +152,17 @@ typedef NS_ENUM(NSInteger, BDGTableRowType) {
 //Date
 @property(nonatomic,strong) NSDate *minDate;
 @property(nonatomic,strong) NSDate *maxDate;
-@property(nonatomic,strong) NSDate *dateValue;
 @property(nonatomic,strong) NSDate *placeholderDate;
 @property(nonatomic) UIDatePickerMode datePickerMode;
 @property(nonatomic,strong) NSDateFormatter *dateFormatter;
 
-//SegmentedControl
-@property(nonatomic) int selectedSegmentIndex;
-
 //TextField/TextView
 @property(nonatomic) bool secureTextEntry;
-@property(nonatomic) bool automaticNextField;
-@property(nonatomic,strong) NSString *textValue;
 @property(nonatomic) UIKeyboardType keyboardType;
+@property(nonatomic) UITextAutocapitalizationType capitalizationType;
 @property(nonatomic,strong) NSString *placeholder;
+@property(nonatomic,strong) NSFormatter *formatter;
 @property(nonatomic,strong) UIColor *placeholderColor;
-@property(nonatomic,strong) NSNumberFormatter *numberFormatter;
 
 //MultipleSelector
 @property(nonatomic) bool disableMultipleSelection;

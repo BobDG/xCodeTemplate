@@ -1,0 +1,1 @@
+../../../BDGTableViewController/BDGTableViewController/Categories/NSObject+PropertyName.h

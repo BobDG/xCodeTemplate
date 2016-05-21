@@ -51,7 +51,7 @@
     //Slider
     self.slider.minimumValue = self.row.sliderMin;
     self.slider.maximumValue = self.row.sliderMax;
-    self.slider.value = self.row.sliderValue;
+    self.slider.value = [self.row.value floatValue];
     
     //Editable
     self.slider.userInteractionEnabled = !self.row.disableEditing;
@@ -59,14 +59,32 @@
 
 -(IBAction)sliderChanged:(id)sender
 {
-    self.row.sliderValue = self.slider.value;
-    [self.row updatedValue:@(self.slider.value)];
+    self.row.value = @(self.slider.value);
+    [self.row updatedValue:self.row.value];
 }
 
 -(IBAction)sliderDone:(id)sender
 {
-    self.row.sliderValue = self.slider.value;
-    [self.row didUpdateValue:@(self.slider.value)];
+    self.row.value = @(self.slider.value);
+    [self.row didUpdateValue:self.row.value];
 }
 
 @end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

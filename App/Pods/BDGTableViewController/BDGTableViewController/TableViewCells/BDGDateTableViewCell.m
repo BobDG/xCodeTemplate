@@ -7,11 +7,21 @@
 
 #import "BDGDateTableViewCell.h"
 
+@interface BDGTableViewCell () <UITextFieldDelegate>
+
+@end
+
 @implementation BDGDateTableViewCell
 
 -(void)updateCell
 {
-    self.date = self.row.dateValue;
+    //AccessoryInputView
+    [self updateAccessoryInputView];
+    
+    //Delegate
+    self.dateField.delegate = self;
+    
+    self.date = self.row.value;
     self.dateFormatter = self.row.dateFormatter;
     self.dateField.placeholder = self.row.placeholder;
     self.dateField.datePicker.datePickerMode = self.row.datePickerMode;
@@ -36,7 +46,7 @@
     
     //Placeholder color
     if(self.row.placeholder.length && self.row.placeholderColor) {
-        self.dateField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.dateField.text attributes:@{NSForegroundColorAttributeName:self.row.placeholderColor}];
+        self.dateField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.row.placeholder attributes:@{NSForegroundColorAttributeName:self.row.placeholderColor}];
     }
     
     //Editable
@@ -57,18 +67,66 @@
         [weakSelf.dateField resignFirstResponder];
     }];
     [self.dateField setDateSelected:^(NSDate *date) {
-        weakSelf.date = date;
-        weakSelf.row.dateValue = date;
-        if(weakSelf.dateFormatter) {
-            weakSelf.dateField.text = [[self.dateFormatter stringFromDate:date] capitalizedString];
-        }
-        [weakSelf.row updatedValue:date];
+        [weakSelf updateSelectedDate:date];
     }];
+}
+
+-(void)updateAccessoryInputView
+{
+    //Only for default inputAccessoryView
+    if(self.row.inputAccessoryViewType == InputAccessoryViewDefault) {
+        //Get toolbar
+        self.dateField.inputAccessoryView = [self defaultInputAccessoryViewToolbar];
+        
+        //Update
+        __weak __typeof(self)weakSelf = self;
+        [self.dateField setDateSelectionChanged:^(NSDate *date) {
+            [weakSelf updateSelectedDate:date];
+        }];
+    }
 }
 
 -(IBAction)cellTapped:(id)sender
 {
     [self.dateField becomeFirstResponder];
+}
+
+-(void)updateSelectedDate:(NSDate *)date
+{
+    self.date = date;
+    self.row.value = date;
+    if(self.dateFormatter) {
+        self.dateField.text = [[self.dateFormatter stringFromDate:date] capitalizedString];
+    }
+    [self.row updatedValue:date];
+}
+
+#pragma mark - UITextField Delegate
+
+-(void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    if(self.row.inputAccessoryViewType == InputAccessoryViewCancelSave) {
+        return;
+    }
+    
+    if(self.dateField.text.length) {
+        return;
+    }
+    
+    //Go
+    [self updateSelectedDate:self.dateField.datePicker.date];
+}
+
+#pragma mark - FirstResponder
+
+-(BOOL)canBecomeFirstResponder
+{
+    return TRUE;
+}
+
+-(BOOL)becomeFirstResponder
+{
+    return [self.dateField becomeFirstResponder];
 }
 
 @end

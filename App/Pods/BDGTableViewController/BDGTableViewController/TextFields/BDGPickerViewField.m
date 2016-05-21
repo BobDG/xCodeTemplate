@@ -35,7 +35,7 @@
     toolBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     UIBarButtonItem *cancel = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(pickerFieldCancelled)];
-    UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(pickerFieldSelected)];
+    UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(pickerFieldSelected)];
     [toolBar setItems:@[cancel, space, done]];
     [toolBar sizeToFit];
     self.inputAccessoryView = toolBar;
@@ -86,6 +86,13 @@
 -(NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
     return self.pickerValues[row];
+}
+
+-(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
+{
+    if(self.pickerSelectionChanged) {
+        self.pickerSelectionChanged((int)row);
+    }
 }
 
 @end

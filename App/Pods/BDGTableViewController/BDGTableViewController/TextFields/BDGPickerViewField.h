@@ -18,5 +18,6 @@
 @property(nonatomic,strong) UIPickerView *pickerView;
 @property(nonatomic,copy) void (^pickerCancelled)(void);
 @property(nonatomic,copy) void (^pickerSelected)(int index);
+@property(nonatomic,copy) void (^pickerSelectionChanged)(int index);
 
 @end

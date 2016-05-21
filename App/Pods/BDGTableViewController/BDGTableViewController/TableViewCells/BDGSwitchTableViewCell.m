@@ -11,13 +11,13 @@
 
 -(IBAction)cellSwitched:(id)sender
 {
-    self.row.booleanValue = self.cellSwitch.on;
-    [self.row updatedValue:@(self.cellSwitch.on)];
+    self.row.value = @(self.cellSwitch.on);
+    [self.row updatedValue:self.row.value];
 }
 
 -(void)updateCell
 {
-    self.cellSwitch.on = self.row.booleanValue;
+    self.cellSwitch.on = [self.row.value boolValue];
     
     //Editable
     self.cellSwitch.userInteractionEnabled = !self.row.disableEditing;

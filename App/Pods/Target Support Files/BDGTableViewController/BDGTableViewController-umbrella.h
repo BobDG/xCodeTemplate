@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 
 #import "BDGTableViewController.h"
+#import "NSObject+PropertyName.h"
 #import "BDGTileCollectionViewCell.h"
 #import "BDGTilesCollectionView.h"
 #import "BDGInputTile.h"

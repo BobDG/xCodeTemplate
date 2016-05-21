@@ -12,15 +12,23 @@
 
 @implementation BDGTableViewCell
 
-- (void)awakeFromNib {
+#pragma mark - Awake
+
+-(void)awakeFromNib
+{
     // Initialization code
 }
 
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+#pragma mark - Selected
+
+-(void)setSelected:(BOOL)selected animated:(BOOL)animated
+{
     [super setSelected:selected animated:animated];
 
     // Configure the view for the selected state
 }
+
+#pragma mark - Update
 
 -(void)updateCell
 {
@@ -67,7 +75,7 @@
         [self.buttonRight setTitle:self.row.buttonRightTitle forState:UIControlStateNormal];
     }
     
-    //Update additionally
+    //Update cell (for subclasses)
     [self updateCell];
 }
 
@@ -128,5 +136,52 @@
         imageView.image = [imageView.image imageWithRenderingMode:renderingMode];
     }
 }
+
+#pragma mark - FirstResponder
+
+-(BOOL)canBecomeFirstResponder
+{
+    return FALSE;
+}
+
+#pragma mark - Next/Previous fields
+
+-(UIToolbar *)defaultInputAccessoryViewToolbar
+{
+    UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectZero];
+    toolBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    UIBarButtonItem *previousBB = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Arrow_Left" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] style:UIBarButtonItemStylePlain target:self action:@selector(previousField:)];
+    UIBarButtonItem *fixedSpaceBB = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+    fixedSpaceBB.width = 20.0f;
+    UIBarButtonItem *nextBB = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Arrow_Right" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] style:UIBarButtonItemStylePlain target:self action:@selector(nextField:)];
+    UIBarButtonItem *flexibleSpaceBB = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    UIBarButtonItem *doneBB = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneField:)];
+    [toolBar setItems:@[previousBB, fixedSpaceBB, nextBB, flexibleSpaceBB, doneBB]]; 
+    [toolBar sizeToFit];
+    return toolBar;
+}
+
+-(IBAction)nextField:(UIBarButtonItem *)sender
+{
+    if(self.nextField) {
+        self.nextField();
+    }
+}
+
+-(IBAction)previousField:(UIBarButtonItem *)sender
+{
+    if(self.previousField) {
+        self.previousField();
+    }
+}
+
+-(IBAction)doneField:(UIBarButtonItem *)sender
+{
+    [self endEditing:TRUE];
+    if(self.row.doneChanging) {
+        self.row.doneChanging();
+    }
+}
+
 
 @end

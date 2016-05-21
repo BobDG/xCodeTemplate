@@ -22,9 +22,8 @@
 
 -(void)updateCell
 {
-    if(self.row.textValue.length) {
-        self.textView.text = self.row.textValue;
-    }
+    self.textView.text = self.row.value;
+    
     if(self.row.placeholder.length) {
         self.textView.placeholder = self.row.placeholder;
     }
@@ -34,18 +33,25 @@
 }
 
 -(void)awakeFromNib
-{
-    UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectZero];
-    toolBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-    UIBarButtonItem *done = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)];
-    [toolBar setItems:@[space, done]];
-    [toolBar sizeToFit];
-    self.textView.inputAccessoryView = toolBar;
-    
+{    
     //Set constant
     self.previousHeight = self.textViewHeightConstraint.constant;
     self.preferredHeightOneLine = self.previousHeight;
+    
+    //AccessoryInputView
+    UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectZero];
+    toolBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    NSMutableArray *barbuttonItemsArray = [NSMutableArray new];
+    [barbuttonItemsArray addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Arrow_Left" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] style:UIBarButtonItemStylePlain target:self action:@selector(previousField:)]];
+    UIBarButtonItem *fixedSpaceBB = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+    fixedSpaceBB.width = 20.0f;
+    [barbuttonItemsArray addObject:fixedSpaceBB];
+    [barbuttonItemsArray addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Arrow_Right" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] style:UIBarButtonItemStylePlain target:self action:@selector(nextField:)]];
+    [barbuttonItemsArray addObject:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil]];
+    [barbuttonItemsArray addObject:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)]];
+    [toolBar setItems:barbuttonItemsArray];
+    [toolBar sizeToFit];
+    self.textView.inputAccessoryView = toolBar;
 }
 
 -(void)setSelected:(BOOL)selected animated:(BOOL)animated
@@ -85,9 +91,21 @@
         }
     }
     
-    self.row.textValue = textView.text;
-    [self.row updatedValue:self.row.textValue];
+    self.row.value = textView.text;
+    [self.row updatedValue:self.row.value];
 }
+#pragma mark - FirstResponder
+
+-(BOOL)canBecomeFirstResponder
+{
+    return TRUE;
+}
+
+-(BOOL)becomeFirstResponder
+{
+    return [self.textView becomeFirstResponder];
+}
+
 
 @end
 

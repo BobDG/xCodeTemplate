@@ -78,7 +78,7 @@
     return self;
 }
 
--(id)initWithID:(int)ID rowType:(BDGTableRowType)rowType title:(NSString *)title textValue:(NSString *)textValue placeholder:(NSString *)placeholder
+-(id)initWithID:(int)ID rowType:(BDGTableRowType)rowType title:(NSString *)title value:(id)value placeholder:(NSString *)placeholder
 {
     self = [super init];
     if(!self) {
@@ -88,16 +88,182 @@
     self.ID = ID;
     self.title = title;
     self.rowType = rowType;
-    self.textValue = textValue;
+    self.value = value;
     self.placeholder = placeholder;
     
     return self;
 }
 
+-(id)initWithXibName:(NSString *)xibName
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.xibName = xibName;
+    
+    return self;
+}
+
+-(id)initWithXibName:(NSString *)xibName title:(NSString *)title
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.xibName = xibName;
+    self.title = title;
+    
+    return self;
+}
+
+-(id)initWithXibName:(NSString *)xibName rowType:(BDGTableRowType)rowType
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.xibName = xibName;
+    self.rowType = rowType;
+    
+    return self;
+}
+
+-(id)initWithXibName:(NSString *)xibName rowType:(BDGTableRowType)rowType title:(NSString *)title
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.xibName = xibName;
+    self.title = title;
+    self.rowType = rowType;
+    
+    return self;
+}
+
+-(id)initWithXibName:(NSString *)xibName rowType:(BDGTableRowType)rowType title:(NSString *)title placeholder:(NSString *)placeholder
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.xibName = xibName;
+    self.title = title;
+    self.rowType = rowType;
+    self.placeholder = placeholder;
+    
+    return self;
+}
+
+-(id)initWithXibName:(NSString *)xibName rowType:(BDGTableRowType)rowType title:(NSString *)title value:(id)value placeholder:(NSString *)placeholder
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.xibName = xibName;
+    self.title = title;
+    self.rowType = rowType;
+    self.value = value;
+    self.placeholder = placeholder;
+    
+    return self;
+}
+
+-(id)initWithTitle:(NSString *)title
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.title = title;
+    
+    return self;
+}
+
+-(id)initWithRowType:(BDGTableRowType)rowType
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.rowType = rowType;
+    
+    return self;
+}
+
+-(id)initWithRowType:(BDGTableRowType)rowType title:(NSString *)title
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.title = title;
+    self.rowType = rowType;
+    
+    return self;
+}
+
+-(id)initWithRowType:(BDGTableRowType)rowType title:(NSString *)title value:(id)value
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.title = title;
+    self.rowType = rowType;
+    self.value = value;
+    
+    return self;
+}
+
+-(id)initWithRowType:(BDGTableRowType)rowType title:(NSString *)title placeholder:(NSString *)placeholder
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.title = title;
+    self.rowType = rowType;
+    self.placeholder = placeholder;
+    
+    return self;
+}
+
+-(id)initWithRowType:(BDGTableRowType)rowType title:(NSString *)title value:(id)value placeholder:(NSString *)placeholder
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    
+    self.title = title;
+    self.rowType = rowType;
+    self.value = value;
+    self.placeholder = placeholder;
+    
+    return self;
+}
+
+#pragma mark - Object & updated
+
 -(void)setAffectedObject:(id)affectedObject affectedPropertyName:(NSString *)affectedPropertyName
 {
     self.object = affectedObject;
     self.propertyName = affectedPropertyName;
+    self.value = [self.object valueForKey:self.propertyName];    
 }
 
 -(void)didUpdateValue:(id)value
@@ -107,8 +273,7 @@
     }
     if(self.doneChanging) {
         self.doneChanging();
-    }
-    
+    }    
 }
 
 -(void)updatedValue:(id)value

@@ -39,6 +39,7 @@
 +(void)setupThirdParties
 {
     [[BITHockeyManager sharedHockeyManager] configureWithIdentifier:[[[NSBundle mainBundle] infoDictionary]objectForKey:@"HockeyApp"]];
+    [BITHockeyManager sharedHockeyManager].disableMetricsManager = YES;
     [[BITHockeyManager sharedHockeyManager] startManager];
 }
 

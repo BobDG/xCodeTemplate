@@ -8,15 +8,41 @@
 
 #import "BDGPickerViewTableViewCell.h"
 
+@interface BDGPickerViewTableViewCell () <UITextFieldDelegate>
+
+@end
+
 @implementation BDGPickerViewTableViewCell
 
 -(void)updateCell
 {
-    self.pickerField.pickerValues = self.row.selectorOptions;
+    //AccessoryInputView
+    [self updateAccessoryInputView];
     
+    //Delegate
+    self.pickerField.delegate = self;
+    
+    //PickerValues (use immediate strings or possible object titles)
+    NSString *textValue;
+    NSMutableArray *pickerValues = [NSMutableArray new];
+    if(self.row.pickerObjectPropertyName.length) {
+        for(id object in self.row.selectorOptions) {
+            [pickerValues addObject:[object valueForKey:self.row.pickerObjectPropertyName]];
+        }
+        if(self.row.value) {
+            textValue = [self.row.value valueForKey:self.row.pickerObjectPropertyName];
+        }
+    }
+    else {
+        textValue = self.row.value;
+        [pickerValues addObjectsFromArray:self.row.selectorOptions];
+    }
+    self.pickerField.pickerValues = pickerValues;
+    
+    //Get index
     NSUInteger index = NSNotFound;
-    if(self.row.textValue.length) {
-        index = [self.row.selectorOptions indexOfObject:self.row.textValue];
+    if(textValue.length) {
+        index = [pickerValues indexOfObject:textValue];
     }
     
     //Placeholder
@@ -24,19 +50,20 @@
     
     //Placeholder color
     if(self.row.placeholder.length && self.row.placeholderColor) {
-        self.pickerField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.pickerField.text attributes:@{NSForegroundColorAttributeName:self.row.placeholderColor}];
+        self.pickerField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.row.placeholder attributes:@{NSForegroundColorAttributeName:self.row.placeholderColor}];
     }
     
-    //Index
+    //No index check
     if(index == NSNotFound) {
         self.pickerField.text = @"";
         return;
-    }    
-    self.row.pickerSelectedIndex = (int)index;
-    if(self.row.pickerSelectedIndex < self.row.selectorOptions.count) {
-        self.pickerField.text = self.row.selectorOptions[self.row.pickerSelectedIndex];
     }
-    self.pickerField.selectedIndex = self.row.pickerSelectedIndex;
+    
+    //Update index row & field
+    if(index < pickerValues.count) {
+        self.pickerField.text = pickerValues[index];
+    }
+    self.pickerField.selectedIndex = (int)index;
     
     //Editable
     self.pickerField.userInteractionEnabled = !self.row.disableEditing;
@@ -50,12 +77,23 @@
     }];
     [self.pickerField setPickerSelected:^(int index) {
         [weakSelf resignFirstResponder];
-        self.row.pickerSelectedIndex = index;
-        if(index < self.row.selectorOptions.count) {
-            self.pickerField.text = self.row.selectorOptions[index];
-        }
-        [self.row updatedValue:@(index)];
+        [weakSelf updateSelectedIndex:index];
     }];
+}
+
+-(void)updateAccessoryInputView
+{
+    //Only for default inputAccessoryView
+    if(self.row.inputAccessoryViewType == InputAccessoryViewDefault) {
+        //Get toolbar
+        self.pickerField.inputAccessoryView = [self defaultInputAccessoryViewToolbar];
+        
+        //Update for changes
+        __weak __typeof(self)weakSelf = self;
+        [self.pickerField setPickerSelectionChanged:^(int index) {
+            [weakSelf updateSelectedIndex:index];
+        }];
+    }
 }
 
 -(void)setSelected:(BOOL)selected animated:(BOOL)animated
@@ -63,6 +101,52 @@
     if(selected) {
         [self.pickerField becomeFirstResponder];
     }
+}
+
+-(void)updateSelectedIndex:(int)index
+{
+    if(index < self.pickerField.pickerValues.count) {
+        //Value
+        self.row.value = self.row.selectorOptions[index];
+        
+        //Field text from strings or object
+        self.pickerField.text = self.pickerField.pickerValues[index];
+        
+        //Set field text
+        [self.row updatedValue:self.row.value];
+    }
+}
+
+#pragma mark - UITextField Delegate
+
+-(void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    if(self.row.inputAccessoryViewType == InputAccessoryViewCancelSave) {
+        return;
+    }
+    
+    if(self.pickerField.text.length) {
+        return;
+    }
+    
+    if(!self.row.selectorOptions.count) {
+        return;
+    }
+    
+    //Go
+    [self updateSelectedIndex:0];
+}
+
+#pragma mark - FirstResponder
+
+-(BOOL)canBecomeFirstResponder
+{
+    return TRUE;
+}
+
+-(BOOL)becomeFirstResponder
+{
+    return [self.pickerField becomeFirstResponder];
 }
 
 @end

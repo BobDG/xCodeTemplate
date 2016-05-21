@@ -1,2 +1,5 @@
 /* Localized versions of Strings */
 
+/*** Errors ***/
+"Error_Popup_API_General"                           =   "Error connecting to the server. Please check your internet connection and/or try again";
+"Error_Popup_API_SessionExpired"                    =   "Your session has expired, please login to continue";

@@ -17,12 +17,13 @@
         [self.segmentedControl insertSegmentWithTitle:self.row.selectorOptions[i] atIndex:i animated:FALSE];
     }
     
-    self.segmentedControl.selectedSegmentIndex = self.row.selectedSegmentIndex;
+    self.segmentedControl.selectedSegmentIndex = [self.row.value intValue];
 }
 
 -(IBAction)segmentedChanged
 {
-    [self.row updatedValue:@(self.segmentedControl.selectedSegmentIndex)];
+    self.row.value = @(self.segmentedControl.selectedSegmentIndex);
+    [self.row updatedValue:self.row.value];
 }
 
 @end

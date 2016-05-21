@@ -15,12 +15,14 @@
 
 //Quick constructors
 -(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing;
+-(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll;
 
 //Optional properties
 @property(nonatomic) bool video;
 @property(nonatomic) bool frontCamera;
 @property(nonatomic) bool allowsEditing;
 @property(nonatomic) bool statusBarHidden;
+@property(nonatomic) bool saveInCameraRoll;
 @property(nonatomic,strong) NSString *title;
 @property(nonatomic) UIStatusBarStyle statusBarStyle;
 

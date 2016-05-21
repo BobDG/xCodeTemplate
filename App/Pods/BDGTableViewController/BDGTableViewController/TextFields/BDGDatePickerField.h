@@ -16,5 +16,6 @@
 @property(nonatomic,strong) UIDatePicker *datePicker;
 @property(nonatomic,copy) void (^dateCancelled)(void);
 @property(nonatomic,copy) void (^dateSelected)(NSDate *date);
+@property(nonatomic,copy) void (^dateSelectionChanged)(NSDate *date);
 
 @end

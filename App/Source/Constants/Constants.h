@@ -9,6 +9,7 @@
 #import "BDGCoreData.h"
 #import "AppDelegate.h"
 #import "AppAppearance.h"
+#import "SVProgressHUD.h"
 
 //Storyboards
 #define SBMain                      @"Main"

@@ -29,6 +29,7 @@
 		<string>fb</string>
 		<string>twitter</string>
 		<string>whatsapp</string>
+		<string>cydia</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
