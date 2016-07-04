@@ -7,8 +7,6 @@
 
 #import "BDGImagePicker.h"
 
-#define kLocalizedTableName         @"BGIP_Localizable"
-
 @interface BDGImagePicker () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 {
     
@@ -30,12 +28,30 @@
 
 -(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll
 {
+    return [self initWithTitle:title allowsEditing:allowsEditing saveInCameraRoll:FALSE takePhoto:nil choosePhoto:nil];
+}
+
+-(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing takePhoto:(NSString *)takePhoto choosePhoto:(NSString *)choosePhoto
+{
+    return [self initWithTitle:title allowsEditing:allowsEditing saveInCameraRoll:FALSE takePhoto:nil choosePhoto:nil];
+}
+
+-(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll takePhoto:(NSString *)takePhoto choosePhoto:(NSString *)choosePhoto
+{
+    return [self initWithTitle:title allowsEditing:allowsEditing saveInCameraRoll:FALSE takePhoto:nil choosePhoto:nil cancel:nil];
+}
+
+-(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll takePhoto:(NSString *)takePhoto choosePhoto:(NSString *)choosePhoto cancel:(NSString *)cancel
+{
     self = [super init];
     if(!self) {
         return nil;
     }
     
     self.title = title;
+    self.cancel = cancel;
+    self.takePhoto = takePhoto;
+    self.choosePhoto = choosePhoto;
     self.allowsEditing = allowsEditing;
     self.saveInCameraRoll = saveInCameraRoll;
     
@@ -51,10 +67,13 @@
 
 -(void)pickImageFromViewController:(UIViewController *)viewController sourceRect:(CGRect)sourceRect
 {
-    NSString *title = self.title ? self.title : @"";
+    NSString *title = self.title.length ? self.title : @"";
+    NSString *cancel = self.cancel.length ? self.cancel : @"Cancel";
+    NSString *takePhoto = self.takePhoto.length ? self.takePhoto : @"Take photo";
+    NSString *choosePhoto = self.choosePhoto.length ? self.choosePhoto : @"Choose photo";
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:@"" preferredStyle:UIAlertControllerStyleActionSheet];
     if([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
-        [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedStringFromTable(@"TakePicture", kLocalizedTableName, @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [alertController addAction:[UIAlertAction actionWithTitle:takePhoto style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             self.takingPicture = TRUE;
             UIImagePickerController * picker = [[UIImagePickerController alloc] init];
             picker.delegate = self;
@@ -71,7 +90,7 @@
             CFRunLoopWakeUp(CFRunLoopGetCurrent());
         }]];
     }
-    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedStringFromTable(@"ChoosePicture", kLocalizedTableName, @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    [alertController addAction:[UIAlertAction actionWithTitle:choosePhoto style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         self.takingPicture = FALSE;
         UIImagePickerController * picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
@@ -81,7 +100,7 @@
         }];
         CFRunLoopWakeUp(CFRunLoopGetCurrent());
     }]];
-    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedStringFromTable(@"Cancel", kLocalizedTableName, @"") style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+    [alertController addAction:[UIAlertAction actionWithTitle:cancel style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
         
     }]];
     if(!CGRectIsEmpty(sourceRect)) {

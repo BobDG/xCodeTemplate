@@ -6,13 +6,20 @@
 //  Copyright © 2016 GraafICT. All rights reserved.
 //
 
-#import <BDGTableViewController/BDGTableViewController.h>
+#import "BlazeTableViewController.h"
 
-#define XIBImageTableViewCell           @"ImageTableViewCell"
-#define XIBButtonTableViewCell          @"ButtonTableViewCell"
-#define XIBTextFieldTableViewCell       @"TextFieldTableViewCell"
+#define XIBTextTableViewCell                @"TextTableViewCell"
+#define XIBImageTableViewCell               @"ImageTableViewCell"
+#define XIBButtonTableViewCell              @"ButtonTableViewCell"
+#define XIBTextFieldTableViewCell           @"TextFieldTableViewCell"
+#define XIBCenterTextTableViewCell          @"CenterTextTableViewCell"
+#define XIBEmptySpaceTableViewCell          @"EmptySpaceTableViewCell"
+#define XIBTextButtonTableViewCell          @"TextButtonTableViewCell"
+#define XIBCircleImageTableViewCell         @"CircleImageTableViewCell"
+#define XIBFloatTextFieldTableViewCell      @"FloatTextFieldTableViewCell"
+#define XIBSmallTextButtonTableViewCell     @"SmallTextButtonTableViewCell"
 
-@interface BaseTableViewController : BDGTableViewController
+@interface BaseTableViewController : BlazeTableViewController
 {
     
 }

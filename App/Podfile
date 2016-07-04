@@ -3,20 +3,21 @@ use_frameworks!
 inhibit_all_warnings!
 
 def shared_pods
+    pod 'Blaze'
     pod 'BDGShare'
     pod 'BDGViews'
     pod 'BDGMacros'
     pod 'BDGCategories'
     pod 'BDGScreenshot'
     pod 'BDGImagePicker'
-    pod 'BDGTableViewController'
     
     pod 'HockeySDK'
     pod 'AFNetworking'
     pod 'SVProgressHUD'
     pod 'DTTJailbreakDetection'
+    pod 'JVFloatLabeledTextField'
 end
 
-target "Template" do
+target 'Template' do
     shared_pods
 end

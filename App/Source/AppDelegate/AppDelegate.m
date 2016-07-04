@@ -28,7 +28,7 @@
 {
     //Check jailbreak
     if([DTTJailbreakDetection isJailbroken]) {
-        showM2(NSLocalizedString(@"Let op", @""), NSLocalizedString(@"Uw apparaat is gejailbreakt.\nWij staan niet in voor de veiligheid van opgeslagen gegevens.", @""));
+        showM2(NSLocalizedString(@"Jailbrake_Popup_Title", @""), NSLocalizedString(@"Jailbrake_Popup_Message", @""));
     }
     
     //Data protection

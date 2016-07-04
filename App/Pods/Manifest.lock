@@ -15,19 +15,20 @@ PODS:
   - AFNetworking/UIKit (3.1.0):
     - AFNetworking/NSURLSession
   - BDGCategories (0.0.8)
-  - BDGImagePicker (0.0.7)
-  - BDGMacros (0.0.15)
+  - BDGImagePicker (0.0.8)
+  - BDGMacros (0.0.16)
   - BDGScreenshot (0.0.2)
   - BDGShare (0.0.11)
-  - BDGTableViewController (0.0.21):
+  - BDGViews (0.0.1)
+  - Blaze (0.0.3):
     - AFNetworking
     - DZNEmptyDataSet
-  - BDGViews (0.0.1)
   - DTTJailbreakDetection (0.4.0)
-  - DZNEmptyDataSet (1.8)
-  - HockeySDK (4.0.0):
-    - HockeySDK/AllFeaturesLib (= 4.0.0)
-  - HockeySDK/AllFeaturesLib (4.0.0)
+  - DZNEmptyDataSet (1.8.1)
+  - HockeySDK (4.0.1):
+    - HockeySDK/AllFeaturesLib (= 4.0.1)
+  - HockeySDK/AllFeaturesLib (4.0.1)
+  - JVFloatLabeledTextField (1.1.0)
   - SVProgressHUD (2.0.3)
 
 DEPENDENCIES:
@@ -37,24 +38,28 @@ DEPENDENCIES:
   - BDGMacros
   - BDGScreenshot
   - BDGShare
-  - BDGTableViewController
   - BDGViews
+  - Blaze
   - DTTJailbreakDetection
   - HockeySDK
+  - JVFloatLabeledTextField
   - SVProgressHUD
 
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
   BDGCategories: 942fcc34510bd1b8b8ee537020320d76db821a02
-  BDGImagePicker: 60b26d395957d1cbe8c2326144589e5506a943bd
-  BDGMacros: 19c1e04b83ed87cffffc245ba126d357c958af9b
+  BDGImagePicker: ae29134be1b3c6decdd9005a0f5afbcc79496f6a
+  BDGMacros: e2018adfb2fd00c4ab41fbb3bc93c38e5165da92
   BDGScreenshot: f493d124c9935132da9e0ca9e8f2e6be180f7dd5
   BDGShare: 32748bcc08221d403115d68d76f9ee9ed1734883
-  BDGTableViewController: 48ca3f133e71d62a4f6d6f267d1e631370a41a79
   BDGViews: db364b96a02d02b8b5aba3f0b3dea798506d683f
+  Blaze: 199013662426e19df39371c5f443dbab1dd57b4e
   DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
-  DZNEmptyDataSet: d2351b2e8daefa40433ef292e246e21f6be31a7b
-  HockeySDK: 6d9076ec15fb48512ec5b01fc27ec9c684106898
+  DZNEmptyDataSet: 9525833b9e68ac21c30253e1d3d7076cc828eaa7
+  HockeySDK: 1b69a82782f6a3d4a1c0b1f04dca4bca83fc8c82
+  JVFloatLabeledTextField: ea4a3d8387ddd43724c472bb2b8ab39b79af05d4
   SVProgressHUD: b0830714205bea1317ea1a2ebc71e5633af334d4
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: 050cca6cb063b841e715910e6f9d13b5c9124b0b
+
+COCOAPODS: 1.0.1

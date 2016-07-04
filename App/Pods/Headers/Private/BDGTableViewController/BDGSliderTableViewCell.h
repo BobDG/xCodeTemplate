@@ -1,1 +1,0 @@
-../../../BDGTableViewController/BDGTableViewController/TableViewCells/BDGSliderTableViewCell.h

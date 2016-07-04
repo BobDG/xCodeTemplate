@@ -21,7 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		70CDB749907C0AC3424FAE87 /* Pods_Template.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF81EA4D7AC2129CD9A5B8A3 /* Pods_Template.framework */; };
+		A89846031D572349E9BD1A85 /* Pods_Template.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80B4D3B7644F90E47A869510 /* Pods_Template.framework */; };
 		ED0919BE1C9D7C8D0078C1AA /* Template.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = ED0919BC1C9D7C8D0078C1AA /* Template.xcdatamodeld */; };
 		ED2E612A1C9D7851000441E4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED2E61291C9D7851000441E4 /* main.m */; };
 		ED2E61331C9D7851000441E4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ED2E61311C9D7851000441E4 /* Main.storyboard */; };
@@ -42,18 +42,25 @@
 		ED2E616F1C9D78F5000441E4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = ED2E61661C9D78F5000441E4 /* InfoPlist.strings */; };
 		ED2E61701C9D78F5000441E4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ED2E61671C9D78F5000441E4 /* Localizable.strings */; };
 		ED4103021CEDCCC900F0115E /* ErrorHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4103011CEDCCC900F0115E /* ErrorHandler.m */; };
-		EDD4BE871CD8CBB5003B28BA /* ButtonTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDD4BE851CD8CBB5003B28BA /* ButtonTableViewCell.xib */; };
-		EDD4BE881CD8CBB5003B28BA /* ImageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDD4BE861CD8CBB5003B28BA /* ImageTableViewCell.xib */; };
+		EDBD398F1D2A89D90015D214 /* ButtonTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */; };
+		EDBD39901D2A89D90015D214 /* CenterTextTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39861D2A89D90015D214 /* CenterTextTableViewCell.xib */; };
+		EDBD39911D2A89D90015D214 /* CircleImageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39871D2A89D90015D214 /* CircleImageTableViewCell.xib */; };
+		EDBD39921D2A89D90015D214 /* EmptySpaceTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39881D2A89D90015D214 /* EmptySpaceTableViewCell.xib */; };
+		EDBD39931D2A89D90015D214 /* FloatTextFieldTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39891D2A89D90015D214 /* FloatTextFieldTableViewCell.xib */; };
+		EDBD39941D2A89D90015D214 /* ImageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD398A1D2A89D90015D214 /* ImageTableViewCell.xib */; };
+		EDBD39951D2A89D90015D214 /* SmallTextButtonTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD398B1D2A89D90015D214 /* SmallTextButtonTableViewCell.xib */; };
+		EDBD39961D2A89D90015D214 /* TextButtonTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD398C1D2A89D90015D214 /* TextButtonTableViewCell.xib */; };
+		EDBD39971D2A89D90015D214 /* TextFieldTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD398D1D2A89D90015D214 /* TextFieldTableViewCell.xib */; };
+		EDBD39981D2A89D90015D214 /* TextTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD398E1D2A89D90015D214 /* TextTableViewCell.xib */; };
 		EDD4BE8C1CD8CBD6003B28BA /* BaseTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD4BE8B1CD8CBD6003B28BA /* BaseTableViewController.m */; };
 		EDD4BE8F1CD8CBE2003B28BA /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD4BE8E1CD8CBE2003B28BA /* ViewController.m */; };
-		EDD4BE931CD8CE9A003B28BA /* TextFieldTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDD4BE921CD8CE9A003B28BA /* TextFieldTableViewCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		20DF8E7D32E9350C5BB8B2A6 /* Pods-Template.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Template.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Template/Pods-Template.debug.xcconfig"; sourceTree = "<group>"; };
-		3B6BD5CFB9836EB2B3F6BC84 /* Pods-Template.appstore.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Template.appstore.xcconfig"; path = "Pods/Target Support Files/Pods-Template/Pods-Template.appstore.xcconfig"; sourceTree = "<group>"; };
-		9258CD984D987BF0166DAA26 /* Pods-Template.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Template.release.xcconfig"; path = "Pods/Target Support Files/Pods-Template/Pods-Template.release.xcconfig"; sourceTree = "<group>"; };
-		AF81EA4D7AC2129CD9A5B8A3 /* Pods_Template.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Template.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A3D50DB71DC95641D081AA1 /* Pods-Template.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Template.release.xcconfig"; path = "Pods/Target Support Files/Pods-Template/Pods-Template.release.xcconfig"; sourceTree = "<group>"; };
+		3F82845839B5DEC9B032B332 /* Pods-Template.appstore.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Template.appstore.xcconfig"; path = "Pods/Target Support Files/Pods-Template/Pods-Template.appstore.xcconfig"; sourceTree = "<group>"; };
+		80B4D3B7644F90E47A869510 /* Pods_Template.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Template.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9FDC0EFCDDA3494102FBF166 /* Pods-Template.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Template.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Template/Pods-Template.debug.xcconfig"; sourceTree = "<group>"; };
 		ED0919B91C9D7B960078C1AA /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Constants.h; path = Constants/Constants.h; sourceTree = "<group>"; };
 		ED0919BA1C9D7B960078C1AA /* Enums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Enums.h; path = Constants/Enums.h; sourceTree = "<group>"; };
 		ED0919BD1C9D7C8D0078C1AA /* Template.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Template.xcdatamodel; sourceTree = "<group>"; };
@@ -84,13 +91,20 @@
 		ED2E61671C9D78F5000441E4 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		ED4103001CEDCCC900F0115E /* ErrorHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ErrorHandler.h; sourceTree = "<group>"; };
 		ED4103011CEDCCC900F0115E /* ErrorHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ErrorHandler.m; sourceTree = "<group>"; };
-		EDD4BE851CD8CBB5003B28BA /* ButtonTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ButtonTableViewCell.xib; path = TableViewCells/ButtonTableViewCell.xib; sourceTree = "<group>"; };
-		EDD4BE861CD8CBB5003B28BA /* ImageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ImageTableViewCell.xib; path = TableViewCells/ImageTableViewCell.xib; sourceTree = "<group>"; };
+		EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ButtonTableViewCell.xib; path = TableViewCells/ButtonTableViewCell.xib; sourceTree = "<group>"; };
+		EDBD39861D2A89D90015D214 /* CenterTextTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CenterTextTableViewCell.xib; path = TableViewCells/CenterTextTableViewCell.xib; sourceTree = "<group>"; };
+		EDBD39871D2A89D90015D214 /* CircleImageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CircleImageTableViewCell.xib; path = TableViewCells/CircleImageTableViewCell.xib; sourceTree = "<group>"; };
+		EDBD39881D2A89D90015D214 /* EmptySpaceTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = EmptySpaceTableViewCell.xib; path = TableViewCells/EmptySpaceTableViewCell.xib; sourceTree = "<group>"; };
+		EDBD39891D2A89D90015D214 /* FloatTextFieldTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = FloatTextFieldTableViewCell.xib; path = TableViewCells/FloatTextFieldTableViewCell.xib; sourceTree = "<group>"; };
+		EDBD398A1D2A89D90015D214 /* ImageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ImageTableViewCell.xib; path = TableViewCells/ImageTableViewCell.xib; sourceTree = "<group>"; };
+		EDBD398B1D2A89D90015D214 /* SmallTextButtonTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = SmallTextButtonTableViewCell.xib; path = TableViewCells/SmallTextButtonTableViewCell.xib; sourceTree = "<group>"; };
+		EDBD398C1D2A89D90015D214 /* TextButtonTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = TextButtonTableViewCell.xib; path = TableViewCells/TextButtonTableViewCell.xib; sourceTree = "<group>"; };
+		EDBD398D1D2A89D90015D214 /* TextFieldTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = TextFieldTableViewCell.xib; path = TableViewCells/TextFieldTableViewCell.xib; sourceTree = "<group>"; };
+		EDBD398E1D2A89D90015D214 /* TextTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = TextTableViewCell.xib; path = TableViewCells/TextTableViewCell.xib; sourceTree = "<group>"; };
 		EDD4BE8A1CD8CBD6003B28BA /* BaseTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseTableViewController.h; path = ViewControllers/BaseTableViewController.h; sourceTree = "<group>"; };
 		EDD4BE8B1CD8CBD6003B28BA /* BaseTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BaseTableViewController.m; path = ViewControllers/BaseTableViewController.m; sourceTree = "<group>"; };
 		EDD4BE8D1CD8CBE2003B28BA /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		EDD4BE8E1CD8CBE2003B28BA /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		EDD4BE921CD8CE9A003B28BA /* TextFieldTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = TextFieldTableViewCell.xib; path = TableViewCells/TextFieldTableViewCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,21 +112,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				70CDB749907C0AC3424FAE87 /* Pods_Template.framework in Frameworks */,
+				A89846031D572349E9BD1A85 /* Pods_Template.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		14B08A0A408FE5B3B84A1801 /* Pods */ = {
+		0D41631BF19B9244F4F17AF5 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				20DF8E7D32E9350C5BB8B2A6 /* Pods-Template.debug.xcconfig */,
-				9258CD984D987BF0166DAA26 /* Pods-Template.release.xcconfig */,
-				3B6BD5CFB9836EB2B3F6BC84 /* Pods-Template.appstore.xcconfig */,
+				9FDC0EFCDDA3494102FBF166 /* Pods-Template.debug.xcconfig */,
+				1A3D50DB71DC95641D081AA1 /* Pods-Template.release.xcconfig */,
+				3F82845839B5DEC9B032B332 /* Pods-Template.appstore.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		84DAA7110F2F41F4CB599650 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				80B4D3B7644F90E47A869510 /* Pods_Template.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		ED0919BB1C9D7BE90078C1AA /* MoGenerated */ = {
@@ -127,8 +149,8 @@
 			children = (
 				ED2E61271C9D7851000441E4 /* Source */,
 				ED2E61261C9D7851000441E4 /* Products */,
-				14B08A0A408FE5B3B84A1801 /* Pods */,
-				EF37CBD63F11739E7C1E0C42 /* Frameworks */,
+				0D41631BF19B9244F4F17AF5 /* Pods */,
+				84DAA7110F2F41F4CB599650 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -146,6 +168,7 @@
 				ED0919BA1C9D7B960078C1AA /* Enums.h */,
 				ED0919B91C9D7B960078C1AA /* Constants.h */,
 				ED2E613F1C9D78DB000441E4 /* API */,
+				ED3A82B01D2A8760000DC75B /* Objects */,
 				ED2E61421C9D78DB000441E4 /* AppData */,
 				ED2E61451C9D78DB000441E4 /* Appearance */,
 				ED2E615A1C9D78EA000441E4 /* AppDelegate */,
@@ -289,12 +312,26 @@
 			name = Storyboards;
 			sourceTree = "<group>";
 		};
+		ED3A82B01D2A8760000DC75B /* Objects */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Objects;
+			sourceTree = "<group>";
+		};
 		ED7301E21CB2ADFD00FA5824 /* TableViewCells */ = {
 			isa = PBXGroup;
 			children = (
-				EDD4BE921CD8CE9A003B28BA /* TextFieldTableViewCell.xib */,
-				EDD4BE851CD8CBB5003B28BA /* ButtonTableViewCell.xib */,
-				EDD4BE861CD8CBB5003B28BA /* ImageTableViewCell.xib */,
+				EDBD398E1D2A89D90015D214 /* TextTableViewCell.xib */,
+				EDBD398A1D2A89D90015D214 /* ImageTableViewCell.xib */,
+				EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */,
+				EDBD398D1D2A89D90015D214 /* TextFieldTableViewCell.xib */,
+				EDBD39861D2A89D90015D214 /* CenterTextTableViewCell.xib */,
+				EDBD39881D2A89D90015D214 /* EmptySpaceTableViewCell.xib */,
+				EDBD398C1D2A89D90015D214 /* TextButtonTableViewCell.xib */,
+				EDBD39871D2A89D90015D214 /* CircleImageTableViewCell.xib */,
+				EDBD39891D2A89D90015D214 /* FloatTextFieldTableViewCell.xib */,
+				EDBD398B1D2A89D90015D214 /* SmallTextButtonTableViewCell.xib */,
 			);
 			name = TableViewCells;
 			sourceTree = "<group>";
@@ -308,14 +345,6 @@
 			name = BaseTableViewController;
 			sourceTree = "<group>";
 		};
-		EF37CBD63F11739E7C1E0C42 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				AF81EA4D7AC2129CD9A5B8A3 /* Pods_Template.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -323,12 +352,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = ED2E613C1C9D7851000441E4 /* Build configuration list for PBXNativeTarget "Template" */;
 			buildPhases = (
-				4FD700DF7517C07089722E2D /* Check Pods Manifest.lock */,
+				BAAA1C0D061FBB220BEC0868 /* [CP] Check Pods Manifest.lock */,
 				ED2E61211C9D7851000441E4 /* Sources */,
 				ED2E61221C9D7851000441E4 /* Frameworks */,
 				ED2E61231C9D7851000441E4 /* Resources */,
-				8E1C3E450816CB9CCD7F17FF /* Embed Pods Frameworks */,
-				5B22995F57AC94F0BFD6C78F /* Copy Pods Resources */,
+				1968C915F4BA760F796F1749 /* [CP] Embed Pods Frameworks */,
+				C1EEF7370733FBAC80878AEE /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -381,18 +410,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED2E61691C9D78F5000441E4 /* Lato-Black.ttf in Resources */,
-				EDD4BE881CD8CBB5003B28BA /* ImageTableViewCell.xib in Resources */,
 				ED2E616A1C9D78F5000441E4 /* Lato-Bold.ttf in Resources */,
+				EDBD39981D2A89D90015D214 /* TextTableViewCell.xib in Resources */,
+				EDBD39951D2A89D90015D214 /* SmallTextButtonTableViewCell.xib in Resources */,
+				EDBD39931D2A89D90015D214 /* FloatTextFieldTableViewCell.xib in Resources */,
 				ED2E61701C9D78F5000441E4 /* Localizable.strings in Resources */,
 				ED2E61381C9D7851000441E4 /* Splash.storyboard in Resources */,
 				ED2E616D1C9D78F5000441E4 /* Lato-LightItalic.ttf in Resources */,
+				EDBD39971D2A89D90015D214 /* TextFieldTableViewCell.xib in Resources */,
 				ED2E616E1C9D78F5000441E4 /* Lato-Regular.ttf in Resources */,
+				EDBD39941D2A89D90015D214 /* ImageTableViewCell.xib in Resources */,
 				ED2E61351C9D7851000441E4 /* Assets.xcassets in Resources */,
-				EDD4BE871CD8CBB5003B28BA /* ButtonTableViewCell.xib in Resources */,
+				EDBD39911D2A89D90015D214 /* CircleImageTableViewCell.xib in Resources */,
+				EDBD398F1D2A89D90015D214 /* ButtonTableViewCell.xib in Resources */,
+				EDBD39901D2A89D90015D214 /* CenterTextTableViewCell.xib in Resources */,
 				ED2E616B1C9D78F5000441E4 /* Lato-Italic.ttf in Resources */,
+				EDBD39921D2A89D90015D214 /* EmptySpaceTableViewCell.xib in Resources */,
 				ED2E61331C9D7851000441E4 /* Main.storyboard in Resources */,
-				EDD4BE931CD8CE9A003B28BA /* TextFieldTableViewCell.xib in Resources */,
 				ED2E616C1C9D78F5000441E4 /* Lato-Light.ttf in Resources */,
+				EDBD39961D2A89D90015D214 /* TextButtonTableViewCell.xib in Resources */,
 				ED2E616F1C9D78F5000441E4 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -400,14 +436,29 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4FD700DF7517C07089722E2D /* Check Pods Manifest.lock */ = {
+		1968C915F4BA760F796F1749 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Template/Pods-Template-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BAAA1C0D061FBB220BEC0868 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -415,34 +466,19 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		5B22995F57AC94F0BFD6C78F /* Copy Pods Resources */ = {
+		C1EEF7370733FBAC80878AEE /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Template/Pods-Template-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8E1C3E450816CB9CCD7F17FF /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Template/Pods-Template-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		ED2E61761C9D79DD000441E4 /* ShellScript */ = {
@@ -586,7 +622,7 @@
 		};
 		ED2E613D1C9D7851000441E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 20DF8E7D32E9350C5BB8B2A6 /* Pods-Template.debug.xcconfig */;
+			baseConfigurationReference = 9FDC0EFCDDA3494102FBF166 /* Pods-Template.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -604,7 +640,7 @@
 		};
 		ED2E613E1C9D7851000441E4 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9258CD984D987BF0166DAA26 /* Pods-Template.release.xcconfig */;
+			baseConfigurationReference = 1A3D50DB71DC95641D081AA1 /* Pods-Template.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
@@ -675,7 +711,7 @@
 		};
 		ED7301E01CB2AD6C00FA5824 /* AppStore */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B6BD5CFB9836EB2B3F6BC84 /* Pods-Template.appstore.xcconfig */;
+			baseConfigurationReference = 3F82845839B5DEC9B032B332 /* Pods-Template.appstore.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";

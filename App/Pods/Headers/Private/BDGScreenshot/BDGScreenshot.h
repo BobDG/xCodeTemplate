@@ -1,1 +1,0 @@
-../../../BDGScreenshot/BDGScreenshot.h

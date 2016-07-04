@@ -16,6 +16,9 @@
 //Quick constructors
 -(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing;
 -(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll;
+-(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing takePhoto:(NSString *)takePhoto choosePhoto:(NSString *)choosePhoto;
+-(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll takePhoto:(NSString *)takePhoto choosePhoto:(NSString *)choosePhoto;
+-(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll takePhoto:(NSString *)takePhoto choosePhoto:(NSString *)choosePhoto cancel:(NSString *)cancel;
 
 //Optional properties
 @property(nonatomic) bool video;
@@ -24,6 +27,9 @@
 @property(nonatomic) bool statusBarHidden;
 @property(nonatomic) bool saveInCameraRoll;
 @property(nonatomic,strong) NSString *title;
+@property(nonatomic,strong) NSString *cancel;
+@property(nonatomic,strong) NSString *takePhoto;
+@property(nonatomic,strong) NSString *choosePhoto;
 @property(nonatomic) UIStatusBarStyle statusBarStyle;
 
 //Completion blocks

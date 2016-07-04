@@ -1,1 +1,0 @@
-../../../BDGImagePicker/BDGImagePicker.h

@@ -1,8 +1,8 @@
 # xCodeTemplate
 A startup xCode template project that you can re-use for every project containing several brillant tools/settings
 
-
 # Setup
+Download the project to a folder where you want your project to be!
 
 ## General
 1. Open template.xcworkspace
@@ -18,6 +18,9 @@ A startup xCode template project that you can re-use for every project containin
 1. CoreData - change xdatamodeld name to the name you want
 2. CoreData - in BDGCoreData.m - change the name in 'init' to the database file name
 3. Tap on target MoGenerator - Build phases - Run script -> change the name to the new database file name
+
+## Security
+1. Based on App Privacy -> Turn on Data Protection in Target Capabilities
 
 ## HockeyApp
 1. In info-plist, change the 'HockeyApp' to the correct HockeyAppID

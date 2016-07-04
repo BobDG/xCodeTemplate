@@ -15,6 +15,9 @@
 
 +(void)setupAppearance
 {
+    //Disabling auto-layout warnings
+    [[NSUserDefaults standardUserDefaults] setValue:@(NO) forKey:@"_UIConstraintBasedLayoutLogUnsatisfiable"];
+    
     //Progress circle
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleCustom];
     [SVProgressHUD setForegroundColor:[UIColor blueColor]];

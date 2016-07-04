@@ -24,15 +24,17 @@
     
     //Register
     [self registerCustomCells:@[
+                                XIBTextTableViewCell,
                                 XIBImageTableViewCell,
                                 XIBButtonTableViewCell,
                                 XIBTextFieldTableViewCell,
-    ]];
-}
-
--(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-{
-    return 10.0f;
+                                XIBCenterTextTableViewCell,
+                                XIBTextButtonTableViewCell,
+                                XIBEmptySpaceTableViewCell,
+                                XIBCircleImageTableViewCell,
+                                XIBFloatTextFieldTableViewCell,
+                                XIBSmallTextButtonTableViewCell,
+                                ]];
 }
 
 @end
