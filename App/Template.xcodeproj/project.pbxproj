@@ -41,6 +41,8 @@
 		ED2E616E1C9D78F5000441E4 /* Lato-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = ED2E61641C9D78F5000441E4 /* Lato-Regular.ttf */; };
 		ED2E616F1C9D78F5000441E4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = ED2E61661C9D78F5000441E4 /* InfoPlist.strings */; };
 		ED2E61701C9D78F5000441E4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ED2E61671C9D78F5000441E4 /* Localizable.strings */; };
+		ED3ADE6C1D41059000F1D9E9 /* Timer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3ADE6B1D41059000F1D9E9 /* Timer.m */; };
+		ED3ADE6F1D41064100F1D9E9 /* TableHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = ED3ADE6E1D41064100F1D9E9 /* TableHeaderView.xib */; };
 		ED4103021CEDCCC900F0115E /* ErrorHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4103011CEDCCC900F0115E /* ErrorHandler.m */; };
 		EDBD398F1D2A89D90015D214 /* ButtonTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */; };
 		EDBD39901D2A89D90015D214 /* CenterTextTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39861D2A89D90015D214 /* CenterTextTableViewCell.xib */; };
@@ -54,6 +56,9 @@
 		EDBD39981D2A89D90015D214 /* TextTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD398E1D2A89D90015D214 /* TextTableViewCell.xib */; };
 		EDD4BE8C1CD8CBD6003B28BA /* BaseTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD4BE8B1CD8CBD6003B28BA /* BaseTableViewController.m */; };
 		EDD4BE8F1CD8CBE2003B28BA /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD4BE8E1CD8CBE2003B28BA /* ViewController.m */; };
+		EDF0E7DE1D4107750036AEDA /* CheckboxTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDF0E7DB1D4107750036AEDA /* CheckboxTableViewCell.xib */; };
+		EDF0E7DF1D4107750036AEDA /* SwitchTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDF0E7DC1D4107750036AEDA /* SwitchTableViewCell.xib */; };
+		EDF0E7E01D4107750036AEDA /* TextViewTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDF0E7DD1D4107750036AEDA /* TextViewTableViewCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -89,6 +94,9 @@
 		ED2E61641C9D78F5000441E4 /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
 		ED2E61661C9D78F5000441E4 /* InfoPlist.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = InfoPlist.strings; sourceTree = "<group>"; };
 		ED2E61671C9D78F5000441E4 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		ED3ADE6A1D41059000F1D9E9 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
+		ED3ADE6B1D41059000F1D9E9 /* Timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Timer.m; sourceTree = "<group>"; };
+		ED3ADE6E1D41064100F1D9E9 /* TableHeaderView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = TableHeaderView.xib; path = TableHeaderFooterViews/TableHeaderView.xib; sourceTree = "<group>"; };
 		ED4103001CEDCCC900F0115E /* ErrorHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ErrorHandler.h; sourceTree = "<group>"; };
 		ED4103011CEDCCC900F0115E /* ErrorHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ErrorHandler.m; sourceTree = "<group>"; };
 		EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ButtonTableViewCell.xib; path = TableViewCells/ButtonTableViewCell.xib; sourceTree = "<group>"; };
@@ -105,6 +113,9 @@
 		EDD4BE8B1CD8CBD6003B28BA /* BaseTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BaseTableViewController.m; path = ViewControllers/BaseTableViewController.m; sourceTree = "<group>"; };
 		EDD4BE8D1CD8CBE2003B28BA /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		EDD4BE8E1CD8CBE2003B28BA /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		EDF0E7DB1D4107750036AEDA /* CheckboxTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CheckboxTableViewCell.xib; path = TableViewCells/CheckboxTableViewCell.xib; sourceTree = "<group>"; };
+		EDF0E7DC1D4107750036AEDA /* SwitchTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = SwitchTableViewCell.xib; path = TableViewCells/SwitchTableViewCell.xib; sourceTree = "<group>"; };
+		EDF0E7DD1D4107750036AEDA /* TextViewTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = TextViewTableViewCell.xib; path = TableViewCells/TextViewTableViewCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,11 +179,12 @@
 				ED0919BA1C9D7B960078C1AA /* Enums.h */,
 				ED0919B91C9D7B960078C1AA /* Constants.h */,
 				ED2E613F1C9D78DB000441E4 /* API */,
+				ED3ADE691D41059000F1D9E9 /* Timer */,
+				ED2E61481C9D78DB000441E4 /* Model */,
 				ED3A82B01D2A8760000DC75B /* Objects */,
 				ED2E61421C9D78DB000441E4 /* AppData */,
 				ED2E61451C9D78DB000441E4 /* Appearance */,
 				ED2E615A1C9D78EA000441E4 /* AppDelegate */,
-				ED2E61481C9D78DB000441E4 /* Model */,
 				ED2E614B1C9D78DB000441E4 /* Notifications */,
 				ED2E614E1C9D78DB000441E4 /* UserInterface */,
 				ED2E61711C9D7904000441E4 /* Storyboards */,
@@ -246,7 +258,6 @@
 			isa = PBXGroup;
 			children = (
 				EDD4BE891CD8CBBA003B28BA /* BaseTableViewController */,
-				ED7301E21CB2ADFD00FA5824 /* TableViewCells */,
 				ED2E61531C9D78DB000441E4 /* Signin */,
 			);
 			path = UserInterface;
@@ -319,13 +330,33 @@
 			path = Objects;
 			sourceTree = "<group>";
 		};
+		ED3ADE691D41059000F1D9E9 /* Timer */ = {
+			isa = PBXGroup;
+			children = (
+				ED3ADE6A1D41059000F1D9E9 /* Timer.h */,
+				ED3ADE6B1D41059000F1D9E9 /* Timer.m */,
+			);
+			path = Timer;
+			sourceTree = "<group>";
+		};
+		ED3ADE6D1D41063400F1D9E9 /* TableHeaderFooterViews */ = {
+			isa = PBXGroup;
+			children = (
+				ED3ADE6E1D41064100F1D9E9 /* TableHeaderView.xib */,
+			);
+			name = TableHeaderFooterViews;
+			sourceTree = "<group>";
+		};
 		ED7301E21CB2ADFD00FA5824 /* TableViewCells */ = {
 			isa = PBXGroup;
 			children = (
 				EDBD398E1D2A89D90015D214 /* TextTableViewCell.xib */,
 				EDBD398A1D2A89D90015D214 /* ImageTableViewCell.xib */,
 				EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */,
+				EDF0E7DC1D4107750036AEDA /* SwitchTableViewCell.xib */,
+				EDF0E7DD1D4107750036AEDA /* TextViewTableViewCell.xib */,
 				EDBD398D1D2A89D90015D214 /* TextFieldTableViewCell.xib */,
+				EDF0E7DB1D4107750036AEDA /* CheckboxTableViewCell.xib */,
 				EDBD39861D2A89D90015D214 /* CenterTextTableViewCell.xib */,
 				EDBD39881D2A89D90015D214 /* EmptySpaceTableViewCell.xib */,
 				EDBD398C1D2A89D90015D214 /* TextButtonTableViewCell.xib */,
@@ -339,6 +370,8 @@
 		EDD4BE891CD8CBBA003B28BA /* BaseTableViewController */ = {
 			isa = PBXGroup;
 			children = (
+				ED3ADE6D1D41063400F1D9E9 /* TableHeaderFooterViews */,
+				ED7301E21CB2ADFD00FA5824 /* TableViewCells */,
 				EDD4BE8A1CD8CBD6003B28BA /* BaseTableViewController.h */,
 				EDD4BE8B1CD8CBD6003B28BA /* BaseTableViewController.m */,
 			);
@@ -409,6 +442,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED3ADE6F1D41064100F1D9E9 /* TableHeaderView.xib in Resources */,
 				ED2E61691C9D78F5000441E4 /* Lato-Black.ttf in Resources */,
 				ED2E616A1C9D78F5000441E4 /* Lato-Bold.ttf in Resources */,
 				EDBD39981D2A89D90015D214 /* TextTableViewCell.xib in Resources */,
@@ -416,6 +450,7 @@
 				EDBD39931D2A89D90015D214 /* FloatTextFieldTableViewCell.xib in Resources */,
 				ED2E61701C9D78F5000441E4 /* Localizable.strings in Resources */,
 				ED2E61381C9D7851000441E4 /* Splash.storyboard in Resources */,
+				EDF0E7DE1D4107750036AEDA /* CheckboxTableViewCell.xib in Resources */,
 				ED2E616D1C9D78F5000441E4 /* Lato-LightItalic.ttf in Resources */,
 				EDBD39971D2A89D90015D214 /* TextFieldTableViewCell.xib in Resources */,
 				ED2E616E1C9D78F5000441E4 /* Lato-Regular.ttf in Resources */,
@@ -423,11 +458,13 @@
 				ED2E61351C9D7851000441E4 /* Assets.xcassets in Resources */,
 				EDBD39911D2A89D90015D214 /* CircleImageTableViewCell.xib in Resources */,
 				EDBD398F1D2A89D90015D214 /* ButtonTableViewCell.xib in Resources */,
+				EDF0E7E01D4107750036AEDA /* TextViewTableViewCell.xib in Resources */,
 				EDBD39901D2A89D90015D214 /* CenterTextTableViewCell.xib in Resources */,
 				ED2E616B1C9D78F5000441E4 /* Lato-Italic.ttf in Resources */,
 				EDBD39921D2A89D90015D214 /* EmptySpaceTableViewCell.xib in Resources */,
 				ED2E61331C9D7851000441E4 /* Main.storyboard in Resources */,
 				ED2E616C1C9D78F5000441E4 /* Lato-Light.ttf in Resources */,
+				EDF0E7DF1D4107750036AEDA /* SwitchTableViewCell.xib in Resources */,
 				EDBD39961D2A89D90015D214 /* TextButtonTableViewCell.xib in Resources */,
 				ED2E616F1C9D78F5000441E4 /* InfoPlist.strings in Resources */,
 			);
@@ -505,6 +542,7 @@
 				ED0919BE1C9D7C8D0078C1AA /* Template.xcdatamodeld in Sources */,
 				ED2E61541C9D78DB000441E4 /* APIManager.m in Sources */,
 				ED4103021CEDCCC900F0115E /* ErrorHandler.m in Sources */,
+				ED3ADE6C1D41059000F1D9E9 /* Timer.m in Sources */,
 				ED2E615D1C9D78EA000441E4 /* AppDelegate.m in Sources */,
 				EDD4BE8C1CD8CBD6003B28BA /* BaseTableViewController.m in Sources */,
 				EDD4BE8F1CD8CBE2003B28BA /* ViewController.m in Sources */,

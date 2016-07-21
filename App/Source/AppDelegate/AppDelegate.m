@@ -5,6 +5,7 @@
 //  Copyright (c) 2015 GraafICT. All rights reserved.
 //
 
+#import "Timer.h"
 #import "Constants.h"
 #import "AppDelegate.h"
 #import "BDGScreenshot.h"
@@ -40,6 +41,9 @@
     //Data
     [AppData setupAppData];
     
+    //Timer
+    [self setupTimer];
+    
     //Register for notifications
     [NotificationsManager registerForNotificationsOnLaunch];
     
@@ -54,6 +58,33 @@
 -(void)continueLaunchFlow
 {
     
+}
+
+#pragma mark - Timer
+
+-(void)setupTimer
+{
+    [[Timer sharedTimer] setTimerTicked:^{
+        /* EXAMPLE CODE
+        //Tabbarcontroller?
+        if(![self.window.rootViewController isKindOfClass:[UITabBarController class]]) {
+            return;
+        }
+        
+        //Overzicht?
+        UITabBarController *tabbarController = (UITabBarController *)self.window.rootViewController;
+        if(tabbarController.selectedIndex != TabOverzicht) {
+            return;
+        }
+        
+        UINavigationController *nav = (UINavigationController *)tabbarController.selectedViewController;
+        if(![nav.visibleViewController isKindOfClass:[OverzichtViewController class]]) {
+            return;
+        }
+        
+        OverzichtViewController *vc = (OverzichtViewController *)nav.visibleViewController;
+        [vc updatePijnMonitorTimer];*/
+    }];
 }
 
 #pragma mark RootViewController animated

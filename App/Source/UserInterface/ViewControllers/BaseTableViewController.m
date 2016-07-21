@@ -22,11 +22,17 @@
 {
     [super viewDidLoad];
     
-    //Register
+    //Register headers
+    [self registerCustomHeader:XIBTableHeaderView];
+    
+    //Register cells
     [self registerCustomCells:@[
                                 XIBTextTableViewCell,
                                 XIBImageTableViewCell,
                                 XIBButtonTableViewCell,
+                                XIBSwitchTableViewCell,
+                                XIBCheckboxTableViewCell,
+                                XIBTextViewTableViewCell,
                                 XIBTextFieldTableViewCell,
                                 XIBCenterTextTableViewCell,
                                 XIBTextButtonTableViewCell,

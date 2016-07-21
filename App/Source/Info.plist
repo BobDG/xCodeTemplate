@@ -30,6 +30,7 @@
 		<string>twitter</string>
 		<string>whatsapp</string>
 		<string>cydia</string>
+		<string>comgooglemaps</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

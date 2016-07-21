@@ -8,9 +8,16 @@
 
 #import "BlazeTableViewController.h"
 
+//Headers
+#define XIBTableHeaderView                  @"TableHeaderView"
+
+//Cells
 #define XIBTextTableViewCell                @"TextTableViewCell"
 #define XIBImageTableViewCell               @"ImageTableViewCell"
 #define XIBButtonTableViewCell              @"ButtonTableViewCell"
+#define XIBSwitchTableViewCell              @"SwitchTableViewCell"
+#define XIBCheckboxTableViewCell            @"CheckboxTableViewCell"
+#define XIBTextViewTableViewCell            @"TextViewTableViewCell"
 #define XIBTextFieldTableViewCell           @"TextFieldTableViewCell"
 #define XIBCenterTextTableViewCell          @"CenterTextTableViewCell"
 #define XIBEmptySpaceTableViewCell          @"EmptySpaceTableViewCell"
