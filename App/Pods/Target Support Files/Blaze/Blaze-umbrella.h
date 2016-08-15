@@ -17,6 +17,7 @@
 #import "BlazeTextFieldTableViewCell.h"
 #import "BlazeTextViewTableViewCell.h"
 #import "BlazeTilesTableViewCell.h"
+#import "BlazeTwoChoicesTableViewCell.h"
 #import "BlazeTableHeaderFooterView.h"
 #import "BlazeDatePickerField.h"
 #import "BlazePickerViewField.h"

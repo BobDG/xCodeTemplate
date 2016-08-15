@@ -43,8 +43,6 @@
     [[BITHockeyManager sharedHockeyManager] startManager];
 }
 
-
-
 #pragma mark - Utility methods
 
 +(id)loadJSONForFileName:(NSString *)fileName

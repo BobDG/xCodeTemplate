@@ -14,8 +14,7 @@
     
 }
 
-#pragma mark Setup
-
+//Setup
 +(void)setupAppData;
 
 @end
