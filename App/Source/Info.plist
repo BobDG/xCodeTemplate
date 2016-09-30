@@ -39,6 +39,12 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSCalendarsUsageDescription</key>
+	<string>$(PRODUCT_NAME) maakt gebruikt van de agenda</string>
+	<key>NSCameraUsageDescription</key>
+	<string>$(PRODUCT_NAME) maakt gebruikt van de camera</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>$(PRODUCT_NAME) maakt gebruikt van de HealthKit</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Lato-Black.ttf</string>

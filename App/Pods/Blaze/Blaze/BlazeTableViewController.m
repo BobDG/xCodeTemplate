@@ -21,9 +21,6 @@
 //TableViewHeaders
 #import "BlazeTableHeaderFooterView.h"
 
-//Definition Header
-#define kBlazeTableHeaderFooterView   @"BlazeTableHeaderFooterView"
-
 //Definitions of basic XIB's
 #define BlazeXIBDateCell              @"BlazeDateTableViewCell"
 #define BlazeXIBTilesCell             @"BlazeTilesTableViewCell"
@@ -44,6 +41,10 @@
 //The previous/next textfield does not work when using indexPaths, these are not correctly reset when not calling reloadData. Therefore this boolean is set to TRUE when adding/removing rows dynamically so that when a user requests the next/previous textfield, rowID's are used instead of indexpaths!
 @property(nonatomic) bool dynamicRows;
 
+//Contains names of current registered cells
+@property(nonatomic,strong) NSMutableArray *registeredCells;
+@property(nonatomic,strong) NSMutableArray *registeredHeaders;
+
 @end
 
 @implementation BlazeTableViewController
@@ -56,8 +57,8 @@
     self.tableArray = [NSMutableArray new];
     
     //Register cells & Headers
-    [self registerDefaultCells];
-    [self registerDefaultHeader];
+    self.registeredCells = [NSMutableArray new];
+    self.registeredHeaders = [NSMutableArray new];
     
     //Automatic rowHeight, estimates are necessary and do not really matter :)
     self.tableView.estimatedRowHeight = 60.0;
@@ -98,99 +99,43 @@
 
 -(void)registerCustomCell:(NSString *)xibName
 {
+    //Check if registered already
+    if([self.registeredCells containsObject:xibName]) {
+        return;
+    }
+    
+    //Register cell
     [self.tableView registerNib:[UINib nibWithNibName:xibName bundle:nil] forCellReuseIdentifier:xibName];
+    
+    //Save
+    [self.registeredCells addObject:xibName];
 }
 
 -(void)registerCustomHeader:(NSString *)xibName
 {
+    //Check if registered already
+    if([self.registeredHeaders containsObject:xibName]) {
+        return;
+    }
+    
     //Register header
     [self.tableView registerNib:[UINib nibWithNibName:xibName bundle:nil] forHeaderFooterViewReuseIdentifier:xibName];
+    
+    //Save
+    [self.registeredHeaders addObject:xibName];
+}
+
+-(void)registerCustomHeaders:(NSArray *)headerNames
+{
+    for(NSString *className in headerNames) {
+        [self registerCustomHeader:className];
+    }
 }
 
 -(void)registerCustomCells:(NSArray *)cellNames
 {
     for(NSString *className in cellNames) {
-        [self.tableView registerNib:[UINib nibWithNibName:className bundle:nil] forCellReuseIdentifier:className];
-    }
-}
-
-#pragma mark - Register defaults
-
--(void)registerDefaultCells
-{
-    NSArray *defaultCellNames = [self defaultCellsToRegister];
-    for(NSString *xibName in defaultCellNames) {
-        [self.tableView registerNib:[UINib nibWithNibName:xibName bundle:[NSBundle bundleForClass:NSClassFromString(xibName)]] forCellReuseIdentifier:xibName];
-    }
-}
-
--(void)registerDefaultHeader
-{
-    //Register header
-    [self.tableView registerNib:[UINib nibWithNibName:kBlazeTableHeaderFooterView bundle:[NSBundle bundleForClass:NSClassFromString(kBlazeTableHeaderFooterView)]] forHeaderFooterViewReuseIdentifier:kBlazeTableHeaderFooterView];
-}
-
--(NSArray *)defaultCellsToRegister
-{
-    return @[BlazeXIBSliderCell,
-             BlazeXIBTilesCell,
-             BlazeXIBTextViewCell,
-             BlazeXIBDateCell,
-             BlazeXIBCheckboxCell,
-             BlazeXIBSegmentedControlCell,
-             BlazeXIBSwitchCell,
-             BlazeXIBTextFieldCell,
-             BlazeXIBPickerViewCell,
-             BlazeXIBTwoChoicesCell];
-}
-
--(NSString *)defaultXIBForEnum:(BlazeRowType)rowType
-{
-    switch (rowType) {
-        case BlazeRowBasic: {
-            return BlazeXIBTextFieldCell;
-            break;
-        }
-        case BlazeRowSwitch: {
-            return BlazeXIBSwitchCell;
-            break;
-        }
-        case BlazeRowDate: {
-            return BlazeXIBDateCell;
-            break;
-        }
-        case BlazeRowTextField: {
-            return BlazeXIBTextFieldCell;
-            break;
-        }
-        case BlazeRowTextView: {
-            return BlazeXIBTextViewCell;
-            break;
-        }
-        case BlazeRowSegmentedControl: {
-            return BlazeXIBSegmentedControlCell;
-            break;
-        }
-        case BlazeRowTiles: {
-            return BlazeXIBTilesCell;
-            break;
-        }
-        case BlazeRowCheckbox: {
-            return BlazeXIBCheckboxCell;
-            break;
-        }
-        case BlazeRowTwoChoices: {
-            return BlazeXIBTwoChoicesCell;
-            break;
-        }
-        case BlazeRowPicker: {
-            return BlazeXIBPickerViewCell;
-            break;
-        }
-        case BlazeRowSlider: {
-            return BlazeXIBSliderCell;
-            break;
-        }
+        [self registerCustomCell:className];
     }
 }
 
@@ -263,6 +208,14 @@
     }
 }
 
+-(void)reloadTableWithFadeTransition
+{
+    [UIView transitionWithView:self.tableView duration:0.3f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+        [self.tableView reloadData];
+    } completion:^(BOOL finished) {
+    }];
+}
+
 -(void)scrollToTop:(BOOL)animated
 {
     [self.tableView setContentOffset:CGPointZero animated:animated];
@@ -291,6 +244,23 @@
         }
     }
     return nil;
+}
+
+-(BlazeRow *)rowForIndexPath:(NSIndexPath *)indexPath
+{
+    NSUInteger sectionIndex = indexPath.section;
+    NSUInteger rowIndex = indexPath.row;
+    
+    if(sectionIndex >= self.tableArray.count) {
+        return nil;
+    }
+    
+    BlazeSection* s = self.tableArray[indexPath.section];
+    if(rowIndex >= s.rows.count) {
+        return nil;
+    }
+    
+    return s.rows[rowIndex];
 }
 
 -(void)reloadCellForID:(int)rowID withRowAnimation:(UITableViewRowAnimation)animation
@@ -443,7 +413,6 @@
 -(void)activateNextFieldFromIndexPath:(NSIndexPath *)indexPath
 {
     //Get next cell
-    NSLog(@"Get next cell from indexpath: %d, %d", (int)indexPath.section, (int)indexPath.row);
     BlazeTableViewCell *cell = [self nextCellFromIndexPath:indexPath];
     [self activateFirstResponderForCell:cell];
 }
@@ -462,7 +431,6 @@
 -(void)activatePreviousFieldFromIndexPath:(NSIndexPath *)indexPath
 {
     //Get next cell
-    NSLog(@"Get previous cell from indexpath: %d, %d", (int)indexPath.section, (int)indexPath.row);
     BlazeTableViewCell *cell = [self previousCellFromIndexPath:indexPath];
     [self activateFirstResponderForCell:cell];
 }
@@ -476,6 +444,43 @@
     else {
         [self.view endEditing:TRUE];
     }
+}
+
+#pragma mark - Collapsing
+
+-(void)collapseSection:(int)sectionIndex collapsed:(BOOL)collapsed
+{
+    //Dynamic rows
+    self.dynamicRows = TRUE;
+    
+    //Possibly delete rows
+    BlazeSection *section = self.tableArray[sectionIndex];
+    NSMutableArray *indexPaths = [NSMutableArray new];
+    
+    //Remove rows/indexpaths
+    for(int i = 0; i < section.rows.count; i++) {
+        [indexPaths addObject:[NSIndexPath indexPathForRow:i inSection:sectionIndex]];
+    }
+    
+    //Check if we need to delete any
+    if(!indexPaths.count) {
+        return;
+    }
+    
+    //Begin updates
+    [self.tableView beginUpdates];
+    
+    //Add/remove rows
+    if(collapsed) {
+        [self.tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:section.collapseAnimation];
+    }
+    else {
+        [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:section.collapseAnimation];
+    }
+    
+    
+    //End updates
+    [self.tableView endUpdates];
 }
 
 #pragma mark Adding/Removing Rows/Sections
@@ -666,6 +671,9 @@
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     BlazeSection *s = self.tableArray[section];
+    if(s.collapsed) {
+        return 0;
+    }
     return s.rows.count;
 }
 
@@ -710,8 +718,8 @@
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     BlazeSection *s = self.tableArray[section];
-    if(s.sectionHeight) {
-        return s.sectionHeight;
+    if(s.headerHeight) {
+        return s.headerHeight;
     }
     else if(self.sectionHeaderHeight) {
         return self.sectionHeaderHeight;
@@ -725,8 +733,8 @@
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
     BlazeSection *s = self.tableArray[section];
-    if(s.sectionHeight) {
-        return s.sectionHeight;
+    if(s.footerHeight) {
+        return s.footerHeight;
     }
     else if(self.sectionFooterHeight) {
         return self.sectionFooterHeight;
@@ -740,7 +748,7 @@
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     BlazeSection *s = self.tableArray[section];
-    if(!(s.headerTitle.length) && !s.sectionHeight) {
+    if(!(s.headerTitle.length) && !s.headerHeight) {
         return nil;
     }
     
@@ -751,13 +759,26 @@
     else if(self.headerXibName.length) {
         headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:self.headerXibName];
     }
-    else {
-        headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:kBlazeTableHeaderFooterView];
+    
+    //Collapsing
+    if(s.canCollapse) {
+        __weak __typeof(self)weakSelf = self;
+        __weak __typeof(BlazeSection *)weakSection = s;
+        [s setCollapseTapped:^{
+            [weakSelf collapseSection:(int)section collapsed:weakSection.collapsed];
+        }];
     }
     
     //Update
     headerView.sectionType = SectionHeader;
+    
+    //Set it
     headerView.section = s;
+    
+    //Configure
+    if(s.configureHeaderView) {
+        s.configureHeaderView(headerView);
+    }
     
     return headerView;
 }
@@ -765,7 +786,7 @@
 -(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
     BlazeSection *s = self.tableArray[section];
-    if(!(s.footerTitle.length) && !s.sectionHeight) {
+    if(!(s.footerTitle.length) && !s.footerHeight) {
         return nil;
     }
     
@@ -776,14 +797,18 @@
     else if(self.footerXibName.length) {
         footerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:self.footerXibName];
     }
-    else {
-        footerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:kBlazeTableHeaderFooterView];
-    }
     footerView.titleLabel.text = s.footerTitle;
     
     //Update
     footerView.sectionType = SectionFooter;
+    
+    //Set it
     footerView.section = s;
+    
+    //Configure
+    if(s.configureFooterView) {
+        s.configureFooterView(footerView);
+    }
     
     return footerView;
 }
@@ -803,15 +828,28 @@
     else if(self.rowsXibName.length) {
         cellName = self.rowsXibName;
     }
-    else {
-        cellName = [self defaultXIBForEnum:row.rowType];
-    }
     
     BlazeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellName forIndexPath:indexPath];
-    
     //You could choose to return the cell here and configure in willdisplay but I found out that the UITableViewAutomaticDimension does not work anymore when you do that... So I will configure the cell here...
     
+    //Update row object
     cell.row = row;
+    
+    //Separator inset
+    if(self.noSeparatorInset) {
+        cell.layoutMargins = UIEdgeInsetsZero;
+        cell.separatorInset = UIEdgeInsetsZero;
+        cell.preservesSuperviewLayoutMargins = FALSE;
+    }
+    
+    //Selection background color
+    if(row.selectionBackgroundColor) {
+        UIView *view = [UIView new];
+        view.backgroundColor = row.selectionBackgroundColor;
+        cell.selectedBackgroundView = view;
+    }
+    
+    //Completion blocks
     [cell setHeightUpdated:^{
         CGPoint currentOffset = tableView.contentOffset;
         [UIView setAnimationsEnabled:FALSE];
@@ -930,7 +968,40 @@
 
 -(void)emptyDataSetWillReload:(UIScrollView *)scrollView
 {
+    for(BlazeSection *s in self.tableArray) {
+        //Section header/footer
+        if(s.headerXibName.length) {
+            [self registerCustomHeader:s.headerXibName];
+        }
+        if(s.footerXibName.length) {
+            [self registerCustomHeader:s.footerXibName];
+        }
+        
+        //Section rows
+        if(s.rowsXibName.length) {
+            [self registerCustomCell:s.rowsXibName];
+        }
+        
+        //Rows
+        for(BlazeRow *r in s.rows) {
+            if(r.xibName.length) {
+                [self registerCustomCell:r.xibName];
+            }
+        }
+    }
     
+    //Self headers/cells
+    if(self.headerXibName.length) {
+        [self registerCustomHeader:self.headerXibName];
+    }
+    if(self.footerXibName.length) {
+        [self registerCustomHeader:self.footerXibName];
+    }
+    
+    //Self rows
+    if(self.rowsXibName.length) {
+        [self registerCustomCell:self.rowsXibName];
+    }
 }
 
 #pragma mark Dealloc

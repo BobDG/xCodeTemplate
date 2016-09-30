@@ -14,20 +14,18 @@ PODS:
   - AFNetworking/Serialization (3.1.0)
   - AFNetworking/UIKit (3.1.0):
     - AFNetworking/NSURLSession
-  - BDGCategories (0.0.8)
-  - BDGImagePicker (0.0.8)
-  - BDGMacros (0.0.16)
+  - BDGCategories (0.0.10)
+  - BDGImagePicker (0.0.9)
+  - BDGMacros (0.0.18)
   - BDGScreenshot (0.0.2)
   - BDGShare (0.0.11)
-  - BDGViews (0.0.1)
-  - Blaze (0.0.7):
+  - BDGViews (0.0.3)
+  - Blaze (1.0.5):
     - AFNetworking
-    - DZNEmptyDataSet
   - DTTJailbreakDetection (0.4.0)
-  - DZNEmptyDataSet (1.8.1)
-  - HockeySDK (4.0.2):
-    - HockeySDK/AllFeaturesLib (= 4.0.2)
-  - HockeySDK/AllFeaturesLib (4.0.2)
+  - HockeySDK (4.1.1):
+    - HockeySDK/DefaultLib (= 4.1.1)
+  - HockeySDK/DefaultLib (4.1.1)
   - JVFloatLabeledTextField (1.1.1)
   - SVProgressHUD (2.0.3)
 
@@ -47,16 +45,15 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
-  BDGCategories: 942fcc34510bd1b8b8ee537020320d76db821a02
-  BDGImagePicker: ae29134be1b3c6decdd9005a0f5afbcc79496f6a
-  BDGMacros: e2018adfb2fd00c4ab41fbb3bc93c38e5165da92
+  BDGCategories: 656568c707218dcfe007231ec13a53286accf590
+  BDGImagePicker: 485b49c91b6be2ee982dde01ab3f801605763295
+  BDGMacros: 8d03817ec90f2c028648722f3289569dee4ed73f
   BDGScreenshot: f493d124c9935132da9e0ca9e8f2e6be180f7dd5
   BDGShare: 32748bcc08221d403115d68d76f9ee9ed1734883
-  BDGViews: db364b96a02d02b8b5aba3f0b3dea798506d683f
-  Blaze: 07619a7427be5748c4180ea3ab66beced2bd4c23
+  BDGViews: 0ad8bd4a5edfc139b90349271a277195c10efbe3
+  Blaze: e8de931815ffa13cd95c64e92542ca443e2c2441
   DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
-  DZNEmptyDataSet: 9525833b9e68ac21c30253e1d3d7076cc828eaa7
-  HockeySDK: ebaabf41808b4e4ea85b4d5266d425aef0d19c88
+  HockeySDK: 364679ba00f3447d014dd75cac57e59cc2574318
   JVFloatLabeledTextField: 0e5524b097f102036214dd8279edc8ecf08b5e18
   SVProgressHUD: b0830714205bea1317ea1a2ebc71e5633af334d4
 

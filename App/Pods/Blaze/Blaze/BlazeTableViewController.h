@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <DZNEmptyDataSet/UIScrollView+EmptyDataSet.h>
 
 #import "BlazeRow.h"
 #import "BlazeSection.h"
 #import "NSObject+PropertyName.h"
+#import "UIScrollView+EmptyDataSet.h"
 
 @interface BlazeTableViewController : UITableViewController
 {
@@ -31,6 +31,9 @@
 @property(nonatomic,strong) UIColor *emptyBackgroundColor;
 @property(nonatomic,strong) NSDictionary *emptyTitleAttributes;
 
+//Separator Inset
+@property(nonatomic) bool noSeparatorInset;
+
 //Heights
 @property(nonatomic) float rowHeight;
 @property(nonatomic) float sectionHeaderHeight;
@@ -39,9 +42,6 @@
 //Load content on appear
 -(void)loadTableContent;
 @property(nonatomic) bool loadContentOnAppear;
-
-//Default XIB for rowtype
--(NSString *)defaultXIBForEnum:(BlazeRowType)rowType;
 
 //TableArray
 @property(nonatomic,strong) NSMutableArray *tableArray;
@@ -54,15 +54,20 @@
 @property(nonatomic) bool enableRefreshControl;
 @property(nonatomic,copy) void (^refreshControlPulled)(void);
 
+//Collapsing - override for example to fix iOS9 crashes...
+-(void)collapseSection:(int)sectionIndex collapsed:(BOOL)collapsed;
+
 //Utility methods
 -(void)reloadHeightsQuickly;
 -(void)reloadTable:(BOOL)animated;
 -(void)scrollToTop:(BOOL)animated;
 -(void)reloadCellForID:(int)rowID;
+-(void)reloadTableWithFadeTransition;
 -(void)reloadCellForID:(int)rowID withRowAnimation:(UITableViewRowAnimation)animation;
 -(void)removeRowWithID:(int)rowID;
 -(void)removeRowWithID:(int)rowID withRowAnimation:(UITableViewRowAnimation)animation;
 -(BlazeRow *)rowForID:(int)rowID;
+-(BlazeRow *)rowForIndexPath:(NSIndexPath *)indexPath;
 -(void)removeSectionWithID:(int)sectionID;
 -(void)addSection:(BlazeSection *)section;
 -(NSIndexPath *)indexPathForRowID:(int)rowID;
@@ -70,6 +75,7 @@
 -(void)registerCustomHeader:(NSString *)xibName;
 -(BlazeSection *)sectionForID:(int)sectionID;
 -(void)registerCustomCells:(NSArray *)cellNames;
+-(void)registerCustomHeaders:(NSArray *)headerNames;
 -(void)addRow:(BlazeRow *)row afterRowID:(int)afterRowID;
 -(void)addRow:(BlazeRow *)row afterRowID:(int)afterRowID withRowAnimation:(UITableViewRowAnimation)animation;
 -(void)removeRowsInSection:(int)sectionIndex fromIndex:(int)rowIndex;

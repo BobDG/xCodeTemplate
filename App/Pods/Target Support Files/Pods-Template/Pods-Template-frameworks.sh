@@ -92,7 +92,6 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/BDGViews/BDGViews.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Blaze/Blaze.framework"
   install_framework "$BUILT_PRODUCTS_DIR/DTTJailbreakDetection/DTTJailbreakDetection.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/DZNEmptyDataSet/DZNEmptyDataSet.framework"
   install_framework "$BUILT_PRODUCTS_DIR/JVFloatLabeledTextField/JVFloatLabeledTextField.framework"
   install_framework "$BUILT_PRODUCTS_DIR/SVProgressHUD/SVProgressHUD.framework"
 fi
@@ -105,7 +104,6 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/BDGViews/BDGViews.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Blaze/Blaze.framework"
   install_framework "$BUILT_PRODUCTS_DIR/DTTJailbreakDetection/DTTJailbreakDetection.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/DZNEmptyDataSet/DZNEmptyDataSet.framework"
   install_framework "$BUILT_PRODUCTS_DIR/JVFloatLabeledTextField/JVFloatLabeledTextField.framework"
   install_framework "$BUILT_PRODUCTS_DIR/SVProgressHUD/SVProgressHUD.framework"
 fi
@@ -118,7 +116,6 @@ if [[ "$CONFIGURATION" == "AppStore" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/BDGViews/BDGViews.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Blaze/Blaze.framework"
   install_framework "$BUILT_PRODUCTS_DIR/DTTJailbreakDetection/DTTJailbreakDetection.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/DZNEmptyDataSet/DZNEmptyDataSet.framework"
   install_framework "$BUILT_PRODUCTS_DIR/JVFloatLabeledTextField/JVFloatLabeledTextField.framework"
   install_framework "$BUILT_PRODUCTS_DIR/SVProgressHUD/SVProgressHUD.framework"
 fi

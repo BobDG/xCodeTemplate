@@ -247,6 +247,12 @@
 - (void)emptyDataSet:(UIScrollView *)scrollView didTapButton:(UIButton *)button;
 
 /**
+ Tells the delegate the the tableview will reload.
+ @param scrollView A scrollView subclass informing the delegate.
+ */
+- (void)emptyDataSetWillReload:(UIScrollView *)scrollView;
+
+/**
  Tells the delegate that the empty data set will appear.
 
  @param scrollView A scrollView subclass informing the delegate.

@@ -10,7 +10,21 @@
 
 @implementation NSManagedObject (Mapping)
 
--(void)safeSetValuesForKeysWithDictionary:(NSDictionary *)keyedValues dateFormatter:(NSDateFormatter *)dateFormatter context:(NSManagedObjectContext *)context
+-(void)copyPropertiesToObject:(NSManagedObject *)object
+{
+    NSDictionary *fromAttributes = [[self entity] attributesByName];
+    NSArray *toAttributes = [[object entity] attributesByName].allKeys;
+    for(NSString *attributeName in fromAttributes) {
+        if(![toAttributes containsObject:attributeName]) {
+            continue;
+        }
+        
+        //Set it
+        [object setValue:[self valueForKey:attributeName] forKey:attributeName];
+    }
+}
+
+-(void)safeSetValuesForKeysWithDictionary:(NSDictionary *)keyedValues dateFormatter:(NSDateFormatter *)dateFormatter context:(NSManagedObjectContext *)context includeArrays:(BOOL)includeArrays
 {
     NSDictionary *attributes = [[self entity] attributesByName];
     for(NSString *attribute in attributes) {
@@ -38,13 +52,13 @@
     NSDictionary *relationships = [[self entity] relationshipsByName];
     for(NSString *relationship in relationships) {
         id value = [keyedValues objectForKey:relationship];
-        if(![value isKindOfClass:[NSDictionary class]]) {
-            continue;
-        }
         if(value == nil) {
             continue;
         }
         if(value == [NSNull null]) {
+            continue;
+        }
+        if(![value isKindOfClass:[NSDictionary class]]) {
             continue;
         }
         
@@ -59,11 +73,70 @@
         //Update values
         [relationshipObject safeSetValuesForKeysWithDictionary:value dateFormatter:dateFormatter context:context];
     }
+    
+    //Special cases - array relationships!
+    if(!includeArrays) {
+        return;
+    }
+    for(NSString *key in keyedValues.allKeys) {
+        id value = keyedValues[key];
+        if(![value isKindOfClass:[NSArray class]]) {
+            continue;
+        }
+        
+        //Got objects?
+        NSArray *values = (NSArray *)value;
+        if(!values.count) {
+            continue;
+        }
+        
+        if(![relationships objectForKey:key]) {
+            continue;
+        }
+        
+        //Sanity check
+        if(key.length<=1) {
+            continue;
+        }
+        
+        //Classname
+        NSString *className = [[key capitalizedString] substringToIndex:key.length-1];
+        
+        //Check classname
+        if(!NSClassFromString(className)) {
+            continue;
+        }
+        
+        for(id valueDict in values) {
+            //Only use dictionaries
+            if(![valueDict isKindOfClass:[NSDictionary class]]) {
+                break;
+            }
+            
+            //Create and set values
+            NSManagedObject *relationshipObject = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+            [relationshipObject safeSetValuesForKeysWithDictionary:valueDict dateFormatter:dateFormatter context:context includeArrays:includeArrays];
+            
+            //Add it
+            NSMutableSet *set = [self mutableSetValueForKey:key];
+            [set addObject:relationshipObject];
+        }
+    }
+}
+
+-(void)safeSetValuesForKeysWithDictionary:(NSDictionary *)keyedValues dateFormatter:(NSDateFormatter *)dateFormatter context:(NSManagedObjectContext *)context
+{
+    [self safeSetValuesForKeysWithDictionary:keyedValues dateFormatter:dateFormatter context:context includeArrays:FALSE];
 }
 
 -(void)safeSetValuesForKeysWithDictionary:(NSDictionary *)keyedValues dateFormatter:(NSDateFormatter *)dateFormatter
 {
     [self safeSetValuesForKeysWithDictionary:keyedValues dateFormatter:dateFormatter context:nil];
+}
+
+-(void)safeSetValuesForKeysWithDictionary:(NSDictionary *)keyedValues context:(NSManagedObjectContext *)context includeArrays:(BOOL)includeArrays
+{
+    [self safeSetValuesForKeysWithDictionary:keyedValues dateFormatter:nil context:context includeArrays:includeArrays];
 }
 
 -(void)safeSetValuesForKeysWithDictionary:(NSDictionary *)keyedValues context:(NSManagedObjectContext *)context

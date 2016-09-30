@@ -101,7 +101,9 @@
         CFRunLoopWakeUp(CFRunLoopGetCurrent());
     }]];
     [alertController addAction:[UIAlertAction actionWithTitle:cancel style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-        
+        if (self.pickerDismissed) {
+            self.pickerDismissed();
+        }
     }]];
     if(!CGRectIsEmpty(sourceRect)) {
         alertController.popoverPresentationController.sourceView = viewController.view;
@@ -174,6 +176,15 @@
     //Dismiss
     [picker dismissViewControllerAnimated:TRUE completion:^{
         if(self.pickerDismissed) {
+            self.pickerDismissed();
+        }
+    }];
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    [picker dismissViewControllerAnimated:YES completion:^{
+        if (self.pickerDismissed) {
             self.pickerDismissed();
         }
     }];

@@ -2,6 +2,7 @@
 
 #import "BlazeTableViewController.h"
 #import "NSObject+PropertyName.h"
+#import "UIScrollView+EmptyDataSet.h"
 #import "BlazeTileCollectionViewCell.h"
 #import "BlazeTilesCollectionView.h"
 #import "BlazeInputTile.h"

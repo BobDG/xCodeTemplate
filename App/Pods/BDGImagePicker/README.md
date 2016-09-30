@@ -3,7 +3,7 @@ BDGImagePicker
 
 Great lightweight wrapper around UIImagePickerController with only a couple of lines and great completion blocks!
 
-## Installation using Cocoapods
+## Installation using CocoaPods
 ```
 pod 'BDGImagePicker'
 ```

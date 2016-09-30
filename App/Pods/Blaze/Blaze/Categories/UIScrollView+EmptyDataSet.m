@@ -162,7 +162,6 @@ static char const * const kEmptyDataSetView =       "emptyDataSetView";
     return items;
 }
 
-
 #pragma mark - Data Source Getters
 
 - (NSAttributedString *)dzn_titleLabelString
@@ -283,7 +282,6 @@ static char const * const kEmptyDataSetView =       "emptyDataSetView";
     return 0.0;
 }
 
-
 #pragma mark - Delegate Getters & Events (Private)
 
 - (BOOL)dzn_shouldFadeIn {
@@ -387,6 +385,12 @@ static char const * const kEmptyDataSetView =       "emptyDataSetView";
 #pragma clang diagnostic pop
 }
 
+-(void)dzn_willReload
+{
+    if(self.emptyDataSetDelegate && [self.emptyDataSetDelegate respondsToSelector:@selector(emptyDataSetWillReload:)]) {
+        [self.emptyDataSetDelegate emptyDataSetWillReload:self];
+    }
+}
 
 #pragma mark - Setters (Public)
 
@@ -440,6 +444,9 @@ static char const * const kEmptyDataSetView =       "emptyDataSetView";
     if (![self dzn_canDisplay]) {
         return;
     }
+    
+    //Inform delegate of the reload
+    [self dzn_willReload];
     
     if (([self dzn_shouldDisplay] && [self dzn_itemsCount] == 0) || [self dzn_shouldBeForcedToDisplay])
     {
