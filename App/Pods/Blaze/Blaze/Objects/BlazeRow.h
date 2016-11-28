@@ -14,6 +14,12 @@ typedef NS_ENUM(NSInteger, InputAccessoryViewType) {
     InputAccessoryViewCancelSave,
 };
 
+typedef NS_ENUM(NSInteger, FloatingLabelEnabledState) {
+    FloatingLabelStateUndetermined = -1,
+    FloatingLabelStateDisabled = 0,
+    FloatingLabelStateEnabled = 1,
+};
+
 @interface BlazeRow : NSObject
 {
     
@@ -47,7 +53,6 @@ typedef NS_ENUM(NSInteger, InputAccessoryViewType) {
 -(instancetype)initWithtitle:(NSString *)title placeholder:(NSString *)placeholder;
 -(instancetype)initWithTitle:(NSString *)title segueIdentifier:(NSString *)segueIdentifier;
 -(instancetype)initWithtitle:(NSString *)title value:(id)value placeholder:(NSString *)placeholder segueIdentifier:(NSString *)segueIdentifier;
-
 
 //Methods
 -(void)updatedValue:(id)value;
@@ -94,12 +99,12 @@ typedef NS_ENUM(NSInteger, InputAccessoryViewType) {
 //Subtitle
 @property(nonatomic,strong) NSString *subtitle;
 @property(nonatomic,strong) UIColor *subtitleColor;
-@property(nonatomic,strong) NSAttributedString *attributeSubtitle;
+@property(nonatomic,strong) NSAttributedString *attributedSubtitle;
 
 //SubSubtitle
 @property(nonatomic,strong) NSString *subsubtitle;
 @property(nonatomic,strong) UIColor *subsubtitleColor;
-@property(nonatomic,strong) NSAttributedString *attributeSubSubtitle;
+@property(nonatomic,strong) NSAttributedString *attributedSubSubtitle;
 
 //Buttons
 @property(nonatomic,strong) NSString *buttonLeftTitle;
@@ -161,6 +166,7 @@ typedef NS_ENUM(NSInteger, InputAccessoryViewType) {
 @property(nonatomic) bool tileSelectAutomatically;
 @property(nonatomic,strong) NSArray *tilesValues;
 @property(nonatomic,strong) NSString *tileCellXibName;
+@property(nonatomic,assign) BOOL tilesMultipleSelection;
 
 //Pickerview
 @property(nonatomic,strong) NSArray *selectorOptions;
@@ -185,8 +191,16 @@ typedef NS_ENUM(NSInteger, InputAccessoryViewType) {
 @property(nonatomic) UITextAutocapitalizationType capitalizationType;
 @property(nonatomic,strong) NSString *placeholder;
 @property(nonatomic,strong) NSFormatter *formatter;
+@property(nonatomic,strong) NSString *placeholderText;
 @property(nonatomic,strong) UIColor *placeholderColor;
 @property(nonatomic,strong) NSAttributedString *attributedPlaceholder;
+
+//Floating placeholder options
+@property(nonatomic) FloatingLabelEnabledState floatingLabelEnabled;
+@property(nonatomic,strong) NSString *floatingTitle;
+@property(nonatomic,strong) UIFont *floatingTitleFont;
+@property(nonatomic,strong) UIColor *floatingTitleColor;
+@property(nonatomic,strong) UIColor *floatingTitleActiveColor;
 
 //MultipleSelector
 @property(nonatomic) bool disableMultipleSelection;

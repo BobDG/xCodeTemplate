@@ -42,16 +42,8 @@
         index = [pickerValues indexOfObject:textValue];
     }
     
-    //Placeholder
-    if(self.row.attributedPlaceholder.length) {
-        self.pickerField.attributedPlaceholder = self.row.attributedPlaceholder;
-    }
-    else if(self.row.placeholder.length && self.row.placeholderColor) {
-        self.pickerField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.row.placeholder attributes:@{NSForegroundColorAttributeName:self.row.placeholderColor}];
-    }
-    else if(self.row.placeholder.length) {
-        self.pickerField.placeholder = self.row.placeholder;
-    }
+    //Merge BlazeRow's configuration with the BlazeTextField
+    [self.pickerField mergeBlazeRowWithInspectables:self.row];
     
     //No index check
     if(index == NSNotFound) {
@@ -103,7 +95,7 @@
 
 -(void)setSelected:(BOOL)selected animated:(BOOL)animated
 {
-    if(selected) {
+    if(selected && self.pickerField.userInteractionEnabled) {
         [self.pickerField becomeFirstResponder];
     }
 }
@@ -146,7 +138,7 @@
 
 -(BOOL)canBecomeFirstResponder
 {
-    return TRUE;
+    return self.pickerField.userInteractionEnabled;
 }
 
 -(BOOL)becomeFirstResponder

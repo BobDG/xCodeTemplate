@@ -1,7 +1,10 @@
+#ifdef __OBJC__
 #import <UIKit/UIKit.h>
+#endif
 
 #import "BlazeTableViewController.h"
 #import "NSObject+PropertyName.h"
+#import "NSString+TextDirectionality.h"
 #import "UIScrollView+EmptyDataSet.h"
 #import "BlazeTileCollectionViewCell.h"
 #import "BlazeTilesCollectionView.h"
@@ -22,6 +25,7 @@
 #import "BlazeTableHeaderFooterView.h"
 #import "BlazeDatePickerField.h"
 #import "BlazePickerViewField.h"
+#import "BlazeTextField.h"
 #import "BlazeTextView.h"
 
 FOUNDATION_EXPORT double BlazeVersionNumber;

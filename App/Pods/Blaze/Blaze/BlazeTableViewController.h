@@ -30,6 +30,9 @@
 @property(nonatomic,strong) NSString *emptyTitle;
 @property(nonatomic,strong) UIColor *emptyBackgroundColor;
 @property(nonatomic,strong) NSDictionary *emptyTitleAttributes;
+@property(nonatomic,strong) UIView *emptyCustomView;
+@property(nonatomic) UITableViewCellSeparatorStyle filledTableViewCellSeparatorStyle;
+@property(nonatomic) UITableViewCellSeparatorStyle emptyTableViewCellSeparatorStyle;
 
 //Separator Inset
 @property(nonatomic) bool noSeparatorInset;
@@ -60,6 +63,7 @@
 //Utility methods
 -(void)reloadHeightsQuickly;
 -(void)reloadTable:(BOOL)animated;
+-(void)reloadTableWithAnimation:(UITableViewRowAnimation)animation;
 -(void)scrollToTop:(BOOL)animated;
 -(void)reloadCellForID:(int)rowID;
 -(void)reloadTableWithFadeTransition;

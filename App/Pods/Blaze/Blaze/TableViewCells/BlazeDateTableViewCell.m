@@ -54,24 +54,16 @@
         }
     }
     
-    //Placeholder
-    if(self.row.attributedPlaceholder.length) {
-        self.dateField.attributedPlaceholder = self.row.attributedPlaceholder;
-    }
-    else if(self.row.placeholder.length && self.row.placeholderColor) {
-        self.dateField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.row.placeholder attributes:@{NSForegroundColorAttributeName:self.row.placeholderColor}];
-    }
-    else if(self.row.placeholder.length) {
-        self.dateField.placeholder = self.row.placeholder;
-    }
+    //Merge BlazeRow's configuration with the BlazeTextField
+    [self.dateField mergeBlazeRowWithInspectables:self.row];
     
     //Editable
-    self.dateField.userInteractionEnabled = !self.row.disableEditing;
+    self.dateField.userInteractionEnabled = !self.row.disableEditing;    
 }
 
 -(void)setSelected:(BOOL)selected animated:(BOOL)animated
 {
-    if(selected) {
+    if(selected && self.dateField.userInteractionEnabled) {
         [self.dateField becomeFirstResponder];
     }
 }
@@ -142,7 +134,7 @@
 
 -(BOOL)canBecomeFirstResponder
 {
-    return TRUE;
+    return self.dateField.userInteractionEnabled;
 }
 
 -(BOOL)becomeFirstResponder

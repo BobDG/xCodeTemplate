@@ -26,11 +26,13 @@
 @property(nonatomic) bool allowsEditing;
 @property(nonatomic) bool statusBarHidden;
 @property(nonatomic) bool saveInCameraRoll;
+@property(nonatomic) UIStatusBarStyle statusBarStyle;
+
+//Optional references
 @property(nonatomic,strong) NSString *title;
 @property(nonatomic,strong) NSString *cancel;
 @property(nonatomic,strong) NSString *takePhoto;
 @property(nonatomic,strong) NSString *choosePhoto;
-@property(nonatomic) UIStatusBarStyle statusBarStyle;
 
 //Completion blocks
 @property(nonatomic, copy) void (^pickerDismissed)(void);

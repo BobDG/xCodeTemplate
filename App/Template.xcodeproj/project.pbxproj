@@ -184,10 +184,10 @@
 				ED3A82B01D2A8760000DC75B /* Objects */,
 				ED2E61421C9D78DB000441E4 /* AppData */,
 				ED2E61451C9D78DB000441E4 /* Appearance */,
-				ED2E615A1C9D78EA000441E4 /* AppDelegate */,
 				ED2E614B1C9D78DB000441E4 /* Notifications */,
-				ED2E614E1C9D78DB000441E4 /* UserInterface */,
+				ED2E614E1C9D78DB000441E4 /* ViewControllers */,
 				ED2E61711C9D7904000441E4 /* Storyboards */,
+				ED2E615A1C9D78EA000441E4 /* AppDelegate */,
 				ED2E61281C9D7851000441E4 /* Supporting Files */,
 			);
 			path = Source;
@@ -254,12 +254,13 @@
 			path = Notifications;
 			sourceTree = "<group>";
 		};
-		ED2E614E1C9D78DB000441E4 /* UserInterface */ = {
+		ED2E614E1C9D78DB000441E4 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				EDD4BE891CD8CBBA003B28BA /* BaseTableViewController */,
+				EDD4BE891CD8CBBA003B28BA /* General */,
 				ED2E61531C9D78DB000441E4 /* Signin */,
 			);
+			name = ViewControllers;
 			path = UserInterface;
 			sourceTree = "<group>";
 		};
@@ -367,7 +368,7 @@
 			name = TableViewCells;
 			sourceTree = "<group>";
 		};
-		EDD4BE891CD8CBBA003B28BA /* BaseTableViewController */ = {
+		EDD4BE891CD8CBBA003B28BA /* General */ = {
 			isa = PBXGroup;
 			children = (
 				ED3ADE6D1D41063400F1D9E9 /* TableHeaderFooterViews */,
@@ -375,7 +376,7 @@
 				EDD4BE8A1CD8CBD6003B28BA /* BaseTableViewController.h */,
 				EDD4BE8B1CD8CBD6003B28BA /* BaseTableViewController.m */,
 			);
-			name = BaseTableViewController;
+			name = General;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -391,6 +392,7 @@
 				ED2E61231C9D7851000441E4 /* Resources */,
 				1968C915F4BA760F796F1749 /* [CP] Embed Pods Frameworks */,
 				C1EEF7370733FBAC80878AEE /* [CP] Copy Pods Resources */,
+				EDC7EA0F1DEC30AF0047102C /* Icon Buildnumber */,
 			);
 			buildRules = (
 			);
@@ -501,7 +503,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		C1EEF7370733FBAC80878AEE /* [CP] Copy Pods Resources */ = {
@@ -532,6 +534,20 @@
 			shellPath = /bin/sh;
 			shellScript = "mogenerator -m Source/Model/MODELNAME.xcdatamodeld -O Source/Model --template-var arc=true";
 			showEnvVarsInLog = 0;
+		};
+		EDC7EA0F1DEC30AF0047102C /* Icon Buildnumber */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Icon Buildnumber";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Scripts/IconBuildNumber.sh\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 

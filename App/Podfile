@@ -15,7 +15,6 @@ def shared_pods
     pod 'AFNetworking'
     pod 'SVProgressHUD'
     pod 'DTTJailbreakDetection'
-    pod 'JVFloatLabeledTextField'
 end
 
 target 'Template' do

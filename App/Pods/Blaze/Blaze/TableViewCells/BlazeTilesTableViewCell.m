@@ -61,7 +61,21 @@
     }
     NSArray *tilesArray = self.row.tilesValues;
     cell.inputTile = tilesArray[indexPath.row];
-    cell.selected = indexPath.row == [self.row.value intValue];
+    if(self.row.tilesMultipleSelection) {
+        if(![self.row.value isKindOfClass:[NSMutableArray class]]) {
+            cell.selected = false;
+        }
+        else {
+            NSUInteger idx = [self.row.value indexOfObject:@(indexPath.row)];
+            if(idx != NSNotFound) {
+                cell.selected = true;
+            } else {
+                cell.selected = false;
+            }
+        }
+    } else {
+        cell.selected = indexPath.row == [self.row.value intValue];
+    }
     return cell;
 }
 
@@ -79,18 +93,39 @@
         float totalRows = (float)totalTiles/(float)self.row.tilesPerRow;
         tileHeight = floor(collectionView.frame.size.height/(float)totalRows)-1.0f;
     }
-    CGSize cellSize = CGSizeMake(round(tileWidth), tileHeight);
+    CGSize cellSize = CGSizeMake(floor(tileWidth), tileHeight);    
     return cellSize;
 }
 
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    if(self.row.disableEditing) {
+        return;
+    }
+    
     NSArray *tilesArray = self.row.tilesValues;
-    BlazeInputTile *tile = tilesArray[indexPath.row];
-    self.row.value = @(indexPath.row);
-    [self.row updatedValue:self.row.value];
-    for(BlazeTileCollectionViewCell *cell in collectionView.visibleCells) {
-        cell.selected = cell.inputTile == tile;
+    NSNumber *tileIndex = @(indexPath.row);
+    
+    if(self.row.tilesMultipleSelection) {
+        if(![self.row.value isKindOfClass:[NSMutableArray class]]) {
+            self.row.value = [NSMutableArray new];
+        }
+        
+        NSUInteger idx = [self.row.value indexOfObject:tileIndex];
+        if(idx != NSNotFound) {
+            [self.row.value removeObjectAtIndex:idx];
+        } else {
+            [self.row.value addObject:tileIndex];
+        }
+        [self.row updatedValue:self.row.value];
+        [collectionView reloadData];
+    } else {
+        BlazeInputTile *tile = tilesArray[indexPath.row];
+        self.row.value = @(indexPath.row);
+        [self.row updatedValue:self.row.value];
+        for(BlazeTileCollectionViewCell *cell in collectionView.visibleCells) {
+            cell.selected = cell.inputTile == tile;
+        }
     }
 }
 

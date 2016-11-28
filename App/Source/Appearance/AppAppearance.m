@@ -49,34 +49,11 @@
     
     //Cache keyboard
     [self cacheKeyboard];
-    
-    //Version
-    [self setupVersionLabel];
 }
 
 #pragma mark - Colors
 
 
-
-
-#pragma mark - Version Label
-
-+(void)setupVersionLabel
-{
-    if(!APPSTORE) {
-        // WAIT A SECOND FOR SCREEN TO ARRIVE
-        double delayInSeconds = 1.0;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            UIWindow *window = kAppDelegate.window;
-            UILabel *version = [[UILabel alloc]initWithFrame:CGRectMake(10, window.frame.size.height-12, 90, 10)];
-            version.backgroundColor = [UIColor clearColor];
-            version.text = [NSString stringWithFormat:@"%@ (%@)",[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"],[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]];
-            version.font = [UIFont systemFontOfSize:10];
-            [window addSubview:version];
-        });
-    }
-}
 
 #pragma mark Utility methods
 

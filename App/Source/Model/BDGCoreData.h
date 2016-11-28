@@ -9,7 +9,7 @@
 #import <CoreData/CoreData.h>
 #import <Foundation/Foundation.h>
 
-#define CoreData [BDGCoreData sharedBDGCoreData]
+#define kCoreData [BDGCoreData sharedBDGCoreData]
 
 @interface BDGCoreData : NSObject
 {

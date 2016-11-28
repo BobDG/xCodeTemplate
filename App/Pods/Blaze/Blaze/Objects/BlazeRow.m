@@ -24,6 +24,16 @@
 
 #pragma mark Init with ID
 
+-(instancetype)init
+{
+    self = [super init];
+    if(!self) {
+        return nil;
+    }
+    self.floatingLabelEnabled = FloatingLabelStateUndetermined;
+    return self;
+}
+
 -(instancetype)initWithID:(int)ID
 {
     return [self initWithID:ID title:nil];
@@ -64,7 +74,9 @@
     self.ID = ID;
     self.title = title;
     self.value = value;
+    self.xibName = xibName;
     self.placeholder = placeholder;
+    self.floatingLabelEnabled = FloatingLabelStateUndetermined;
     
     return self;
 }
@@ -113,11 +125,12 @@
         return nil;
     }
     
-    self.xibName = xibName;
     self.title = title;
     self.value = value;
+    self.xibName = xibName;
     self.placeholder = placeholder;
     self.segueIdentifier = segueIdentifier;
+    self.floatingLabelEnabled = FloatingLabelStateUndetermined;
     
     return self;
 }
@@ -155,6 +168,7 @@
     self.value = value;
     self.placeholder = placeholder;
     self.segueIdentifier = segueIdentifier;
+    self.floatingLabelEnabled = FloatingLabelStateUndetermined;
     
     return self;
 }

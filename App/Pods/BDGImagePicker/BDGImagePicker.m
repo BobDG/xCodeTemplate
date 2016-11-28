@@ -12,8 +12,12 @@
     
 }
 
+//Primitives
 @property(nonatomic) bool takingPicture;
 @property(nonatomic) bool statusBarStyleSet;
+
+//References
+@property(nonatomic) UIPopoverController *popoverController;
 
 @end
 
@@ -92,18 +96,22 @@
     }
     [alertController addAction:[UIAlertAction actionWithTitle:choosePhoto style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         self.takingPicture = FALSE;
-        UIImagePickerController * picker = [[UIImagePickerController alloc] init];
+        UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
         picker.allowsEditing = self.allowsEditing;
         picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-        [viewController presentViewController:picker animated:TRUE completion:^{
-        }];
+        if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            self.popoverController = [[UIPopoverController alloc] initWithContentViewController:picker];
+            [self.popoverController presentPopoverFromRect:sourceRect inView:viewController.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+        }
+        else {
+            [viewController presentViewController:picker animated:TRUE completion:^{
+            }];
+        }
         CFRunLoopWakeUp(CFRunLoopGetCurrent());
     }]];
     [alertController addAction:[UIAlertAction actionWithTitle:cancel style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-        if (self.pickerDismissed) {
-            self.pickerDismissed();
-        }
+        
     }]];
     if(!CGRectIsEmpty(sourceRect)) {
         alertController.popoverPresentationController.sourceView = viewController.view;
@@ -176,15 +184,6 @@
     //Dismiss
     [picker dismissViewControllerAnimated:TRUE completion:^{
         if(self.pickerDismissed) {
-            self.pickerDismissed();
-        }
-    }];
-}
-
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
-{
-    [picker dismissViewControllerAnimated:YES completion:^{
-        if (self.pickerDismissed) {
             self.pickerDismissed();
         }
     }];

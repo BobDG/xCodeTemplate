@@ -71,6 +71,8 @@
     //Empty defaults
     self.emptyScrollable = TRUE;
     self.emptyVerticalOffset = -100.0f;
+    self.emptyTableViewCellSeparatorStyle = -1;
+    self.filledTableViewCellSeparatorStyle = -1;
     self.emptyBackgroundColor = [UIColor groupTableViewBackgroundColor];
     
     //Empty datasource & delegate
@@ -201,6 +203,19 @@
         NSRange range = NSMakeRange(0, [self numberOfSectionsInTableView:self.tableView]);
         NSIndexSet *sections = [NSIndexSet indexSetWithIndexesInRange:range];
         [self.tableView reloadSections:sections withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self.tableView reloadEmptyDataSet];
+    }
+    else {
+        [self.tableView reloadData];
+    }
+}
+
+-(void)reloadTableWithAnimation:(UITableViewRowAnimation)animation
+{
+    if([self.tableView numberOfSections] == [self numberOfSectionsInTableView:self.tableView]) {
+        NSRange range = NSMakeRange(0, [self numberOfSectionsInTableView:self.tableView]);
+        NSIndexSet *sections = [NSIndexSet indexSetWithIndexesInRange:range];
+        [self.tableView reloadSections:sections withRowAnimation:animation];
         [self.tableView reloadEmptyDataSet];
     }
     else {
@@ -1002,6 +1017,21 @@
     if(self.rowsXibName.length) {
         [self registerCustomCell:self.rowsXibName];
     }
+    
+    //Separator style
+    if((int)self.emptyTableViewCellSeparatorStyle != -1 && (int)self.filledTableViewCellSeparatorStyle != -1) {
+        if(self.tableArray.count) {
+            self.tableView.separatorStyle = self.filledTableViewCellSeparatorStyle;
+        }
+        else {
+            self.tableView.separatorStyle = self.emptyTableViewCellSeparatorStyle;
+        }
+    }
+}
+
+- (UIView *)customViewForEmptyDataSet:(UIScrollView *)scrollView
+{
+    return self.emptyCustomView;
 }
 
 #pragma mark Dealloc

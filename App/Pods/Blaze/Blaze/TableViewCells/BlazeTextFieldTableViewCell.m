@@ -26,19 +26,12 @@
     self.textField.secureTextEntry = self.row.secureTextEntry;
     self.textField.autocorrectionType = self.row.autocorrectionType;
     self.textField.autocapitalizationType = self.row.capitalizationType;
-    
-    if(self.row.attributedPlaceholder.length) {
-        self.textField.attributedPlaceholder = self.row.attributedPlaceholder;
-    }
-    else if(self.row.placeholder.length && self.row.placeholderColor) {
-        self.textField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.row.placeholder attributes:@{NSForegroundColorAttributeName:self.row.placeholderColor}];
-    }
-    else if(self.row.placeholder.length) {
-        self.textField.placeholder = self.row.placeholder;
-    }
+      
+    //Merge BlazeRow's configuration with the BlazeTextField
+    [self.textField mergeBlazeRowWithInspectables:self.row];
     
     //Editable
-    self.textField.userInteractionEnabled = !self.row.disableEditing;
+    self.textField.userInteractionEnabled = !self.row.disableEditing;    
 }
 
 -(void)awakeFromNib
@@ -109,7 +102,7 @@
 
 -(BOOL)canBecomeFirstResponder
 {
-    return TRUE;
+    return self.textField.userInteractionEnabled;
 }
 
 -(BOOL)becomeFirstResponder
