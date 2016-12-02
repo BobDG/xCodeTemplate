@@ -5,9 +5,8 @@
 //  Copyright (c) 2014 GraafICT. All rights reserved.
 //
 
-#import <HockeySDK/HockeySDK.h>
-
 #import "AppData.h"
+#import "HockeySDK.h"
 #import "Constants.h"
 
 @implementation AppData

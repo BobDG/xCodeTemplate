@@ -92,7 +92,7 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/BDGViews/BDGViews.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Blaze/Blaze.framework"
   install_framework "$BUILT_PRODUCTS_DIR/DTTJailbreakDetection/DTTJailbreakDetection.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/JVFloatLabeledTextField/JVFloatLabeledTextField.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/HockeySDK-Source/HockeySDK_Source.framework"
   install_framework "$BUILT_PRODUCTS_DIR/SVProgressHUD/SVProgressHUD.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
@@ -104,7 +104,7 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/BDGViews/BDGViews.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Blaze/Blaze.framework"
   install_framework "$BUILT_PRODUCTS_DIR/DTTJailbreakDetection/DTTJailbreakDetection.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/JVFloatLabeledTextField/JVFloatLabeledTextField.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/HockeySDK-Source/HockeySDK_Source.framework"
   install_framework "$BUILT_PRODUCTS_DIR/SVProgressHUD/SVProgressHUD.framework"
 fi
 if [[ "$CONFIGURATION" == "AppStore" ]]; then
@@ -116,6 +116,6 @@ if [[ "$CONFIGURATION" == "AppStore" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/BDGViews/BDGViews.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Blaze/Blaze.framework"
   install_framework "$BUILT_PRODUCTS_DIR/DTTJailbreakDetection/DTTJailbreakDetection.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/JVFloatLabeledTextField/JVFloatLabeledTextField.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/HockeySDK-Source/HockeySDK_Source.framework"
   install_framework "$BUILT_PRODUCTS_DIR/SVProgressHUD/SVProgressHUD.framework"
 fi

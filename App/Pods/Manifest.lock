@@ -20,13 +20,10 @@ PODS:
   - BDGScreenshot (0.0.2)
   - BDGShare (0.0.11)
   - BDGViews (0.0.4)
-  - Blaze (1.0.16):
+  - Blaze (1.0.17):
     - AFNetworking
   - DTTJailbreakDetection (0.4.0)
-  - HockeySDK (4.1.2):
-    - HockeySDK/DefaultLib (= 4.1.2)
-  - HockeySDK/DefaultLib (4.1.2)
-  - JVFloatLabeledTextField (1.1.1)
+  - HockeySDK-Source (4.1.2)
   - SVProgressHUD (2.0.4)
 
 DEPENDENCIES:
@@ -39,8 +36,7 @@ DEPENDENCIES:
   - BDGViews
   - Blaze
   - DTTJailbreakDetection
-  - HockeySDK
-  - JVFloatLabeledTextField
+  - HockeySDK-Source
   - SVProgressHUD
 
 SPEC CHECKSUMS:
@@ -51,12 +47,11 @@ SPEC CHECKSUMS:
   BDGScreenshot: f493d124c9935132da9e0ca9e8f2e6be180f7dd5
   BDGShare: 32748bcc08221d403115d68d76f9ee9ed1734883
   BDGViews: a8bd3e891617372ab191e9e8e38457638a3fcd6b
-  Blaze: abc681da2150659a13c0d484f1fb726f9c0cc8d8
+  Blaze: 7a828f884597fcf5de5263cb3c0f2b0465c43050
   DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
-  HockeySDK: c7523379550a4305cefc1cdfa7b5f9a5a3538180
-  JVFloatLabeledTextField: 0e5524b097f102036214dd8279edc8ecf08b5e18
+  HockeySDK-Source: 58d09800c495347a144e0bd7e7c7087c7831f617
   SVProgressHUD: bfde85ed6c573ea802b9cb37894ed9b629034f1b
 
-PODFILE CHECKSUM: 050cca6cb063b841e715910e6f9d13b5c9124b0b
+PODFILE CHECKSUM: 834a191648160d73081ddee0c433e364d1bf7e33
 
 COCOAPODS: 1.1.1

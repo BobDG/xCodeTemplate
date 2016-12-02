@@ -11,9 +11,9 @@ def shared_pods
     pod 'BDGScreenshot'
     pod 'BDGImagePicker'
     
-    pod 'HockeySDK'
     pod 'AFNetworking'
     pod 'SVProgressHUD'
+    pod 'HockeySDK-Source'
     pod 'DTTJailbreakDetection'
 end
 
