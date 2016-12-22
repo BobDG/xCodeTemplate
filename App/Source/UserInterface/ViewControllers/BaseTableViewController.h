@@ -6,6 +6,7 @@
 //  Copyright © 2016 GraafICT. All rights reserved.
 //
 
+#import "User.h"
 #import "BlazeTableViewController.h"
 
 //Headers
@@ -30,5 +31,7 @@
 {
     
 }
+
+@property(nonatomic,strong) User *user;
 
 @end

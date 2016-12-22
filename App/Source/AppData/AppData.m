@@ -5,38 +5,42 @@
 //  Copyright (c) 2014 GraafICT. All rights reserved.
 //
 
+#import "User.h"
 #import "AppData.h"
 #import "HockeySDK.h"
 #import "Constants.h"
+#import "NSDate+Helper.h"
+#import "NSManagedObject+Mapping.h"
 
 @implementation AppData
+SINGLETON_GCD(AppData);
 
 +(void)setupAppData
 {
-    //User defaults
-    [self setupUserDefaults];
-        
     //ThirdParties
     [self setupThirdParties];
 }
 
-#pragma mark UserDefaults
+#pragma mark User
 
-+(void)setupUserDefaults
++(id)activeUser
 {
-    NSString *versionCheck = @"Version1.0.0";
-    if(![nsprefs boolForKey:versionCheck])
-    {
-        
-        [nsprefs setBool:TRUE forKey:versionCheck];
-        [nsprefs synchronize];
+    return [kCoreData objectsWithPredicate:[NSPredicate predicateWithFormat:@"active == %@", @(TRUE)] entityName:[User entityName]].firstObject;
+}
+
+-(User *)user
+{
+    if(!_user) {
+        _user = [AppData activeUser];
     }
+    return _user;
 }
 
 #pragma mark ThirdParties
 
 +(void)setupThirdParties
 {
+    //HockeyApp
     [[BITHockeyManager sharedHockeyManager] configureWithIdentifier:[[[NSBundle mainBundle] infoDictionary]objectForKey:@"HockeyApp"]];
     [BITHockeyManager sharedHockeyManager].disableMetricsManager = YES;
     [[BITHockeyManager sharedHockeyManager] startManager];

@@ -2,6 +2,7 @@
 #import <UIKit/UIKit.h>
 #endif
 
+#import "BlazeNSFetchedTableViewController.h"
 #import "BlazeTableViewController.h"
 #import "NSObject+PropertyName.h"
 #import "NSString+TextDirectionality.h"
@@ -13,6 +14,7 @@
 #import "BlazeSection.h"
 #import "BlazeCheckboxTableViewCell.h"
 #import "BlazeDateTableViewCell.h"
+#import "BlazeImagePickerTableViewCell.h"
 #import "BlazePickerViewTableViewCell.h"
 #import "BlazeSegmentedControlTableViewCell.h"
 #import "BlazeSliderTableViewCell.h"

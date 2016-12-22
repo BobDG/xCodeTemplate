@@ -1,0 +1,6 @@
+framework module BlazeFlow {
+  umbrella header "BlazeFlow-umbrella.h"
+
+  export *
+  module * { export * }
+}

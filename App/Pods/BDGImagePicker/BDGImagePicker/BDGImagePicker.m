@@ -25,6 +25,16 @@
 
 #pragma mark Constructors
 
+-(instancetype)initWithAllowsEditing:(BOOL)allowsEditing
+{
+    return [self initWithAllowsEditing:allowsEditing saveInCameraRoll:FALSE];
+}
+
+-(instancetype)initWithAllowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll
+{
+    return [self initWithTitle:nil allowsEditing:allowsEditing saveInCameraRoll:saveInCameraRoll takePhoto:nil choosePhoto:nil cancel:nil];
+}
+
 -(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing
 {
     return [self initWithTitle:title allowsEditing:allowsEditing saveInCameraRoll:FALSE];
@@ -72,9 +82,9 @@
 -(void)pickImageFromViewController:(UIViewController *)viewController sourceRect:(CGRect)sourceRect
 {
     NSString *title = self.title.length ? self.title : @"";
-    NSString *cancel = self.cancel.length ? self.cancel : @"Cancel";
-    NSString *takePhoto = self.takePhoto.length ? self.takePhoto : @"Take photo";
-    NSString *choosePhoto = self.choosePhoto.length ? self.choosePhoto : @"Choose photo";
+    NSString *cancel = self.cancel.length ? self.cancel : NSLocalizedString(@"BDGImagePicker_Cancel", @"");
+    NSString *takePhoto = self.takePhoto.length ? self.takePhoto : NSLocalizedString(@"BDGImagePicker_TakePhoto", @"");
+    NSString *choosePhoto = self.choosePhoto.length ? self.choosePhoto : NSLocalizedString(@"BDGImagePicker_ChoosePhoto", @"");
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:@"" preferredStyle:UIAlertControllerStyleActionSheet];
     if([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         [alertController addAction:[UIAlertAction actionWithTitle:takePhoto style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {

@@ -3,14 +3,13 @@ use_frameworks!
 inhibit_all_warnings!
 
 def shared_pods
-    pod 'Blaze'
     pod 'BDGShare'
     pod 'BDGViews'
     pod 'BDGMacros'
     pod 'BDGCategories'
     pod 'BDGScreenshot'
-    pod 'BDGImagePicker'
     
+    pod 'BlazeFlow'
     pod 'AFNetworking'
     pod 'SVProgressHUD'
     pod 'HockeySDK-Source'

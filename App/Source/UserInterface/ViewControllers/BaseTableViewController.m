@@ -22,25 +22,12 @@
 {
     [super viewDidLoad];
     
-    //Register headers
-    [self registerCustomHeader:XIBTableHeaderView];
-    
-    //Register cells
-    [self registerCustomCells:@[
-                                XIBTextTableViewCell,
-                                XIBImageTableViewCell,
-                                XIBButtonTableViewCell,
-                                XIBSwitchTableViewCell,
-                                XIBCheckboxTableViewCell,
-                                XIBTextViewTableViewCell,
-                                XIBTextFieldTableViewCell,
-                                XIBCenterTextTableViewCell,
-                                XIBTextButtonTableViewCell,
-                                XIBEmptySpaceTableViewCell,
-                                XIBCircleImageTableViewCell,
-                                XIBFloatTextFieldTableViewCell,
-                                XIBSmallTextButtonTableViewCell,
-                                ]];
+    self.user = [AppData sharedAppData].user;
+}
+
+-(UIStatusBarStyle)preferredStatusBarStyle
+{
+    return UIStatusBarStyleLightContent;
 }
 
 @end

@@ -43,6 +43,8 @@
 		ED2E61701C9D78F5000441E4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ED2E61671C9D78F5000441E4 /* Localizable.strings */; };
 		ED3ADE6C1D41059000F1D9E9 /* Timer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3ADE6B1D41059000F1D9E9 /* Timer.m */; };
 		ED3ADE6F1D41064100F1D9E9 /* TableHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = ED3ADE6E1D41064100F1D9E9 /* TableHeaderView.xib */; };
+		ED3BDAFF1E0C19CF00B230A6 /* _User.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3BDAFC1E0C19CF00B230A6 /* _User.m */; };
+		ED3BDB001E0C19CF00B230A6 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3BDAFE1E0C19CF00B230A6 /* User.m */; };
 		ED4103021CEDCCC900F0115E /* ErrorHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4103011CEDCCC900F0115E /* ErrorHandler.m */; };
 		EDBD398F1D2A89D90015D214 /* ButtonTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */; };
 		EDBD39901D2A89D90015D214 /* CenterTextTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39861D2A89D90015D214 /* CenterTextTableViewCell.xib */; };
@@ -97,6 +99,10 @@
 		ED3ADE6A1D41059000F1D9E9 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
 		ED3ADE6B1D41059000F1D9E9 /* Timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Timer.m; sourceTree = "<group>"; };
 		ED3ADE6E1D41064100F1D9E9 /* TableHeaderView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = TableHeaderView.xib; path = TableHeaderFooterViews/TableHeaderView.xib; sourceTree = "<group>"; };
+		ED3BDAFB1E0C19CF00B230A6 /* _User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _User.h; sourceTree = "<group>"; };
+		ED3BDAFC1E0C19CF00B230A6 /* _User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = _User.m; sourceTree = "<group>"; };
+		ED3BDAFD1E0C19CF00B230A6 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
+		ED3BDAFE1E0C19CF00B230A6 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
 		ED4103001CEDCCC900F0115E /* ErrorHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ErrorHandler.h; sourceTree = "<group>"; };
 		ED4103011CEDCCC900F0115E /* ErrorHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ErrorHandler.m; sourceTree = "<group>"; };
 		EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ButtonTableViewCell.xib; path = TableViewCells/ButtonTableViewCell.xib; sourceTree = "<group>"; };
@@ -151,6 +157,8 @@
 		ED0919BB1C9D7BE90078C1AA /* MoGenerated */ = {
 			isa = PBXGroup;
 			children = (
+				ED3BDAFB1E0C19CF00B230A6 /* _User.h */,
+				ED3BDAFC1E0C19CF00B230A6 /* _User.m */,
 			);
 			name = MoGenerated;
 			sourceTree = "<group>";
@@ -181,6 +189,7 @@
 				ED2E613F1C9D78DB000441E4 /* API */,
 				ED3ADE691D41059000F1D9E9 /* Timer */,
 				ED2E61481C9D78DB000441E4 /* Model */,
+				ED3BDB021E0C1AA900B230A6 /* Views */,
 				ED3A82B01D2A8760000DC75B /* Objects */,
 				ED2E61421C9D78DB000441E4 /* AppData */,
 				ED2E61451C9D78DB000441E4 /* Appearance */,
@@ -237,9 +246,11 @@
 		ED2E61481C9D78DB000441E4 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				ED0919BC1C9D7C8D0078C1AA /* Template.xcdatamodeld */,
+				ED3BDAFD1E0C19CF00B230A6 /* User.h */,
+				ED3BDAFE1E0C19CF00B230A6 /* User.m */,
 				ED2E61491C9D78DB000441E4 /* BDGCoreData.h */,
 				ED2E614A1C9D78DB000441E4 /* BDGCoreData.m */,
-				ED0919BC1C9D7C8D0078C1AA /* Template.xcdatamodeld */,
 				ED0919BB1C9D7BE90078C1AA /* MoGenerated */,
 			);
 			path = Model;
@@ -346,6 +357,13 @@
 				ED3ADE6E1D41064100F1D9E9 /* TableHeaderView.xib */,
 			);
 			name = TableHeaderFooterViews;
+			sourceTree = "<group>";
+		};
+		ED3BDB021E0C1AA900B230A6 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		ED7301E21CB2ADFD00FA5824 /* TableViewCells */ = {
@@ -532,7 +550,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "mogenerator -m Source/Model/MODELNAME.xcdatamodeld -O Source/Model --template-var arc=true";
+			shellScript = "mogenerator -m Source/Model/Template.xcdatamodeld -O Source/Model --template-var arc=true";
 			showEnvVarsInLog = 0;
 		};
 		EDC7EA0F1DEC30AF0047102C /* Icon Buildnumber */ = {
@@ -564,9 +582,11 @@
 				EDD4BE8C1CD8CBD6003B28BA /* BaseTableViewController.m in Sources */,
 				EDD4BE8F1CD8CBE2003B28BA /* ViewController.m in Sources */,
 				ED2E61571C9D78DB000441E4 /* BDGCoreData.m in Sources */,
+				ED3BDB001E0C19CF00B230A6 /* User.m in Sources */,
 				ED2E612A1C9D7851000441E4 /* main.m in Sources */,
 				ED2E61551C9D78DB000441E4 /* AppData.m in Sources */,
 				ED2E61581C9D78DB000441E4 /* NotificationsManager.m in Sources */,
+				ED3BDAFF1E0C19CF00B230A6 /* _User.m in Sources */,
 				ED2E61561C9D78DB000441E4 /* AppAppearance.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

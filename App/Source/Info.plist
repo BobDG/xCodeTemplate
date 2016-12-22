@@ -40,11 +40,13 @@
 		<true/>
 	</dict>
 	<key>NSCalendarsUsageDescription</key>
-	<string>$(PRODUCT_NAME) maakt gebruikt van de agenda</string>
+	<string>$(PRODUCT_NAME) uses the calendar</string>
 	<key>NSCameraUsageDescription</key>
-	<string>$(PRODUCT_NAME) maakt gebruikt van de camera</string>
+	<string>$(PRODUCT_NAME) uses the camera</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>$(PRODUCT_NAME) maakt gebruikt van de HealthKit</string>
+	<string>$(PRODUCT_NAME) uses HealthKit</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>$(PRODUCT_NAME) uses the photo library</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Lato-Black.ttf</string>
@@ -75,5 +77,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
 </dict>
 </plist>

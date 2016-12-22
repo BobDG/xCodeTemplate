@@ -13,8 +13,15 @@
     
 }
 
+/*** LOCALISATIONS ***/
+//  BDGImagePicker_Cancel
+//  BDGImagePicker_TakePhoto
+//  BDGImagePicker_ChoosePhoto
+
 //Quick constructors
+-(instancetype)initWithAllowsEditing:(BOOL)allowsEditing;
 -(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing;
+-(instancetype)initWithAllowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll;
 -(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll;
 -(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing takePhoto:(NSString *)takePhoto choosePhoto:(NSString *)choosePhoto;
 -(instancetype)initWithTitle:(NSString *)title allowsEditing:(BOOL)allowsEditing saveInCameraRoll:(BOOL)saveInCameraRoll takePhoto:(NSString *)takePhoto choosePhoto:(NSString *)choosePhoto;

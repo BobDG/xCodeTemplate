@@ -7,6 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "User.h"
 #import "Enums.h"
 
 @interface AppData : NSObject
@@ -14,7 +15,16 @@
     
 }
 
+//Active user
+@property(nonatomic,strong) User *user;
+
+//User
++(User *)activeUser;
+
 //Setup
 +(void)setupAppData;
+
+//Singleton
++(AppData *)sharedAppData;
 
 @end

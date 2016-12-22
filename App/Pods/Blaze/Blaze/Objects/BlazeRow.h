@@ -194,6 +194,7 @@ typedef NS_ENUM(NSInteger, FloatingLabelEnabledState) {
 @property(nonatomic,strong) NSFormatter *formatter;
 @property(nonatomic,strong) NSString *placeholderText;
 @property(nonatomic,strong) UIColor *placeholderColor;
+@property(nonatomic,strong) NSString *textFieldSuffix;
 @property(nonatomic,strong) NSAttributedString *attributedPlaceholder;
 
 //Floating placeholder options
@@ -213,6 +214,13 @@ typedef NS_ENUM(NSInteger, FloatingLabelEnabledState) {
 @property(nonatomic,strong) UIColor *viewLeftBackgroundColor;
 @property(nonatomic,strong) UIColor *viewCenterBackgroundColor;
 @property(nonatomic,strong) UIColor *viewRightBackgroundColor;
+
+//ImagePicker
+@property(nonatomic) CGRect imagePickerSourceRect;
+@property(nonatomic) bool imagePickerAllowsEditing;
+@property(nonatomic) bool imagePickerSaveInCameraRoll;
+@property(nonatomic,strong) UIViewController *imagePickerViewController;
+
 
 
 @end

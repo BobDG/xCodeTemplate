@@ -33,6 +33,10 @@
         self.textField.text = self.row.value;
     }
     
+    if(self.row.textFieldSuffix.length) {
+        self.textField.text = [self.textField.text stringByAppendingString:self.row.textFieldSuffix];
+    }
+    
     self.textField.keyboardType = self.row.keyboardType;
     self.textField.secureTextEntry = self.row.secureTextEntry;
     self.textField.autocorrectionType = self.row.autocorrectionType;
@@ -72,6 +76,20 @@
     [self.textField resignFirstResponder];
     if(self.row.doneChanging) {
         self.row.doneChanging();
+    }
+}
+
+-(void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    if(self.row.textFieldSuffix.length) {
+        textField.text = [textField.text stringByReplacingOccurrencesOfString:self.row.textFieldSuffix withString:@""];
+    }
+}
+
+-(void)textFieldDidEndEditing:(UITextField *)textField
+{
+    if(self.row.textFieldSuffix.length) {
+        textField.text = [textField.text stringByAppendingString:self.row.textFieldSuffix];
     }
 }
 
