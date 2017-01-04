@@ -14,7 +14,7 @@ PODS:
   - AFNetworking/Serialization (3.1.0)
   - AFNetworking/UIKit (3.1.0):
     - AFNetworking/NSURLSession
-  - BDGCategories (0.0.18)
+  - BDGCategories (0.0.19)
   - BDGImagePicker (0.0.11)
   - BDGMacros (0.0.18)
   - BDGScreenshot (0.0.2)
@@ -43,7 +43,7 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
-  BDGCategories: cf71aaa268959e38a4583a6c4038b2acdf6c63fe
+  BDGCategories: 38c6697fff7afe65d5576913faf529c49375a508
   BDGImagePicker: 7b15d5dcc5130d50f2a5eb127785138897a0d7e3
   BDGMacros: 8d03817ec90f2c028648722f3289569dee4ed73f
   BDGScreenshot: f493d124c9935132da9e0ca9e8f2e6be180f7dd5
