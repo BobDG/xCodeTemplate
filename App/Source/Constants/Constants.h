@@ -10,6 +10,7 @@
 #import "AppDelegate.h"
 #import "AppAppearance.h"
 #import "SVProgressHUD.h"
+#import "NotificationsManager.h"
 
 //Storyboards
 #define SBMain                      @"Main"

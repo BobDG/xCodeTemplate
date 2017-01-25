@@ -22,4 +22,8 @@
 +(void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
 +(void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 
+//Message
++(void)showMessage:(NSString *)message fromViewController:(UIViewController *)viewController;
++(void)showMessage:(NSString *)title message:(NSString *)message fromViewController:(UIViewController *)viewController;
+
 @end

@@ -29,7 +29,7 @@
 {
     //Check jailbreak
     if([DTTJailbreakDetection isJailbroken]) {
-        showM2(NSLocalizedString(@"Jailbrake_Popup_Title", @""), NSLocalizedString(@"Jailbrake_Popup_Message", @""));
+        [NotificationsManager showMessage:NSLocalizedString(@"Jailbrake_Popup_Title", @"") fromViewController:self.window.rootViewController];        
     }
     
     //Data protection
@@ -170,7 +170,8 @@
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
-    
+    //Register for notifications
+    [NotificationsManager registerForNotificationsOnLaunch];
 }
 
 -(void)applicationDidBecomeActive:(UIApplication *)application

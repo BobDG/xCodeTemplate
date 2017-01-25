@@ -5,6 +5,8 @@
 //  Copyright (c) 2014 GraafICT. All rights reserved.
 //
 
+#import <SafariServices/SafariServices.h>
+
 #import "Constants.h"
 #import "SVProgressHUD.h"
 #import "AppAppearance.h"
@@ -51,9 +53,16 @@
     [self cacheKeyboard];
 }
 
-#pragma mark - Colors
+#pragma mark - Safari ViewController
 
-
++(void)showSafariViewControllerWithURL:(NSURL *)url fromViewController:(UIViewController *)viewController
+{
+    SFSafariViewController *vc = [[SFSafariViewController alloc] initWithURL:url];
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
+    nav.navigationBarHidden = TRUE;
+    [viewController presentViewController:nav animated:TRUE completion:nil];
+    CFRunLoopWakeUp(CFRunLoopGetCurrent());
+}
 
 #pragma mark Utility methods
 

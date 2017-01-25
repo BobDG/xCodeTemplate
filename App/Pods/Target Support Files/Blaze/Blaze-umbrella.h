@@ -4,6 +4,7 @@
 
 #import "BlazeNSFetchedTableViewController.h"
 #import "BlazeTableViewController.h"
+#import "BlazeViewController.h"
 #import "NSObject+PropertyName.h"
 #import "NSString+TextDirectionality.h"
 #import "UIScrollView+EmptyDataSet.h"
@@ -15,6 +16,7 @@
 #import "BlazeCheckboxTableViewCell.h"
 #import "BlazeDateTableViewCell.h"
 #import "BlazeImagePickerTableViewCell.h"
+#import "BlazeImagesScrollTableViewCell.h"
 #import "BlazePickerViewTableViewCell.h"
 #import "BlazeSegmentedControlTableViewCell.h"
 #import "BlazeSliderTableViewCell.h"

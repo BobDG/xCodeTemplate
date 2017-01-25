@@ -14,7 +14,7 @@
     
 }
 
-+(void)handleError:(NSError *)error;
-+(void)handleLoginError:(NSError *)error;
++(void)handleError:(NSError *)error fromViewController:(UIViewController *)viewController;
++(void)handleLoginError:(NSError *)error fromViewController:(UIViewController *)viewController;
 
 @end

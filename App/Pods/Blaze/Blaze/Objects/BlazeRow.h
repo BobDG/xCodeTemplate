@@ -20,6 +20,12 @@ typedef NS_ENUM(NSInteger, FloatingLabelEnabledState) {
     FloatingLabelStateEnabled = 1,
 };
 
+typedef NS_ENUM(NSInteger, ImageType) {
+    ImageFromURL,
+    ImageFromBundle,
+    ImageFromData,
+};
+
 @interface BlazeRow : NSObject
 {
     
@@ -39,8 +45,10 @@ typedef NS_ENUM(NSInteger, FloatingLabelEnabledState) {
 
 //Constructors with XibName
 +(instancetype)rowWithXibName:(NSString *)xibName;
++(instancetype)rowWithXibName:(NSString *)xibName height:(float)height;
 +(instancetype)rowWithXibName:(NSString *)xibName title:(NSString *)title;
 -(instancetype)initWithXibName:(NSString *)xibName;
+-(instancetype)initWithXibName:(NSString *)xibName height:(float)height;
 -(instancetype)initWithXibName:(NSString *)xibName title:(NSString *)title;
 -(instancetype)initWithXibName:(NSString *)xibName title:(NSString *)title segueIdentifier:(NSString *)segueIdentifier;
 -(instancetype)initWithXibName:(NSString *)xibName title:(NSString *)title placeholder:(NSString *)placeholder;
@@ -176,6 +184,15 @@ typedef NS_ENUM(NSInteger, FloatingLabelEnabledState) {
 //Checkbox
 @property(nonatomic,strong) NSString *checkboxImageActive;
 @property(nonatomic,strong) NSString *checkboxImageInactive;
+
+//PageControl
+@property(nonatomic) int currentPage;
+@property(nonatomic) int numberOfPages;
+
+//ScrollImages
+@property(nonatomic) ImageType scrollImageType;
+@property(nonatomic) UIViewContentMode scrollImageContentMode;
+@property(nonatomic,strong) NSArray *scrollImages;
 
 //Date
 @property(nonatomic,strong) NSDate *minDate;

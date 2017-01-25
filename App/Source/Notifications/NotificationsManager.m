@@ -72,6 +72,32 @@
     }
 }
 
+#pragma mark - Messages
+
++(void)showMessage:(NSString *)message fromViewController:(UIViewController *)viewController
+{
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:APPNAME message:message preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        
+    }]];
+    [viewController presentViewController:alertController animated:TRUE completion:^{
+        
+    }];
+    CFRunLoopWakeUp(CFRunLoopGetCurrent());
+}
+
++(void)showMessage:(NSString *)title message:(NSString *)message fromViewController:(UIViewController *)viewController
+{
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        
+    }]];
+    [viewController presentViewController:alertController animated:TRUE completion:^{
+        
+    }];
+    CFRunLoopWakeUp(CFRunLoopGetCurrent());
+}
+
 @end
 
 

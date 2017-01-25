@@ -46,6 +46,7 @@
 		ED3BDAFF1E0C19CF00B230A6 /* _User.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3BDAFC1E0C19CF00B230A6 /* _User.m */; };
 		ED3BDB001E0C19CF00B230A6 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3BDAFE1E0C19CF00B230A6 /* User.m */; };
 		ED4103021CEDCCC900F0115E /* ErrorHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4103011CEDCCC900F0115E /* ErrorHandler.m */; };
+		ED71D4F51E38EB86004CD9F8 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED71D4F41E38EB86004CD9F8 /* SafariServices.framework */; };
 		EDBD398F1D2A89D90015D214 /* ButtonTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */; };
 		EDBD39901D2A89D90015D214 /* CenterTextTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39861D2A89D90015D214 /* CenterTextTableViewCell.xib */; };
 		EDBD39911D2A89D90015D214 /* CircleImageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39871D2A89D90015D214 /* CircleImageTableViewCell.xib */; };
@@ -105,6 +106,7 @@
 		ED3BDAFE1E0C19CF00B230A6 /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
 		ED4103001CEDCCC900F0115E /* ErrorHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ErrorHandler.h; sourceTree = "<group>"; };
 		ED4103011CEDCCC900F0115E /* ErrorHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ErrorHandler.m; sourceTree = "<group>"; };
+		ED71D4F41E38EB86004CD9F8 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
 		EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ButtonTableViewCell.xib; path = TableViewCells/ButtonTableViewCell.xib; sourceTree = "<group>"; };
 		EDBD39861D2A89D90015D214 /* CenterTextTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CenterTextTableViewCell.xib; path = TableViewCells/CenterTextTableViewCell.xib; sourceTree = "<group>"; };
 		EDBD39871D2A89D90015D214 /* CircleImageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CircleImageTableViewCell.xib; path = TableViewCells/CircleImageTableViewCell.xib; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED71D4F51E38EB86004CD9F8 /* SafariServices.framework in Frameworks */,
 				A89846031D572349E9BD1A85 /* Pods_Template.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -149,6 +152,7 @@
 		84DAA7110F2F41F4CB599650 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				ED71D4F41E38EB86004CD9F8 /* SafariServices.framework */,
 				80B4D3B7644F90E47A869510 /* Pods_Template.framework */,
 			);
 			name = Frameworks;
@@ -711,7 +715,7 @@
 					"APPSTORE=0",
 				);
 				INFOPLIST_FILE = Source/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = template.Template;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -731,7 +735,7 @@
 					"APPSTORE=0",
 				);
 				INFOPLIST_FILE = Source/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = template.Template;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -805,7 +809,7 @@
 					"APPSTORE=1",
 				);
 				INFOPLIST_FILE = Source/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = template.Template;
 				PRODUCT_NAME = "$(TARGET_NAME)";

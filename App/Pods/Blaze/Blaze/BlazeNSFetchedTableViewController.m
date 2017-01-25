@@ -70,10 +70,27 @@
     self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:request managedObjectContext:self.managedObjectContext sectionNameKeyPath:self.sectionNameKeyPath cacheName:nil];
     self.fetchedResultsController.delegate = self;
     
+    //Start
+    [self startFetching];
+}
+
+-(void)updatePredicate:(NSPredicate *)predicate
+{
+    [NSFetchedResultsController deleteCacheWithName:nil];
+    self.fetchedResultsController.fetchRequest.predicate = predicate;
+    [self startFetching];
+}
+
+-(void)startFetching
+{
+    //Clear
+    [self.tableArray removeAllObjects];
+    
     //Start initial fetch
     NSError *error = nil;
     if(![[self fetchedResultsController] performFetch:&error]) {
         NSLog(@"Failed to initialize FetchedResultsController: %@\n%@", [error localizedDescription], [error userInfo]);
+        [self.tableView reloadData];
         return;
     }
     
@@ -141,6 +158,7 @@
         BlazeSection *section = self.tableArray[indexPath.section];
         [rowObjects addObject:section.rows[indexPath.row]];
     }
+    
     //Loop through sections to delete all rows at once using the rowsarray to solve multiple row deletion issues when deleting one-by-one
     for(BlazeSection *section in self.tableArray) {
         [section.rows removeObjectsInArray:rowObjects];
@@ -166,7 +184,9 @@
     
     //Add rows
     NSMutableArray *indexPathsArray = [NSMutableArray new];
-    for(NSIndexPath *indexPath in self.insertedRows.allKeys) {
+    //Sort keys first to row because otherwise section might insert at Index while index below does not exist yet
+    NSArray *allKeys = [self.insertedRows.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"row" ascending:TRUE]]];
+    for(NSIndexPath *indexPath in allKeys) {
         BlazeSection *section = self.tableArray[indexPath.section];
         BlazeRow *row = [self rowForObject:self.insertedRows[indexPath]];
         [section.rows insertObject:row atIndex:indexPath.row];

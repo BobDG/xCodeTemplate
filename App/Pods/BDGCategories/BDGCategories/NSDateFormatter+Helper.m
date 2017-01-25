@@ -14,14 +14,38 @@
     return [NSDateFormatter currentDateFormatterWithFormatToLocalize:format includeHours:false withLocale:[NSLocale currentLocale]];
 }
 
-+(NSDateFormatter *)currentDateFormatterWithFormatToLocalize:(NSString*)format includeHours:(BOOL)includeHours
++(NSDateFormatter *)currentDateFormatterWithFormatToLocalize:(NSString *)format includeHours:(BOOL)includeHours
 {
     return [NSDateFormatter currentDateFormatterWithFormatToLocalize:format includeHours:includeHours withLocale:[NSLocale currentLocale]];
 }
 
-+(NSDateFormatter *)currentDateFormatterWithFormatToLocalize:(NSString*)format includeHours:(BOOL)includeHours withLocale:(NSLocale*)locale
++(NSDateFormatter *)currentDateFormatterWithFormatToLocalize:(NSString *)format includeHours:(BOOL)includeHours withLocale:(NSLocale *)locale
 {
-    NSDateFormatter *dateFormatter = [NSDateFormatter new];
+    return [NSDateFormatter currentDateFormatterWithFormatToLocalize:format includeHours:includeHours withLocale:locale timeZone:nil];
+}
+
++(NSDateFormatter *)currentDateFormatterWithFormatToLocalize:(NSString *)format includeHours:(BOOL)includeHours timeZone:(NSTimeZone *)timeZone
+{
+    return [NSDateFormatter currentDateFormatterWithFormatToLocalize:format includeHours:includeHours withLocale:[NSLocale currentLocale] timeZone:timeZone];
+}
+
++(NSDateFormatter *)currentDateFormatterWithFormatToLocalize:(NSString *)format includeHours:(BOOL)includeHours withLocale:(NSLocale *)locale timeZone:(NSTimeZone *)timeZone
+{
+    NSString *identifier = [NSString stringWithFormat:@"%@|%d|%@", format, includeHours, locale.localeIdentifier];
+    if(timeZone) {
+        identifier = [identifier stringByAppendingString:timeZone.abbreviation];
+    }
+    NSMutableDictionary *threadDictionary = [[NSThread currentThread] threadDictionary];
+    NSDateFormatter *dateFormatter = [threadDictionary objectForKey:identifier];
+    if(dateFormatter) {
+        return dateFormatter;
+    }
+    
+    //Create it
+    dateFormatter = [NSDateFormatter new];
+    if(timeZone) {
+        [dateFormatter setTimeZone:timeZone];
+    }
     
     NSMutableString *mutableFormat = format.mutableCopy;
     [mutableFormat replaceOccurrencesOfString:@"h" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, mutableFormat.length)];

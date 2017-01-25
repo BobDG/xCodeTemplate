@@ -10,10 +10,11 @@
 
 @implementation ErrorHandler
 
-+(void)handleError:(NSError *)error
++(void)handleError:(NSError *)error fromViewController:(UIViewController *)viewController
 {
     if([nsprefs boolForKey:kErrorUnauthorized]) {      
-        showM1(NSLocalizedString(@"Error_Popup_API_SessionExpired", @""));
+        NSString *message = NSLocalizedString(@"Error_Popup_API_SessionExpired", @"");
+        [NotificationsManager showMessage:message fromViewController:viewController];
         //[CoreData deleteObjectsForEntity:[User entityName]];
         //[SVProgressHUD dismiss];
         //[kAppDelegate continueLaunchFlow];
@@ -21,13 +22,13 @@
     }
     
     NSString *message = NSLocalizedString(@"Error_Popup_API_General", @"");
-    showM1(message);
+    [NotificationsManager showMessage:message fromViewController:viewController];
 }
 
-+(void)handleLoginError:(NSError *)error
++(void)handleLoginError:(NSError *)error fromViewController:(UIViewController *)viewController
 {
     NSString *message = NSLocalizedString(@"Error_Popup_API_General", @"");
-    showM1(message);
+    [NotificationsManager showMessage:message fromViewController:viewController];
 }
 
 @end

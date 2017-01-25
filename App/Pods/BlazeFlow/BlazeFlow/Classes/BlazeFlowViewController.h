@@ -6,7 +6,7 @@
 //  Copyright © 2016 Synappz BV. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+@import UIKit;
 
 @class BlazeFlow,BlazeFlowTableViewController;
 
@@ -44,15 +44,16 @@
  The back button label. Defaults to localizedStrings Navbar_Item_Cancel and Navbar_Item_Back
  */
 @property(nonatomic,weak) IBOutlet UILabel *backLabel;
+
 /**
  The default UIImageView for the back arrow.
  */
 @property(nonatomic,weak) IBOutlet UIImageView *arrowImageView;
+
 /**
  The the container that holds all of the default back and close related outlets.
  */
 @property(nonatomic,weak) IBOutlet UIView *backContainerView;
-
 
 /**
  Default UIImageView for the close button.
@@ -64,18 +65,25 @@
  */
 @property(nonatomic,weak) IBOutlet UIButton *closeButton;
 
-
 /**
  The UIView that holds the embedded BlazeFlowTableViewController
  */
 @property(nonatomic,weak) IBOutlet UIView *containerView;
-
 
 /**
  The default UIPageControl
  */
 @property(nonatomic,weak) IBOutlet UIPageControl *pageControl;
 
+/**
+ Initialize the BlazeFlow using this method. This method is called during prepareForSegue:
+ */
+-(BlazeFlow*)initializeBlazeFlow;
+
+/**
+ This method is called when the BlazeFlow's currentState changes. Default implementation changes the UIPageControl current index
+ */
+-(void)currentStateChanged:(NSInteger)currentState;
 
 /**
  This method is called when the BlazeFlow wants to inform that the current state has finished.
@@ -83,31 +91,29 @@
 -(void)stateFinished;
 
 /**
- Using this method you can show/hide accessories like the backContainerView. Defaults to -1 = none, 0 = all.
-
- @param show user-defined type of showing to do.
+ Method called when the backButton has been tapped.
  */
--(void)shouldDisplayAccessories:(NSInteger)show;
+-(void)previous;
 
 /**
  Method called when the backButton has been tapped.
 
- @return BOOL when the backButton was pressed while on the firstState
  */
--(BOOL)previous;
-
-/**
- Method called when the backButton has been tapped.
- 
- @return BOOL when next: message was sent to BlazeFlow while on the lastState
- */
--(BOOL)next;
+-(void)next;
 
 /**
  Method called when the close button has been tapped
-
- @return YES when close: message was sent to BlazeFlow and disposing of and/or deactivating resources was successfull
  */
--(BOOL)close;
+-(void)close;
+
+/**
+ Method called when the last state has been reached and the next button was tapped
+ */
+-(void)nextOnLastState;
+
+/**
+ Method called when the first state is the active state and the previous button was tapped
+ */
+-(void)previousOnFirstState;
 
 @end
