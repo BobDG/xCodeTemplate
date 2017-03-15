@@ -9,7 +9,7 @@ def shared_pods
     pod 'BDGCategories'
     pod 'BDGScreenshot'
     
-    pod 'BlazeFlow'
+    pod 'Blaze'
     pod 'AFNetworking'
     pod 'SVProgressHUD'
     pod 'HockeySDK-Source'

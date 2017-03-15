@@ -26,6 +26,9 @@ typedef NS_ENUM(NSInteger, ImageType) {
     ImageFromData,
 };
 
+@class BlazeTextField;
+@class BlazeTableViewCell;
+
 @interface BlazeRow : NSObject
 {
     
@@ -45,10 +48,10 @@ typedef NS_ENUM(NSInteger, ImageType) {
 
 //Constructors with XibName
 +(instancetype)rowWithXibName:(NSString *)xibName;
-+(instancetype)rowWithXibName:(NSString *)xibName height:(float)height;
++(instancetype)rowWithXibName:(NSString *)xibName height:(NSNumber *)height;
 +(instancetype)rowWithXibName:(NSString *)xibName title:(NSString *)title;
 -(instancetype)initWithXibName:(NSString *)xibName;
--(instancetype)initWithXibName:(NSString *)xibName height:(float)height;
+-(instancetype)initWithXibName:(NSString *)xibName height:(NSNumber *)height;
 -(instancetype)initWithXibName:(NSString *)xibName title:(NSString *)title;
 -(instancetype)initWithXibName:(NSString *)xibName title:(NSString *)title segueIdentifier:(NSString *)segueIdentifier;
 -(instancetype)initWithXibName:(NSString *)xibName title:(NSString *)title placeholder:(NSString *)placeholder;
@@ -69,21 +72,29 @@ typedef NS_ENUM(NSInteger, ImageType) {
 
 //CompletionBlocks
 @property(nonatomic,copy) void (^cellTapped)(void);
+@property(nonatomic,copy) void (^cellDeleted)(void);
 @property(nonatomic,copy) void (^valueChanged)(void);
 @property(nonatomic,copy) void (^valueChangedWithValue)(id value);
 @property(nonatomic,copy) void (^buttonLeftTapped)(void);
 @property(nonatomic,copy) void (^buttonRightTapped)(void);
 @property(nonatomic,copy) void (^buttonCenterTapped)(void);
 @property(nonatomic,copy) void (^doneChanging)(void);
-@property(nonatomic,copy) void (^configureCell)(UITableViewCell *cell);
+@property(nonatomic,copy) void (^configureCell)(BlazeTableViewCell *cell);
 @property(nonatomic,copy) void (^multipleSelectionFinished)(NSMutableArray *selectedIndexPaths);
+@property(nonatomic,copy) void (^textFieldDidBeginEditing)(BlazeTextField* textField);
+@property(nonatomic,copy) void (^textFieldDidEndEditing)(BlazeTextField* textField);
+@property(nonatomic,copy) BOOL (^textFieldShouldChangeCharactersInRange)(BlazeTextField *textField, NSRange range, NSString *replacementString);
 
 //Row primitives
 @property(nonatomic) int ID;
-@property(nonatomic) int rowHeight;
-@property(nonatomic) float rowHeightRatio;
+@property(nonatomic) bool enableDeleting;
 @property(nonatomic) bool disableEditing;
 @property(nonatomic) bool rowHeightDynamic;
+
+//Heights
+@property(nonatomic,strong) NSNumber *rowHeight;
+@property(nonatomic,strong) NSNumber *rowHeightRatio;
+@property(nonatomic,strong) NSNumber *estimatedRowHeight;
 
 //Row Reference types
 @property(nonatomic,strong) id value;
@@ -96,6 +107,9 @@ typedef NS_ENUM(NSInteger, ImageType) {
 //Object & Possible property name
 @property(nonatomic,strong) id object;
 @property(nonatomic, strong) NSString *propertyName;
+
+//Additional rows for additional fields
+@property(nonatomic,strong) NSArray *additionalRows;
 
 //InputAccessoryViewType
 @property(nonatomic) InputAccessoryViewType inputAccessoryViewType;
@@ -178,6 +192,7 @@ typedef NS_ENUM(NSInteger, ImageType) {
 @property(nonatomic,assign) BOOL tilesMultipleSelection;
 
 //Pickerview
+@property(nonatomic) bool pickerUseIndexValue;
 @property(nonatomic,strong) NSArray *selectorOptions;
 @property(nonatomic,strong) NSString *pickerObjectPropertyName;
 
@@ -200,6 +215,7 @@ typedef NS_ENUM(NSInteger, ImageType) {
 @property(nonatomic) NSUInteger dateMinuteInterval;
 @property(nonatomic,strong) NSDate *placeholderDate;
 @property(nonatomic) UIDatePickerMode datePickerMode;
+@property(nonatomic) bool dateFormatCapitalizedString;
 @property(nonatomic,strong) NSDateFormatter *dateFormatter;
 
 //TextField/TextView
@@ -209,8 +225,8 @@ typedef NS_ENUM(NSInteger, ImageType) {
 @property(nonatomic) UITextAutocapitalizationType capitalizationType;
 @property(nonatomic,strong) NSString *placeholder;
 @property(nonatomic,strong) NSFormatter *formatter;
-@property(nonatomic,strong) NSString *placeholderText;
 @property(nonatomic,strong) UIColor *placeholderColor;
+@property(nonatomic,strong) NSString *textFieldPrefix;
 @property(nonatomic,strong) NSString *textFieldSuffix;
 @property(nonatomic,strong) NSAttributedString *attributedPlaceholder;
 

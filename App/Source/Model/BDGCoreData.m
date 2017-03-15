@@ -8,6 +8,7 @@
 
 #import "Constants.h"
 #import "BDGCoreData.h"
+#import "NSManagedObject+Mapping.h"
 
 @interface BDGCoreData ()
 {
@@ -31,7 +32,7 @@
         return nil;
     }
     
-#warning Enter model name
+#warning SET MODEL NAME
     self.modelName = @"Template";
     
     return self;
@@ -104,6 +105,123 @@
         [self.managedObjectContext deleteObject:object];
     }
     [self saveContext];
+}
+
+-(void)deleteObjects:(NSSet *)objects
+{
+    for(NSManagedObject *object in objects) {
+        [self.managedObjectContext deleteObject:object];
+    }
+    [self saveContext];
+}
+
+#pragma mark - Creating objects
+
+-(NSManagedObject *)createManagedObject:(NSDictionary *)dictionary entityName:(NSString *)entityName
+{
+    NSManagedObject *object = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.managedObjectContext];
+    [object safeSetValuesForKeysWithDictionary:dictionary];
+    return object;
+}
+
+-(NSArray *)createManagedObjects:(NSArray *)dictionariesArray entityName:(NSString *)entityName
+{
+    return [self createManagedObjects:dictionariesArray entityName:entityName dateFormatter:nil];
+}
+
+-(NSArray *)createManagedObjects:(NSArray *)dictionariesArray entityName:(NSString *)entityName dateFormatter:(NSDateFormatter *)dateFormatter
+{
+    NSMutableArray *objects = [NSMutableArray new];
+    for(NSDictionary *dictionary in dictionariesArray) {
+        NSManagedObject *object = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.managedObjectContext];
+        [object safeSetValuesForKeysWithDictionary:dictionary dateFormatter:dateFormatter];
+        [objects addObject:object];
+    }
+    return objects;
+}
+
+-(NSArray *)createManagedObjects:(NSArray *)dictionariesArray entityName:(NSString *)entityName dateFormatter:(NSDateFormatter *)dateFormatter mappingDictionary:(NSDictionary *)mappingDictionary
+{
+    NSMutableArray *objects = [NSMutableArray new];
+    for(NSDictionary *dictionary in dictionariesArray) {
+        NSManagedObject *object = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.managedObjectContext];
+        [object safeSetValuesForKeysWithDictionary:dictionary dateFormatter:dateFormatter context:kCoreData.managedObjectContext includeArrays:FALSE mappingDictionary:mappingDictionary];
+        [objects addObject:object];
+    }
+    return objects;
+}
+
+-(NSArray *)updateManagedObjects:(NSArray *)dictionariesArray entityName:(NSString *)entityName idCheck:(NSString *)idCheck
+{
+    return [self updateManagedObjects:dictionariesArray entityName:entityName idCheck:idCheck isInteger:FALSE];
+}
+
+-(NSArray *)updateManagedObjects:(NSArray *)dictionariesArray entityName:(NSString *)entityName idCheck:(NSString *)idCheck dateFormatter:(NSDateFormatter *)dateFormatter
+{
+    return [self updateManagedObjects:dictionariesArray entityName:entityName idCheck:idCheck isInteger:FALSE dateFormatter:dateFormatter];
+}
+
+-(NSArray *)updateManagedObjects:(NSArray *)dictionariesArray entityName:(NSString *)entityName idCheck:(NSString *)idCheck isInteger:(BOOL)isInteger
+{
+    return [self updateManagedObjects:dictionariesArray entityName:entityName idCheck:idCheck isInteger:isInteger dateFormatter:nil];
+}
+
+-(NSArray *)updateManagedObjects:(NSArray *)dictionariesArray entityName:(NSString *)entityName idCheck:(NSString *)idCheck isInteger:(BOOL)isInteger dateFormatter:(NSDateFormatter *)dateFormatter
+{
+    NSMutableArray *finalObjects = [NSMutableArray new];
+    NSArray *currentObjects = [self objectsForEntity:entityName];
+    for(NSDictionary *dictionary in dictionariesArray) {
+        if(!dictionary[idCheck]) {
+            DLog(@"ID Check: '%@', not found in dictionary: %@", idCheck, dictionary);
+            continue;
+        }
+        NSManagedObject *object;
+        NSArray *filteredObjects;
+        if(isInteger) {
+            filteredObjects = [currentObjects filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K == %d", idCheck, [dictionary[idCheck] intValue]]];
+        }
+        else {
+            filteredObjects = [currentObjects filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K == %@", idCheck, dictionary[idCheck]]];
+        }
+        if(filteredObjects.count) {
+            object = filteredObjects.firstObject;
+        }
+        else {
+            object = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.managedObjectContext];
+        }
+        [object safeSetValuesForKeysWithDictionary:dictionary dateFormatter:dateFormatter];
+        [finalObjects addObject:object];
+    }    
+    return finalObjects;
+}
+
+-(NSManagedObject *)updateObjectWithDictionary:(NSDictionary *)dictionary entityName:(NSString *)entityName idCheck:(NSString *)idCheck
+{
+    return [self updateObjectWithDictionary:dictionary entityName:entityName idCheck:idCheck isInteger:FALSE];
+}
+
+-(NSManagedObject *)updateObjectWithDictionary:(NSDictionary *)dictionary entityName:(NSString *)entityName idCheck:(NSString *)idCheck isInteger:(BOOL)isInteger
+{
+    if(!dictionary[idCheck]) {
+        DLog(@"ID Check: '%@', not found in dictionary: %@", idCheck, dictionary);
+        return nil;
+    }
+    NSManagedObject *object;
+    NSArray *filteredObjects;
+    if(isInteger) {
+        filteredObjects = [self objectsWithPredicate:[NSPredicate predicateWithFormat:@"%K == %d", idCheck, [dictionary[idCheck] intValue]] entityName:entityName];
+    }
+    else {
+        filteredObjects = [self objectsWithPredicate:[NSPredicate predicateWithFormat:@"%K == %@", idCheck, dictionary[idCheck]] entityName:entityName];
+    }
+    if(filteredObjects.count) {
+        object = filteredObjects.firstObject;
+    }
+    else {
+        object = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.managedObjectContext];
+    }
+    [object safeSetValuesForKeysWithDictionary:dictionary];
+    return object;
 }
 
 #pragma mark Saving

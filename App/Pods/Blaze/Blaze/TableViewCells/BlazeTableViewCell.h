@@ -37,6 +37,13 @@
 //Properties
 @property(nonatomic,strong) BlazeRow *row;
 
+//Field Processors
+@property(nonatomic,strong) NSMutableArray *fieldProcessors;
+
+//Fields
+@property(nonatomic,weak) IBOutlet id mainField;
+@property(nonatomic,strong) IBOutletCollection(id) NSArray *additionalFields;
+
 //Labels
 @property(nonatomic,weak) IBOutlet UILabel *titleLabel;
 @property(nonatomic,weak) IBOutlet UILabel *subtitleLabel;
@@ -57,6 +64,7 @@
 @property(nonatomic,weak) IBOutlet UIView *viewLeft;
 @property(nonatomic,weak) IBOutlet UIView *viewCenter;
 @property(nonatomic,weak) IBOutlet UIView *viewRight;
+@property(nonatomic,weak) IBOutlet UIView *selectedView;
 
 //PageControl
 @property(nonatomic,weak) IBOutlet UIPageControl *pageControl;

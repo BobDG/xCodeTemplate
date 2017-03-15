@@ -17,9 +17,6 @@
 +(void)setupAppearance;
 
 //Safari
-+(void)showSafariViewControllerWithURL:(NSURL *)url fromViewController:(UIViewController *)viewController;
-
-//Utility methods
-+(UIImage *)imageFromColor:(UIColor *)color;
++(void)showSafariViewControllerWithURL:(NSString *)urlStr fromViewController:(UIViewController *)viewController;
 
 @end

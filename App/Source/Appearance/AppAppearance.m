@@ -55,9 +55,12 @@
 
 #pragma mark - Safari ViewController
 
-+(void)showSafariViewControllerWithURL:(NSURL *)url fromViewController:(UIViewController *)viewController
++(void)showSafariViewControllerWithURL:(NSString *)urlStr fromViewController:(UIViewController *)viewController
 {
-    SFSafariViewController *vc = [[SFSafariViewController alloc] initWithURL:url];
+    if([urlStr rangeOfString:@"http"].location == NSNotFound) {
+        urlStr = [@"http://" stringByAppendingString:urlStr];
+    }
+    SFSafariViewController *vc = [[SFSafariViewController alloc] initWithURL:[NSURL URLWithString:urlStr]];
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
     nav.navigationBarHidden = TRUE;
     [viewController presentViewController:nav animated:TRUE completion:nil];
@@ -73,18 +76,6 @@
     [lagFreeField becomeFirstResponder];
     [lagFreeField resignFirstResponder];
     [lagFreeField removeFromSuperview];
-}
-
-+(UIImage *)imageFromColor:(UIColor *)color
-{
-    CGRect rect = CGRectMake(0, 0, 1, 1);
-    UIGraphicsBeginImageContext(rect.size);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(context, [color CGColor]);
-    CGContextFillRect(context, rect);
-    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return img;
 }
 
 @end

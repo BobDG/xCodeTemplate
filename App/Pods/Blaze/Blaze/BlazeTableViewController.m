@@ -44,6 +44,9 @@
 //Indexes for sectionPicker
 @property(nonatomic,strong) NSMutableArray *sectionIndexesArray;
 
+//Section headerviews for caching
+@property(nonatomic,strong) NSMutableDictionary *cachedSectionHeaders;
+
 //Contains names of current registered cells
 @property(nonatomic,strong) NSMutableArray *registeredCells;
 @property(nonatomic,strong) NSMutableArray *registeredHeaders;
@@ -60,14 +63,12 @@
     self.tableArray = [NSMutableArray new];
     self.sectionIndexesArray = [NSMutableArray new];
     
+    //Dictionaries
+    self.cachedSectionHeaders = [NSMutableDictionary new];
+    
     //Register cells & Headers
     self.registeredCells = [NSMutableArray new];
     self.registeredHeaders = [NSMutableArray new];
-    
-    //Automatic rowHeight, estimates are necessary and do not really matter :)
-    self.tableView.estimatedRowHeight = 60.0;
-    self.tableView.estimatedSectionHeaderHeight = 60.0f;
-    self.tableView.estimatedSectionFooterHeight = 60.0f;
     
     //No scrollbars
     self.tableView.showsVerticalScrollIndicator = FALSE;
@@ -131,14 +132,14 @@
     [self.registeredHeaders addObject:xibName];
 }
 
--(void)registerCustomHeaders:(NSArray *)headerNames
+-(void)registerCustomHeaders:(NSArray <NSString *> *)headerNames
 {
     for(NSString *className in headerNames) {
         [self registerCustomHeader:className];
     }
 }
 
--(void)registerCustomCells:(NSArray *)cellNames
+-(void)registerCustomCells:(NSArray <NSString *> *)cellNames
 {
     for(NSString *className in cellNames) {
         [self registerCustomCell:className];
@@ -414,11 +415,14 @@
 }
 
 -(BlazeTableViewCell *)nextCellFromIndexPath:(NSIndexPath *)indexPath
-{
+{    
     //Get next indexPath in the same section
     NSIndexPath *nextRowIndexPath = [NSIndexPath indexPathForRow:indexPath.row+1 inSection:indexPath.section];
     BlazeTableViewCell *nextRowCell = [self.tableView cellForRowAtIndexPath:nextRowIndexPath];
-    if(nextRowCell) {
+    if(nextRowCell) {        
+        if(nextRowCell.row.disableEditing) {
+            return [self nextCellFromIndexPath:nextRowIndexPath];
+        }
         return nextRowCell;
     }
     
@@ -426,6 +430,9 @@
     NSIndexPath *nextSectionIndexPath = [NSIndexPath indexPathForRow:0 inSection:indexPath.section+1];
     BlazeTableViewCell *nextSectionCell = [self.tableView cellForRowAtIndexPath:nextSectionIndexPath];
     if(nextSectionCell) {
+        if(nextSectionCell.row.disableEditing) {
+            return [self nextCellFromIndexPath:nextSectionIndexPath];
+        }
         return nextSectionCell;
     }
     
@@ -439,6 +446,9 @@
     NSIndexPath *previousRowIndexPath = [NSIndexPath indexPathForRow:indexPath.row-1 inSection:indexPath.section];
     BlazeTableViewCell *previousRowCell = [self.tableView cellForRowAtIndexPath:previousRowIndexPath];
     if(previousRowCell) {
+        if(previousRowCell.row.disableEditing) {
+            return [self previousCellFromIndexPath:previousRowIndexPath];
+        }
         return previousRowCell;
     }
     
@@ -456,6 +466,9 @@
     NSIndexPath *previousSectionIndexPath = [NSIndexPath indexPathForRow:section.rows.count-1 inSection:previousSectionIndex];
     BlazeTableViewCell *previousSectionCell = [self.tableView cellForRowAtIndexPath:previousSectionIndexPath];
     if(previousSectionCell) {
+        if(previousSectionCell.row.disableEditing) {
+            return [self previousCellFromIndexPath:previousSectionIndexPath];
+        }
         return previousSectionCell;
     }
     
@@ -540,7 +553,6 @@
     else {
         [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:section.collapseAnimation];
     }
-    
     
     //End updates
     [self.tableView endUpdates];
@@ -649,6 +661,124 @@
     [self.tableView endUpdates];
 }
 
+#pragma mark - Removing new style
+
+-(void)deleteRows:(NSArray *)rows
+{
+    [self deleteRows:rows withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+
+-(void)deleteRow:(BlazeRow *)row
+{
+    [self deleteRow:row withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+
+-(void)deleteRows:(NSArray *)rows withRowAnimation:(UITableViewRowAnimation)animation
+{
+    //Dynamic rows
+    self.dynamicRows = TRUE;
+    
+    //Begin updates
+    [self.tableView beginUpdates];
+    
+    //Final indexPaths
+    NSMutableArray *finalIndexPaths = [NSMutableArray new];
+    
+    //Final rows
+    NSMutableDictionary *finalRowsDictionary = [NSMutableDictionary new];
+    
+    //Loop through rows
+    for(int i = 0; i < rows.count; i++) {
+        BlazeRow *row = rows[i];
+        
+        //Row exists
+        NSIndexPath *indexPath = [self indexPathForRow:row];
+        if(!indexPath) {
+            continue;
+        }
+        
+        //Section index check
+        if(indexPath.section >= self.tableArray.count) {
+            NSLog(@"Section does not exist!");
+            continue;
+        }
+        
+        //Get section
+        BlazeSection *section = self.tableArray[indexPath.section];
+        
+        //Row index check
+        if(indexPath.row > section.rows.count) {
+            NSLog(@"Row index is too high!");
+            continue;
+        }
+        
+        //Add rows to delete - dictionary with arrays
+        if(!finalRowsDictionary[@(indexPath.section)]) {
+            finalRowsDictionary[@(indexPath.section)] = [NSArray new];
+        }
+        NSMutableArray *rowsInSectionArray = [[NSMutableArray alloc] initWithArray:finalRowsDictionary[@(indexPath.section)]];
+        [rowsInSectionArray addObject:row];
+        finalRowsDictionary[@(indexPath.section)] = rowsInSectionArray;
+        
+        //Add indexPath to final indexpaths
+        [finalIndexPaths addObject:indexPath];
+    }
+    
+    //Loop through rows dictionary to delete rows in different sections
+    for(NSNumber *sectionKey in finalRowsDictionary.allKeys) {
+        NSArray *rowsToDelete = finalRowsDictionary[sectionKey];
+        BlazeSection *section = self.tableArray[[sectionKey intValue]];
+        [section.rows removeObjectsInArray:rowsToDelete];
+    }
+    
+    //Delete cells
+    [self.tableView deleteRowsAtIndexPaths:finalIndexPaths withRowAnimation:animation];
+    
+    //End updates
+    [self.tableView endUpdates];
+}
+
+-(void)deleteRow:(BlazeRow *)row withRowAnimation:(UITableViewRowAnimation)animation
+{
+    //Dynamic rows
+    self.dynamicRows = TRUE;
+    
+    //Row exists
+    NSIndexPath *indexPath = [self indexPathForRow:row];
+    if(!indexPath) {
+        return;
+    }
+    
+    //Section index check
+    if(indexPath.section >= self.tableArray.count) {
+        NSLog(@"Section does not exist!");
+        return;
+    }
+    
+    //Get section
+    BlazeSection *section = self.tableArray[indexPath.section];
+    
+    //Row index check
+    if(indexPath.row > section.rows.count) {
+        NSLog(@"Row index is too high!");
+        return;
+    }
+    
+    //Begin updates
+    [self.tableView beginUpdates];
+    
+    //Insert row in section
+    [section.rows removeObject:row];
+    
+    //Add cell
+    [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:animation];
+    
+    //End updates
+    [self.tableView endUpdates];
+}
+
+#pragma mark - Adding
+
 -(void)addRow:(BlazeRow *)row afterRowID:(int)afterRowID
 {
     [self addRow:row afterRowID:afterRowID withRowAnimation:UITableViewRowAnimationFade];
@@ -724,7 +854,113 @@
     [self.tableView endUpdates];
 }
 
-#pragma mark - Table view data source
+-(void)addRows:(NSArray *)rows atIndexPaths:(NSArray *)indexPaths
+{
+    [self addRows:rows atIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+
+-(void)addRows:(NSArray *)rows atIndexPaths:(NSArray *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation
+{
+    //Dynamic rows
+    self.dynamicRows = TRUE;
+    
+    //Count check
+    if(rows.count != indexPaths.count) {
+        NSLog(@"Number of rows doesn't match number of indexpaths!");
+        return;
+    }
+    
+    //Begin updates
+    [self.tableView beginUpdates];
+    
+    //Final indexPaths
+    NSMutableArray *finalIndexPaths = [NSMutableArray new];
+    
+    //Loop through rows
+    for(int i = 0; i < rows.count; i++) {
+        BlazeRow *row = rows[i];
+        NSIndexPath *indexPath = indexPaths[i];
+        
+        //Row exists
+        NSIndexPath *existingIndexPath = [self indexPathForRow:row];
+        if(existingIndexPath) {
+            continue;
+        }
+        
+        //Section index check
+        if(indexPath.section >= self.tableArray.count) {
+            NSLog(@"Section does not exist!");
+            return;
+        }
+        
+        //Get section
+        BlazeSection *section = self.tableArray[indexPath.section];
+        
+        //Row index check
+        if(indexPath.row > section.rows.count) {
+            NSLog(@"Row index is too high!");
+            return;
+        }
+        
+        //Insert row in section
+        [section.rows insertObject:row atIndex:indexPath.row];
+        
+        //Add indexPath to final indexpaths
+        [finalIndexPaths addObject:indexPath];
+    }
+    
+    //Add cells
+    [self.tableView insertRowsAtIndexPaths:finalIndexPaths withRowAnimation:animation];
+    
+    //End updates
+    [self.tableView endUpdates];
+}
+
+-(void)addRow:(BlazeRow *)row atIndexPath:(NSIndexPath *)indexPath
+{
+    [self addRow:row atIndexPath:indexPath withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+
+-(void)addRow:(BlazeRow *)row atIndexPath:(NSIndexPath *)indexPath withRowAnimation:(UITableViewRowAnimation)animation
+{
+    //Dynamic rows
+    self.dynamicRows = TRUE;
+    
+    //Row exists
+    NSIndexPath *existingIndexPath = [self indexPathForRow:row];
+    if(existingIndexPath) {
+        return;
+    }
+    
+    //Section index check
+    if(indexPath.section >= self.tableArray.count) {
+        NSLog(@"Section does not exist!");
+        return;
+    }
+    
+    //Get section
+    BlazeSection *section = self.tableArray[indexPath.section];
+    
+    //Row index check
+    if(indexPath.row > section.rows.count) {
+        NSLog(@"Row index is too high!");
+        return;
+    }
+    
+    //Begin updates
+    [self.tableView beginUpdates];
+    
+    //Insert row in section
+    [section.rows insertObject:row atIndex:indexPath.row];
+    
+    //Add cell
+    [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:animation];
+    
+    //End updates
+    [self.tableView endUpdates];
+}
+
+#pragma mark - UITableview Datasource - Number of sections/rows
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -740,16 +976,18 @@
     return s.rows.count;
 }
 
+#pragma mark - UITableview Datasource - Heights/Estimated heights
+
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     BlazeSection *s = self.tableArray[indexPath.section];
     BlazeRow *row = s.rows[indexPath.row];
     
     if(row.rowHeight) {
-        return row.rowHeight;
+        return row.rowHeight.floatValue;
     }
     else if(row.rowHeightRatio) {
-        return row.rowHeightRatio * tableView.frame.size.height;
+        return row.rowHeightRatio.floatValue * tableView.frame.size.height;
     }
     else if(row.rowHeightDynamic) {
         float nrOfDynamicHeights = 0;
@@ -757,10 +995,10 @@
         for(BlazeSection *section in self.tableArray) {
             for(BlazeRow *row in section.rows) {
                 if(row.rowHeight) {
-                    height -= row.rowHeight;
+                    height -= row.rowHeight.floatValue;
                 }
                 else if(row.rowHeightRatio) {
-                    height -= row.rowHeightRatio * tableView.frame.size.height;
+                    height -= row.rowHeightRatio.floatValue * tableView.frame.size.height;
                 }
                 else if(row.rowHeightDynamic) {
                     nrOfDynamicHeights++;
@@ -773,7 +1011,7 @@
         return height;
     }
     else if(self.rowHeight) {
-        return self.rowHeight;
+        return self.rowHeight.floatValue;
     }
     return UITableViewAutomaticDimension;
 }
@@ -781,11 +1019,12 @@
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     BlazeSection *s = self.tableArray[section];
+    
     if(s.headerHeight) {
-        return s.headerHeight;
+        return s.headerHeight.floatValue;
     }
     else if(self.sectionHeaderHeight) {
-        return self.sectionHeaderHeight;
+        return self.sectionHeaderHeight.floatValue;
     }
     else if(s.headerTitle.length) {
         return UITableViewAutomaticDimension;
@@ -797,10 +1036,10 @@
 {
     BlazeSection *s = self.tableArray[section];
     if(s.footerHeight) {
-        return s.footerHeight;
+        return s.footerHeight.floatValue;
     }
     else if(self.sectionFooterHeight) {
-        return self.sectionFooterHeight;
+        return self.sectionFooterHeight.floatValue;
     }
     else if(s.footerTitle.length) {
         return UITableViewAutomaticDimension;
@@ -808,8 +1047,41 @@
     return CGFLOAT_MIN;
 }
 
+-(CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    BlazeSection *s = self.tableArray[indexPath.section];
+    BlazeRow *row = s.rows[indexPath.row];
+    
+    //For esimated heights, it's important to have it as close as possible to the real value. So if it's not set, we'll use the real values
+    
+    if(row.estimatedRowHeight) {
+        return row.estimatedRowHeight.floatValue;
+    }
+    else if(self.estimatedRowHeight) {
+        return self.estimatedRowHeight.floatValue;
+    }
+    else if(row.rowHeight) {
+        return row.rowHeight.floatValue;
+    }
+    else if(row.rowHeightRatio) {
+        return row.rowHeightRatio.floatValue * tableView.frame.size.height;
+    }
+    
+    //In case nothing is set we need at least some kind of value, let's use the default 'OLD' value of 44
+    return 44.0f;
+}
+
+#pragma mark - UITableview Datasource - Header/Footer Views
+
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
+    //Return cached one if using caching
+    if(self.sectionHeaderCaching) {
+        if(self.cachedSectionHeaders[@(section)]) {
+            return self.cachedSectionHeaders[@(section)];
+        }
+    }
+    
     BlazeSection *s = self.tableArray[section];
     if(!(s.headerTitle.length) && !s.headerHeight) {
         return nil;
@@ -841,6 +1113,11 @@
     //Configure
     if(s.configureHeaderView) {
         s.configureHeaderView(headerView);
+    }
+    
+    //Save it when using caching
+    if(self.sectionHeaderCaching) {
+        self.cachedSectionHeaders[@(section)] = headerView;
     }
     
     return headerView;
@@ -875,6 +1152,8 @@
     
     return footerView;
 }
+
+#pragma mark - UITableview Datasource - Cell
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -947,6 +1226,8 @@
     return cell;
 }
 
+#pragma mark - UITableview Datasource - Section Index
+
 -(NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
 {
     if(!self.useSectionIndexPicker) {
@@ -963,7 +1244,7 @@
     return [self.sectionIndexesArray indexOfObject:title];
 }
 
-#pragma mark - Table view delegate
+#pragma mark - UITableview Delegate - Did select
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -980,6 +1261,30 @@
         [self.navigationController pushViewController:vc animated:TRUE];
     }
     [tableView deselectRowAtIndexPath:indexPath animated:TRUE];
+}
+
+#pragma mark - Editing
+
+-(BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    BlazeSection *section = self.tableArray[indexPath.section];
+    BlazeRow *row = section.rows[indexPath.row];
+    return row.enableDeleting;
+}
+
+-(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if(editingStyle == UITableViewCellEditingStyleDelete) {
+        BlazeSection *section = self.tableArray[indexPath.section];
+        BlazeRow *row = section.rows[indexPath.row];
+        if(row.cellDeleted) {
+            row.cellDeleted();
+        }
+        [self.tableView beginUpdates];
+        [section.rows removeObject:row];
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+        [self.tableView endUpdates];       
+    }
 }
 
 #pragma mark UIScrollViewDelegate

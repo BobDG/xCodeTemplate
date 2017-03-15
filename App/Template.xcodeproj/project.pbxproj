@@ -23,6 +23,8 @@
 /* Begin PBXBuildFile section */
 		A89846031D572349E9BD1A85 /* Pods_Template.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80B4D3B7644F90E47A869510 /* Pods_Template.framework */; };
 		ED0919BE1C9D7C8D0078C1AA /* Template.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = ED0919BC1C9D7C8D0078C1AA /* Template.xcdatamodeld */; };
+		ED0927841E4478F400A4D2C4 /* UIColor+App.m in Sources */ = {isa = PBXBuildFile; fileRef = ED0927831E4478F400A4D2C4 /* UIColor+App.m */; };
+		ED0927931E4482F200A4D2C4 /* BaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ED0927921E4482F200A4D2C4 /* BaseViewController.m */; };
 		ED2E612A1C9D7851000441E4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED2E61291C9D7851000441E4 /* main.m */; };
 		ED2E61331C9D7851000441E4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ED2E61311C9D7851000441E4 /* Main.storyboard */; };
 		ED2E61351C9D7851000441E4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ED2E61341C9D7851000441E4 /* Assets.xcassets */; };
@@ -47,6 +49,7 @@
 		ED3BDB001E0C19CF00B230A6 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3BDAFE1E0C19CF00B230A6 /* User.m */; };
 		ED4103021CEDCCC900F0115E /* ErrorHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4103011CEDCCC900F0115E /* ErrorHandler.m */; };
 		ED71D4F51E38EB86004CD9F8 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED71D4F41E38EB86004CD9F8 /* SafariServices.framework */; };
+		EDB001951E7952A60005AA6B /* BaseFetchedTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EDB001941E7952A60005AA6B /* BaseFetchedTableViewController.m */; };
 		EDBD398F1D2A89D90015D214 /* ButtonTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */; };
 		EDBD39901D2A89D90015D214 /* CenterTextTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39861D2A89D90015D214 /* CenterTextTableViewCell.xib */; };
 		EDBD39911D2A89D90015D214 /* CircleImageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDBD39871D2A89D90015D214 /* CircleImageTableViewCell.xib */; };
@@ -72,6 +75,10 @@
 		ED0919B91C9D7B960078C1AA /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Constants.h; path = Constants/Constants.h; sourceTree = "<group>"; };
 		ED0919BA1C9D7B960078C1AA /* Enums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Enums.h; path = Constants/Enums.h; sourceTree = "<group>"; };
 		ED0919BD1C9D7C8D0078C1AA /* Template.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Template.xcdatamodel; sourceTree = "<group>"; };
+		ED0927821E4478F400A4D2C4 /* UIColor+App.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIColor+App.h"; path = "Source/Categories/UIColor+App.h"; sourceTree = SOURCE_ROOT; };
+		ED0927831E4478F400A4D2C4 /* UIColor+App.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIColor+App.m"; path = "Source/Categories/UIColor+App.m"; sourceTree = SOURCE_ROOT; };
+		ED0927911E4482F200A4D2C4 /* BaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseViewController.h; path = ViewControllers/BaseViewController.h; sourceTree = "<group>"; };
+		ED0927921E4482F200A4D2C4 /* BaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BaseViewController.m; path = ViewControllers/BaseViewController.m; sourceTree = "<group>"; };
 		ED2E61251C9D7851000441E4 /* Template.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Template.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED2E61291C9D7851000441E4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		ED2E61321C9D7851000441E4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -107,6 +114,8 @@
 		ED4103001CEDCCC900F0115E /* ErrorHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ErrorHandler.h; sourceTree = "<group>"; };
 		ED4103011CEDCCC900F0115E /* ErrorHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ErrorHandler.m; sourceTree = "<group>"; };
 		ED71D4F41E38EB86004CD9F8 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
+		EDB001931E7952A60005AA6B /* BaseFetchedTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseFetchedTableViewController.h; path = ViewControllers/BaseFetchedTableViewController.h; sourceTree = "<group>"; };
+		EDB001941E7952A60005AA6B /* BaseFetchedTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BaseFetchedTableViewController.m; path = ViewControllers/BaseFetchedTableViewController.m; sourceTree = "<group>"; };
 		EDBD39851D2A89D90015D214 /* ButtonTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ButtonTableViewCell.xib; path = TableViewCells/ButtonTableViewCell.xib; sourceTree = "<group>"; };
 		EDBD39861D2A89D90015D214 /* CenterTextTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CenterTextTableViewCell.xib; path = TableViewCells/CenterTextTableViewCell.xib; sourceTree = "<group>"; };
 		EDBD39871D2A89D90015D214 /* CircleImageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CircleImageTableViewCell.xib; path = TableViewCells/CircleImageTableViewCell.xib; sourceTree = "<group>"; };
@@ -241,6 +250,8 @@
 		ED2E61451C9D78DB000441E4 /* Appearance */ = {
 			isa = PBXGroup;
 			children = (
+				ED0927821E4478F400A4D2C4 /* UIColor+App.h */,
+				ED0927831E4478F400A4D2C4 /* UIColor+App.m */,
 				ED2E61461C9D78DB000441E4 /* AppAppearance.h */,
 				ED2E61471C9D78DB000441E4 /* AppAppearance.m */,
 			);
@@ -395,8 +406,12 @@
 			children = (
 				ED3ADE6D1D41063400F1D9E9 /* TableHeaderFooterViews */,
 				ED7301E21CB2ADFD00FA5824 /* TableViewCells */,
+				ED0927911E4482F200A4D2C4 /* BaseViewController.h */,
+				ED0927921E4482F200A4D2C4 /* BaseViewController.m */,
 				EDD4BE8A1CD8CBD6003B28BA /* BaseTableViewController.h */,
 				EDD4BE8B1CD8CBD6003B28BA /* BaseTableViewController.m */,
+				EDB001931E7952A60005AA6B /* BaseFetchedTableViewController.h */,
+				EDB001941E7952A60005AA6B /* BaseFetchedTableViewController.m */,
 			);
 			name = General;
 			sourceTree = "<group>";
@@ -587,10 +602,13 @@
 				EDD4BE8F1CD8CBE2003B28BA /* ViewController.m in Sources */,
 				ED2E61571C9D78DB000441E4 /* BDGCoreData.m in Sources */,
 				ED3BDB001E0C19CF00B230A6 /* User.m in Sources */,
+				ED0927931E4482F200A4D2C4 /* BaseViewController.m in Sources */,
+				EDB001951E7952A60005AA6B /* BaseFetchedTableViewController.m in Sources */,
 				ED2E612A1C9D7851000441E4 /* main.m in Sources */,
 				ED2E61551C9D78DB000441E4 /* AppData.m in Sources */,
 				ED2E61581C9D78DB000441E4 /* NotificationsManager.m in Sources */,
 				ED3BDAFF1E0C19CF00B230A6 /* _User.m in Sources */,
+				ED0927841E4478F400A4D2C4 /* UIColor+App.m in Sources */,
 				ED2E61561C9D78DB000441E4 /* AppAppearance.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

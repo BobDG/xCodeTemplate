@@ -8,7 +8,14 @@
 
 #import <AFNetworking/UIImageView+AFNetworking.h>
 
+#import "BlazeTextField.h"
 #import "BlazeTableViewCell.h"
+#import "BlazeFieldProcessor.h"
+#import "BlazeDatePickerField.h"
+#import "BlazePickerViewField.h"
+#import "BlazeDateFieldProcessor.h"
+#import "BlazeTextFieldProcessor.h"
+#import "BlazePickerFieldProcessor.h"
 
 @implementation BlazeTableViewCell
 
@@ -19,13 +26,25 @@
     [super awakeFromNib];
 }
 
-#pragma mark - Selected
+#pragma mark - Selected/Highlighted
 
 -(void)setSelected:(BOOL)selected animated:(BOOL)animated
 {
     [super setSelected:selected animated:animated];
 
-    // Configure the view for the selected state
+    if(selected && self.mainField && !self.row.disableEditing) {
+        [self.mainField becomeFirstResponder];
+    }
+}
+
+-(void)setHighlighted:(BOOL)highlighted animated:(BOOL)animated
+{
+    [super setHighlighted:highlighted animated:animated];
+    
+    //Update selectedView if one is assigned
+    if(self.selectedView) {
+        self.selectedView.hidden = !highlighted;
+    }
 }
 
 #pragma mark - Update
@@ -94,6 +113,9 @@
         self.pageControl.currentPage = self.row.currentPage;
         self.pageControl.numberOfPages = self.row.numberOfPages;
     }
+    
+    //Field processors
+    [self setupFieldProcessors];
     
     //Update cell (for subclasses)
     [self updateCell];
@@ -233,7 +255,15 @@
 
 -(BOOL)canBecomeFirstResponder
 {
-    return FALSE;
+    if(!self.mainField) {
+        return FALSE;
+    }
+    return !self.row.disableEditing;
+}
+
+-(BOOL)becomeFirstResponder
+{
+    return [self.mainField becomeFirstResponder];
 }
 
 #pragma mark - Next/Previous fields
@@ -253,20 +283,6 @@
     return toolBar;
 }
 
--(IBAction)nextField:(UIBarButtonItem *)sender
-{
-    if(self.nextField) {
-        self.nextField();
-    }
-}
-
--(IBAction)previousField:(UIBarButtonItem *)sender
-{
-    if(self.previousField) {
-        self.previousField();
-    }
-}
-
 -(IBAction)doneField:(UIBarButtonItem *)sender
 {
     [self endEditing:TRUE];
@@ -275,5 +291,114 @@
     }
 }
 
+-(void)nextField:(UIBarButtonItem *)sender
+{
+    if(self.fieldProcessors.count>1) {
+        NSUInteger index = [self indexForCurrentFirstResponder];
+        if(index != NSNotFound) {
+            if(index+1 < self.fieldProcessors.count) {
+                BlazeFieldProcessor *nextProcessor = self.fieldProcessors[index+1];
+                [nextProcessor.field becomeFirstResponder];
+                return;
+            }
+        }
+    }
+    if(self.nextField) {
+        self.nextField();
+    }
+}
+
+-(void)previousField:(UIBarButtonItem *)sender
+{
+    if(self.fieldProcessors.count>1) {
+        NSUInteger index = [self indexForCurrentFirstResponder];
+        if(index != NSNotFound) {
+            if((int)index-1 >= 0) {
+                BlazeFieldProcessor *nextProcessor = self.fieldProcessors[index-1];
+                [nextProcessor.field becomeFirstResponder];
+                return;
+            }
+        }
+    }
+    
+    if(self.previousField) {
+        self.previousField();
+    }
+}
+
+#pragma mark - FieldProcessors
+
+-(void)setupFieldProcessors
+{
+    if(!self.mainField) {
+        return;
+    }
+    
+    //Fields
+    NSMutableArray *fields = [NSMutableArray new];
+    [fields addObject:self.mainField];
+    if(self.additionalFields.count) {
+        [fields addObjectsFromArray:self.additionalFields];
+    }
+    
+    //Rows
+    NSMutableArray *rows = [NSMutableArray new];
+    [rows addObject:self.row];
+    [rows addObjectsFromArray:self.row.additionalRows];
+    
+    //Clear fieldprocessors
+    [self.fieldProcessors removeAllObjects];
+    
+    //Always create new processors, otherwise they are reused and inherit wrong properties they might not override
+    for(int i = 0; i < rows.count; i++) {
+        //Index check
+        if(i >= fields.count) {
+            break;
+        }
+        
+        //Field
+        id field = fields[i];
+        
+        //Determine Processor
+        BlazeFieldProcessor *processor;
+        if([field isKindOfClass:[BlazeDatePickerField class]]) {
+            processor = [BlazeDateFieldProcessor new];
+        }
+        else if([field isKindOfClass:[BlazePickerViewField class]]) {
+            processor = [BlazePickerFieldProcessor new];
+        }
+        else if([field isKindOfClass:[BlazeTextField class]]) {
+            processor = [BlazeTextFieldProcessor new];
+        }
+        
+        //Set processor properties
+        processor.field = field;
+        processor.row = rows[i];
+        processor.cell = self;
+        [processor update];
+        
+        //Add it
+        [self.fieldProcessors addObject:processor];
+    }
+}
+
+-(NSUInteger)indexForCurrentFirstResponder
+{
+    for(int i = 0; i < self.fieldProcessors.count; i++) {
+        BlazeFieldProcessor *processor = self.fieldProcessors[i];
+        if([processor.field isFirstResponder]) {
+            return i;
+        }
+    }
+    return NSNotFound;
+}
+
+-(NSMutableArray *)fieldProcessors
+{
+    if(!_fieldProcessors) {
+        _fieldProcessors = [NSMutableArray new];
+    }
+    return _fieldProcessors;
+}
 
 @end
