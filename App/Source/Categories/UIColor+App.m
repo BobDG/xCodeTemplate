@@ -61,4 +61,20 @@
     return img;
 }
 
++(UIColor *)colorFromHexCode:(NSString *)hexCode
+{
+    hexCode = [NSString stringWithFormat:@"0x%@", hexCode];
+    unsigned int hexValue = [self hexValueForString:hexCode];
+    return UIColorFromRGB(hexValue);
+}
+
++(unsigned int)hexValueForString:(NSString *)hexString
+{
+    unsigned int hexValue = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:hexString];
+    [scanner setScanLocation:0];
+    [scanner scanHexInt:&hexValue];
+    return hexValue;
+}
+
 @end

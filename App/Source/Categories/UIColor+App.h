@@ -20,5 +20,6 @@
 
 //Utilities
 +(UIImage *)imageFromColor:(UIColor *)color;
++(UIColor *)colorFromHexCode:(NSString *)hexCode;
 
 @end
