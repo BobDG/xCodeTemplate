@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 #import "BlazeRow.h"
+#import "BlazeMediaData.h"
 
 @interface BlazeTableViewCell : UITableViewCell
 {
@@ -17,6 +18,7 @@
 
 //Methods to override
 -(void)updateCell;
+-(void)willDisappear;
 
 //Callbacks
 @property(nonatomic,copy) void (^nextField)(void);
@@ -33,9 +35,11 @@
 -(void)updateImageView:(UIImageView *)imageView imageData:(NSData *)imageData;
 -(void)updateImageView:(UIImageView *)imageView imageName:(NSString *)imageName;
 -(void)updateImageView:(UIImageView *)imageView imageURLString:(NSString *)imageURLString;
+-(void)updateImageView:(UIImageView *)imageView blazeMediaData:(BlazeMediaData *)mediaData;
 
 //Properties
 @property(nonatomic,strong) BlazeRow *row;
+@property(nonatomic,strong) NSBundle *bundle;
 
 //Field Processors
 @property(nonatomic,strong) NSMutableArray *fieldProcessors;
@@ -48,6 +52,7 @@
 @property(nonatomic,weak) IBOutlet UILabel *titleLabel;
 @property(nonatomic,weak) IBOutlet UILabel *subtitleLabel;
 @property(nonatomic,weak) IBOutlet UILabel *subsubtitleLabel;
+@property(nonatomic,strong) IBOutletCollection(id) NSArray *additionalLabels;
 
 //Buttons
 @property(nonatomic,weak) IBOutlet UIButton *buttonLeft;

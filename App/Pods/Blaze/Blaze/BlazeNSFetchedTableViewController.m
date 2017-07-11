@@ -34,6 +34,11 @@
         return;
     }
     
+    //Default animation
+    self.deleteAnimation = UITableViewRowAnimationLeft;
+    self.insertAnimation = UITableViewRowAnimationRight;
+    self.updateAnimation = UITableViewRowAnimationAutomatic;
+    
     //Arrays/Dictionaries
     self.updatedRows = [NSMutableDictionary new];
     self.insertedRows = [NSMutableDictionary new];
@@ -94,6 +99,11 @@
         return;
     }
     
+    //PrefixSections
+    if(self.prefixSections) {
+        [self.tableArray addObjectsFromArray:self.prefixSections];
+    }
+    
     //Create initial data
     for(int i = 0; i < self.fetchedResultsController.sections.count; i++) {
         id<NSFetchedResultsSectionInfo> sectionInfo = self.fetchedResultsController.sections[i];
@@ -114,6 +124,7 @@
 - (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id )sectionInfo atIndex:(NSUInteger)sectionIndex
      forChangeType:(NSFetchedResultsChangeType)type
 {
+    sectionIndex = sectionIndex + self.prefixSections.count;
     switch (type) {
         case NSFetchedResultsChangeInsert:
             //NSLog(@"Insert section: %d", (int)sectionIndex);
@@ -131,6 +142,10 @@
 -(void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath
      forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath
 {
+    int prefixSectionsCount = (int)self.prefixSections.count;
+    indexPath = [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section+prefixSectionsCount];
+    newIndexPath = [NSIndexPath indexPathForRow:newIndexPath.row inSection:newIndexPath.section+prefixSectionsCount];
+    
     if(type == NSFetchedResultsChangeInsert) {
         //NSLog(@"Insert row: %d-%d", (int)newIndexPath.section, (int)newIndexPath.row);
         self.insertedRows[newIndexPath] = anObject;
@@ -163,7 +178,7 @@
     for(BlazeSection *section in self.tableArray) {
         [section.rows removeObjectsInArray:rowObjects];
     }
-    [self.tableView deleteRowsAtIndexPaths:self.deletedRowIndexPaths withRowAnimation:UITableViewRowAnimationLeft];
+    [self.tableView deleteRowsAtIndexPaths:self.deletedRowIndexPaths withRowAnimation:self.deleteAnimation];
     
     //Deleted sections
     NSMutableIndexSet *indexSet = [NSMutableIndexSet new];
@@ -171,7 +186,7 @@
         [indexSet addIndex:[sectionIndex integerValue]];
         [self.tableArray removeObjectAtIndex:[sectionIndex integerValue]];
     }
-    [self.tableView deleteSections:indexSet withRowAnimation:UITableViewRowAnimationAutomatic];
+    [self.tableView deleteSections:indexSet withRowAnimation:self.deleteAnimation];
     
     //Inserted sections
     indexSet = [NSMutableIndexSet new];
@@ -180,7 +195,7 @@
         BlazeSection *section = [self sectionForSectionInfo:self.insertedSections[sectionIndex]];
         [self.tableArray insertObject:section atIndex:[sectionIndex integerValue]];
     }
-    [self.tableView insertSections:indexSet withRowAnimation:UITableViewRowAnimationAutomatic];
+    [self.tableView insertSections:indexSet withRowAnimation:self.insertAnimation];
     
     //Add rows
     NSMutableArray *indexPathsArray = [NSMutableArray new];
@@ -192,7 +207,7 @@
         [section.rows insertObject:row atIndex:indexPath.row];
         [indexPathsArray addObject:indexPath];
     }
-    [self.tableView insertRowsAtIndexPaths:indexPathsArray withRowAnimation:UITableViewRowAnimationRight];
+    [self.tableView insertRowsAtIndexPaths:indexPathsArray withRowAnimation:self.insertAnimation];
     
     //Update rows
     indexPathsArray = [NSMutableArray new];
@@ -202,7 +217,7 @@
         [section.rows replaceObjectAtIndex:indexPath.row withObject:row];
         [indexPathsArray addObject:indexPath];
     }
-    [self.tableView reloadRowsAtIndexPaths:indexPathsArray withRowAnimation:UITableViewRowAnimationAutomatic];
+    [self.tableView reloadRowsAtIndexPaths:indexPathsArray withRowAnimation:self.updateAnimation];
     
     //End updates
     [self.tableView endUpdates];

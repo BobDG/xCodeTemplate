@@ -3,6 +3,9 @@
 #endif
 
 #import "BDGBorderedView.h"
+#import "AngleGradientLayer.h"
+#import "BDGCircularProgressView.h"
+#import "RainbowView.h"
 #import "BDGCircularView.h"
 #import "BDGDashedLineView.h"
 #import "BDGRoundedButton.h"

@@ -56,6 +56,9 @@
     }
     else {
         [pickerValues addObjectsFromArray:self.row.selectorOptions];
+        if(self.row.value) {
+            textValue = self.row.value;
+        }
     }
     self.pickerField.pickerValues = pickerValues;
     
@@ -71,8 +74,7 @@
             index = [self.row.value integerValue];
         }
     }
-    else {
-        textValue = self.row.value;
+    else {        
         if(textValue.length) {
             index = [pickerValues indexOfObject:textValue];
         }
@@ -94,7 +96,7 @@
 -(void)updateAccessoryInputView
 {
     //Only for default inputAccessoryView
-    if(self.row.inputAccessoryViewType == InputAccessoryViewDefault) {
+    if(self.row.inputAccessoryViewType != InputAccessoryViewCancelSave) {
         //Get toolbar
         self.pickerField.inputAccessoryView = [self.cell defaultInputAccessoryViewToolbar];
         

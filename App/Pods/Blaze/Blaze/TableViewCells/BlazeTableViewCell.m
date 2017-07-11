@@ -54,6 +54,11 @@
     //To be overridden
 }
 
+-(void)willDisappear
+{
+    //To be overridden
+}
+
 -(void)setRow:(BlazeRow *)row
 {
     _row = row;
@@ -67,6 +72,20 @@
     }
     if(self.subsubtitleLabel) {
         [self updateLabel:self.subsubtitleLabel withText:self.row.subsubtitle attributedText:self.row.attributedSubSubtitle color:self.row.subsubtitleColor];
+    }
+    
+    //Additional Labels
+    if(self.row.additionalTitles.count > 0 && self.row.additionalTitles.count == self.additionalLabels.count) {
+        for(int i = 0; i < self.row.additionalTitles.count; i++) {
+            id text = self.row.additionalTitles[i];
+            UILabel *label = (UILabel *)self.additionalLabels[i];
+            if([text isKindOfClass:[NSAttributedString class]]) {
+                label.attributedText = text;
+            }
+            else {
+                label.text = text;
+            }
+        }
     }
     
     //Update imageviews IF connected
@@ -228,7 +247,11 @@
         [imageView setImageWithURL:[NSURL URLWithString:imageURLString] placeholderImage:[UIImage new]];
     }
     else if(imageName.length) {
-        imageView.image = [UIImage imageNamed:imageName];
+        if(self.bundle) {
+            imageView.image = [UIImage imageNamed:imageName inBundle:self.bundle compatibleWithTraitCollection:nil];
+        } else {
+            imageView.image = [UIImage imageNamed:imageName];
+        }
     }
     else {
         imageView.image = nil;
@@ -241,6 +264,19 @@
     }
     if(tintColor) {
         imageView.tintColor = tintColor;
+    }
+}
+
+-(void)updateImageView:(UIImageView *)imageView blazeMediaData:(BlazeMediaData *)mediaData
+{
+    if(mediaData.data) {
+        [self updateImageView:imageView imageData:mediaData.data];
+    }
+    else if(mediaData.urlStr.length) {
+        [self updateImageView:imageView imageURLString:mediaData.urlStr];
+    }
+    else if(mediaData.name.length) {
+        [self updateImageView:imageView imageName:mediaData.name];
     }
 }
 
@@ -263,7 +299,15 @@
 
 -(BOOL)becomeFirstResponder
 {
-    return [self.mainField becomeFirstResponder];
+    NSUInteger index = [self indexForCurrentFirstResponder];
+    if(index != NSNotFound) {
+        BlazeFieldProcessor *processor = self.fieldProcessors[index];
+        return [processor.field becomeFirstResponder];
+    }
+    else if(self.mainField) {
+        [self.mainField becomeFirstResponder];
+    }
+    return FALSE;
 }
 
 #pragma mark - Next/Previous fields
@@ -272,10 +316,18 @@
 {
     UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectZero];
     toolBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    UIBarButtonItem *previousBB = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Arrow_Left" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] style:UIBarButtonItemStylePlain target:self action:@selector(previousField:)];
+    UIBarButtonItem *nextBB;
+    UIBarButtonItem *previousBB;
+    if(self.row.inputAccessoryViewType == InputAccessoryViewDefaultArrows) {
+        previousBB = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Arrow_Left" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] style:UIBarButtonItemStylePlain target:self action:@selector(previousField:)];
+        nextBB = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Arrow_Right" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] style:UIBarButtonItemStylePlain target:self action:@selector(nextField:)];
+    }
+    else if(self.row.inputAccessoryViewType == InputAccessoryViewDefaultStrings) {
+        previousBB = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Blaze_KeyboardButton_Previous", @"") style:UIBarButtonItemStylePlain target:self action:@selector(previousField:)];
+        nextBB = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Blaze_KeyboardButton_Next", @"") style:UIBarButtonItemStylePlain target:self action:@selector(nextField:)];
+    }
     UIBarButtonItem *fixedSpaceBB = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
     fixedSpaceBB.width = 20.0f;
-    UIBarButtonItem *nextBB = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Arrow_Right" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] style:UIBarButtonItemStylePlain target:self action:@selector(nextField:)];
     UIBarButtonItem *flexibleSpaceBB = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     UIBarButtonItem *doneBB = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneField:)];
     [toolBar setItems:@[previousBB, fixedSpaceBB, nextBB, flexibleSpaceBB, doneBB]]; 

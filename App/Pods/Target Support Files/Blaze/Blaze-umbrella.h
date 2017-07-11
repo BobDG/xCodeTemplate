@@ -3,6 +3,8 @@
 #endif
 
 #import "BlazeNSFetchedTableViewController.h"
+#import "BlazePageTableViewController.h"
+#import "BlazePageViewController.h"
 #import "BlazeTableViewController.h"
 #import "BlazeViewController.h"
 #import "NSObject+PropertyName.h"
@@ -15,6 +17,7 @@
 #import "BlazePickerFieldProcessor.h"
 #import "BlazeTextFieldProcessor.h"
 #import "BlazeInputTile.h"
+#import "BlazeMediaData.h"
 #import "BlazeRow.h"
 #import "BlazeSection.h"
 #import "BlazeCheckboxTableViewCell.h"

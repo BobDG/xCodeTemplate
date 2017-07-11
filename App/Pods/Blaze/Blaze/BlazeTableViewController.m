@@ -21,18 +21,6 @@
 //TableViewHeaders
 #import "BlazeTableHeaderFooterView.h"
 
-//Definitions of basic XIB's
-#define BlazeXIBDateCell              @"BlazeDateTableViewCell"
-#define BlazeXIBTilesCell             @"BlazeTilesTableViewCell"
-#define BlazeXIBSliderCell            @"BlazeSliderTableViewCell"
-#define BlazeXIBSwitchCell            @"BlazeSwitchTableViewCell"
-#define BlazeXIBCheckboxCell          @"BlazeCheckboxTableViewCell"
-#define BlazeXIBTextViewCell          @"BlazeTextViewTableViewCell"
-#define BlazeXIBTextFieldCell         @"BlazeTextFieldTableViewCell"
-#define BlazeXIBPickerViewCell        @"BlazePickerViewTableViewCell"
-#define BlazeXIBTwoChoicesCell        @"BlazeTwoChoicesTableViewCell"
-#define BlazeXIBSegmentedControlCell  @"BlazeSegmentedControlTableViewCell"
-
 @interface BlazeTableViewController () <DZNEmptyDataSetSource, DZNEmptyDataSetDelegate>
 {
     
@@ -40,6 +28,12 @@
 
 //The previous/next textfield does not work when using indexPaths, these are not correctly reset when not calling reloadData. Therefore this boolean is set to TRUE when adding/removing rows dynamically so that when a user requests the next/previous textfield, rowID's are used instead of indexpaths!
 @property(nonatomic) bool dynamicRows;
+
+//Floating action button
+@property(nonatomic) bool floatingActionButtonEnabled;
+@property(nonatomic) float floatingActionButtonPadding;
+@property(nonatomic,strong) UIButton *floatingActionButton;
+@property(nonatomic,copy) void (^floatingActionButtonTapped)(void);
 
 //Indexes for sectionPicker
 @property(nonatomic,strong) NSMutableArray *sectionIndexesArray;
@@ -75,14 +69,14 @@
     
     //Empty defaults
     self.emptyScrollable = TRUE;
-    self.emptyVerticalOffset = -100.0f;
-    self.emptyTableViewCellSeparatorStyle = -1;
-    self.filledTableViewCellSeparatorStyle = -1;
     self.emptyBackgroundColor = [UIColor clearColor];
     
     //Empty datasource & delegate
     self.tableView.emptyDataSetSource = self;
     self.tableView.emptyDataSetDelegate = self;
+    
+    //Default dismiss keyboard on drag
+    self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
 }
 
 -(void)viewWillAppear:(BOOL)animated
@@ -92,6 +86,32 @@
     //Load content on appear if active
     if(self.loadContentOnAppear) {
         [self loadTableContent];
+    }
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    //Correct frame floating action button
+    if(self.floatingActionButtonEnabled) {
+        [self scrollViewDidScroll:self.tableView];
+    }
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    if(self.notifyCellsWhenDisappearing) {
+        //Loop rows
+        for(int i = 0; i < [self.tableView numberOfSections]; i++) {
+            for(int j = 0; j < [self.tableView numberOfRowsInSection:i]; j++) {
+                BlazeTableViewCell *cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:j inSection:i]];
+                [cell willDisappear];
+            }
+        }
+
     }
 }
 
@@ -112,7 +132,7 @@
     }
     
     //Register cell
-    [self.tableView registerNib:[UINib nibWithNibName:xibName bundle:nil] forCellReuseIdentifier:xibName];
+    [self.tableView registerNib:[UINib nibWithNibName:xibName bundle:self.bundle] forCellReuseIdentifier:xibName];
     
     //Save
     [self.registeredCells addObject:xibName];
@@ -126,7 +146,7 @@
     }
     
     //Register header
-    [self.tableView registerNib:[UINib nibWithNibName:xibName bundle:nil] forHeaderFooterViewReuseIdentifier:xibName];
+    [self.tableView registerNib:[UINib nibWithNibName:xibName bundle:self.bundle] forHeaderFooterViewReuseIdentifier:xibName];
     
     //Save
     [self.registeredHeaders addObject:xibName];
@@ -172,6 +192,84 @@
 -(void)endRefreshing
 {
     [self.refreshControl endRefreshing];
+}
+
+#pragma mark - InvertedTableView
+
+-(void)setInvertedTableView:(bool)invertedTableView
+{
+    _invertedTableView = invertedTableView;
+    
+    //Transform it
+    if(invertedTableView) {
+        self.tableView.transform = CGAffineTransformMakeScale(1, -1);
+    }
+    else {
+        self.tableView.transform = CGAffineTransformIdentity;
+    }
+}
+
+#pragma mark - Floating action button
+
+-(void)removeFloatingActionButton
+{
+    if(self.floatingActionButton) {
+        [self.floatingActionButton removeFromSuperview];
+    }
+    self.floatingActionButton = nil;
+}
+
+-(void)setupFloatingActionButtonWithImage:(UIImage *)image padding:(float)padding tapped:(void (^)())tapped
+{
+    [self setupFloatingActionButtonWithImage:image padding:padding tapped:tapped animated:FALSE];
+}
+
+-(void)setupFloatingActionButtonWithImage:(UIImage *)image padding:(float)padding tapped:(void (^)())tapped animated:(BOOL)animated
+{
+    //Clear
+    if(self.floatingActionButton) {
+        [self.floatingActionButton removeFromSuperview];
+        self.floatingActionButton = nil;
+    }
+    
+    //Enabled
+    self.floatingActionButtonEnabled = TRUE;
+    
+    //Padding
+    self.floatingActionButtonPadding = padding;
+    
+    //Set completion block
+    self.floatingActionButtonTapped = tapped;
+    
+    //Create button
+    self.floatingActionButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, image.size.width, image.size.height)];
+    [self.floatingActionButton setImage:image forState:UIControlStateNormal];
+    [self.floatingActionButton addTarget:self action:@selector(tappedFloatingActionButton) forControlEvents:UIControlEventTouchUpInside];
+    [self.tableView addSubview:self.floatingActionButton];
+    [self scrollViewDidScroll:self.tableView];
+    
+    //Animation
+    if(animated) {
+        self.floatingActionButton.transform = CGAffineTransformMakeScale(0.01, 0.01);
+        [UIView animateWithDuration:0.4f delay:0.0f usingSpringWithDamping:0.6f initialSpringVelocity:0.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
+            self.floatingActionButton.transform = CGAffineTransformIdentity;
+        } completion:nil];
+    }    
+}
+
+-(void)tappedFloatingActionButton
+{
+    [UIView animateWithDuration:0.1f animations:^{
+        self.floatingActionButton.transform = CGAffineTransformMakeScale(1.1f, 1.1f);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.1f animations:^{
+            self.floatingActionButton.transform = CGAffineTransformIdentity;
+        } completion:^(BOOL finished) {
+            if(self.floatingActionButtonTapped) {
+                self.floatingActionButtonTapped();
+            }
+        }];
+    }];
 }
 
 #pragma mark ZoomTableHeaderView
@@ -524,7 +622,7 @@
 
 #pragma mark - Collapsing
 
--(void)collapseSection:(int)sectionIndex collapsed:(BOOL)collapsed
+-(void)collapseSection:(int)sectionIndex
 {
     //Dynamic rows
     self.dynamicRows = TRUE;
@@ -546,8 +644,11 @@
     //Begin updates
     [self.tableView beginUpdates];
     
+    //Change collapsed value here
+    section.collapsed = !section.collapsed;
+    
     //Add/remove rows
-    if(collapsed) {
+    if(section.collapsed) {
         [self.tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:section.collapseAnimation];
     }
     else {
@@ -556,6 +657,13 @@
     
     //End updates
     [self.tableView endUpdates];
+}
+
+#pragma mark - Caching
+
+-(void)clearSectionHeaderCache
+{
+    [self.cachedSectionHeaders removeAllObjects];
 }
 
 #pragma mark Adding/Removing Rows/Sections
@@ -995,7 +1103,7 @@
         for(BlazeSection *section in self.tableArray) {
             for(BlazeRow *row in section.rows) {
                 if(row.rowHeight) {
-                    height -= row.rowHeight.floatValue;
+                    height -= row.rowHeight.floatValue;                    
                 }
                 else if(row.rowHeightRatio) {
                     height -= row.rowHeightRatio.floatValue * tableView.frame.size.height;
@@ -1053,7 +1161,6 @@
     BlazeRow *row = s.rows[indexPath.row];
     
     //For esimated heights, it's important to have it as close as possible to the real value. So if it's not set, we'll use the real values
-    
     if(row.estimatedRowHeight) {
         return row.estimatedRowHeight.floatValue;
     }
@@ -1061,6 +1168,10 @@
         return self.estimatedRowHeight.floatValue;
     }
     else if(row.rowHeight) {
+        //Super-weird but if I don't do this hack it will crash saying the height is -1... Oh Apple
+        if(row.rowHeight.floatValue == 1.0f) {
+            return 2.0f;
+        }
         return row.rowHeight.floatValue;
     }
     else if(row.rowHeightRatio) {
@@ -1097,10 +1208,9 @@
     
     //Collapsing
     if(s.canCollapse) {
-        __weak __typeof(self)weakSelf = self;
-        __weak __typeof(BlazeSection *)weakSection = s;
+        __weak __typeof(self)weakSelf = self;        
         [s setCollapseTapped:^{
-            [weakSelf collapseSection:(int)section collapsed:weakSection.collapsed];
+            [weakSelf collapseSection:(int)section];
         }];
     }
     
@@ -1118,6 +1228,11 @@
     //Save it when using caching
     if(self.sectionHeaderCaching) {
         self.cachedSectionHeaders[@(section)] = headerView;
+    }
+    
+    //Invert if necessary
+    if(self.invertedTableView) {
+        headerView.transform = CGAffineTransformMakeScale(1, -1);
     }
     
     return headerView;
@@ -1150,6 +1265,11 @@
         s.configureFooterView(footerView);
     }
     
+    //Invert if necessary
+    if(self.invertedTableView) {
+        footerView.transform = CGAffineTransformMakeScale(1, -1);
+    }
+    
     return footerView;
 }
 
@@ -1171,8 +1291,16 @@
         cellName = self.rowsXibName;
     }
     
+    //Possibly overwrite default accessoryview type
+    if(self.defaultInputAccessoryViewType) {
+        row.inputAccessoryViewType = (InputAccessoryViewType)[self.defaultInputAccessoryViewType intValue];
+    }
+    
     BlazeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellName forIndexPath:indexPath];
     //You could choose to return the cell here and configure in willdisplay but I found out that the UITableViewAutomaticDimension does not work anymore when you do that... So I will configure the cell here...
+    
+    //Assuming the bundle will be the same
+    cell.bundle = self.bundle;
     
     //Update row object
     cell.row = row;
@@ -1222,8 +1350,24 @@
         row.configureCell(cell);
     }
     
+    //Invert?
+    if(self.invertedTableView) {
+        cell.transform = CGAffineTransformMakeScale(1, -1);
+    }
+    
     //Return
     return cell;
+}
+
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    BlazeSection *section = self.tableArray[indexPath.section];
+    BlazeRow *row = section.rows[indexPath.row];
+    if(row.willDisplayCell) {
+        //Necessary for correct frames
+        [cell layoutIfNeeded];
+        row.willDisplayCell((BlazeTableViewCell *)cell);
+    }
 }
 
 #pragma mark - UITableview Datasource - Section Index
@@ -1260,6 +1404,14 @@
         UIViewController *vc = [[UIStoryboard storyboardWithName:row.storyboardName bundle:nil] instantiateViewControllerWithIdentifier:row.storyboardID];
         [self.navigationController pushViewController:vc animated:TRUE];
     }
+    else if(row.navigationViewControllerClassName.length) {
+        UIViewController *vc = [NSClassFromString(row.navigationViewControllerClassName) new];
+        [self.navigationController pushViewController:vc animated:TRUE];
+    }
+    else if(row.navigationTableViewControllerClassName.length) {
+        UITableViewController *vc = [[NSClassFromString(row.navigationTableViewControllerClassName) alloc] initWithStyle:row.navigationTableViewStyle];
+        [self.navigationController pushViewController:vc animated:TRUE];
+    }
     [tableView deselectRowAtIndexPath:indexPath animated:TRUE];
 }
 
@@ -1268,7 +1420,7 @@
 -(BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
     BlazeSection *section = self.tableArray[indexPath.section];
-    BlazeRow *row = section.rows[indexPath.row];
+    BlazeRow *row = section.rows[indexPath.row];    
     return row.enableDeleting;
 }
 
@@ -1295,7 +1447,9 @@
         return;
     }
     
-    [self.view endEditing:TRUE];
+    if(self.beganScrolling) {
+        self.beganScrolling();
+    }
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
@@ -1304,6 +1458,16 @@
         return;
     }
     
+    //Floating Action Button
+    if(self.floatingActionButtonEnabled) {
+        CGRect frame = self.floatingActionButton.frame;
+        frame.origin.x = scrollView.frame.size.width-self.floatingActionButtonPadding-frame.size.width;
+        frame.origin.y = scrollView.frame.size.height-self.floatingActionButtonPadding-frame.size.height;
+        frame.origin.y += scrollView.contentOffset.y;
+        self.floatingActionButton.frame = frame;
+    }
+    
+    //ZoomTableHeaderView
     if(!self.zoomTableHeaderView) {
         return;
     }
@@ -1369,9 +1533,6 @@
         //Section header/footer
         if(s.headerXibName.length) {
             [self registerCustomHeader:s.headerXibName];
-            if(self.useSectionIndexPicker && s.headerTitle.length) {
-                [self.sectionIndexesArray addObject:[[s.headerTitle substringToIndex:1] uppercaseString]];
-            }
         }
         if(s.footerXibName.length) {
             [self registerCustomHeader:s.footerXibName];
@@ -1387,6 +1548,11 @@
             if(r.xibName.length) {
                 [self registerCustomCell:r.xibName];
             }
+        }
+        
+        //Section index picker
+        if(self.useSectionIndexPicker && s.headerTitle.length) {
+            [self.sectionIndexesArray addObject:[[s.headerTitle substringToIndex:1] uppercaseString]];
         }
     }
     
@@ -1404,17 +1570,25 @@
     }
     
     //Separator style
-    if((int)self.emptyTableViewCellSeparatorStyle != -1 && (int)self.filledTableViewCellSeparatorStyle != -1) {
+    if(self.emptyTableViewCellSeparatorStyle && self.filledTableViewCellSeparatorStyle) {
         if(self.tableArray.count) {
-            self.tableView.separatorStyle = self.filledTableViewCellSeparatorStyle;
+            self.tableView.separatorStyle = (UITableViewCellSeparatorStyle)self.filledTableViewCellSeparatorStyle.intValue;
         }
         else {
-            self.tableView.separatorStyle = self.emptyTableViewCellSeparatorStyle;
+            self.tableView.separatorStyle = (UITableViewCellSeparatorStyle)self.emptyTableViewCellSeparatorStyle.intValue;
         }
     }
 }
 
-- (UIView *)customViewForEmptyDataSet:(UIScrollView *)scrollView
+-(CGAffineTransform)transformForEmptyDataSet:(UIScrollView *)scrollView
+{
+    if(self.invertedTableView) {
+        return CGAffineTransformMakeScale(1, -1);
+    }
+    return CGAffineTransformIdentity;
+}
+
+-(UIView *)customViewForEmptyDataSet:(UIScrollView *)scrollView
 {
     return self.emptyCustomView;
 }

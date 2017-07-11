@@ -32,8 +32,14 @@
 @property(nonatomic,strong) UIColor *emptyBackgroundColor;
 @property(nonatomic,strong) NSDictionary *emptyTitleAttributes;
 @property(nonatomic,strong) UIView *emptyCustomView;
-@property(nonatomic) UITableViewCellSeparatorStyle filledTableViewCellSeparatorStyle;
-@property(nonatomic) UITableViewCellSeparatorStyle emptyTableViewCellSeparatorStyle;
+@property(nonatomic,strong) NSNumber *filledTableViewCellSeparatorStyle;
+@property(nonatomic,strong) NSNumber *emptyTableViewCellSeparatorStyle;
+
+//Default InputAccessoryView
+@property(nonatomic,strong) NSNumber *defaultInputAccessoryViewType;
+
+//Specific bundle for nibs
+@property(nonatomic,strong) NSBundle *bundle;
 
 //Section index picker (A-Z) - Implemented assuming sections are correctly formatted and have a unique first-letter
 @property(nonatomic) bool useSectionIndexPicker;
@@ -41,8 +47,15 @@
 //Separator Inset
 @property(nonatomic) bool noSeparatorInset;
 
+//Disappearing - notify cells to for example stop timers/video's playing, etc.
+@property(nonatomic) bool notifyCellsWhenDisappearing;
+
 //Header caching (for animations in headerviews)
+-(void)clearSectionHeaderCache;
 @property(nonatomic) bool sectionHeaderCaching;
+
+//Inverted tableview (and cells/emptyview) - useful when showing e.g. messages from bottom to top incl. refreshcontrol at the bottom
+@property(nonatomic) bool invertedTableView;
 
 //Heights
 @property(nonatomic,strong) NSNumber *rowHeight;
@@ -68,8 +81,16 @@
 @property(nonatomic) bool enableRefreshControl;
 @property(nonatomic,copy) void (^refreshControlPulled)(void);
 
+//Scrolling
+@property(nonatomic,copy) void (^beganScrolling)(void);
+
+//Floating Action Button - Advise is to setup in viewdidappear to ensure correct frame and visible animation
+-(void)removeFloatingActionButton;
+-(void)setupFloatingActionButtonWithImage:(UIImage *)image padding:(float)padding tapped:(void(^)())tapped;
+-(void)setupFloatingActionButtonWithImage:(UIImage *)image padding:(float)padding tapped:(void (^)())tapped animated:(BOOL)animated;
+
 //Collapsing - override for example to fix iOS9 crashes...
--(void)collapseSection:(int)sectionIndex collapsed:(BOOL)collapsed;
+-(void)collapseSection:(int)sectionIndex;
 
 //Scrolling
 -(void)scrollToTop:(BOOL)animated;
