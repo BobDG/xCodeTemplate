@@ -1,5 +1,13 @@
 #ifdef __OBJC__
 #import <UIKit/UIKit.h>
+#else
+#ifndef FOUNDATION_EXPORT
+#if defined(__cplusplus)
+#define FOUNDATION_EXPORT extern "C"
+#else
+#define FOUNDATION_EXPORT extern
+#endif
+#endif
 #endif
 
 #import "BlazeNSFetchedTableViewController.h"
@@ -14,6 +22,7 @@
 #import "BlazeTilesCollectionView.h"
 #import "BlazeDateFieldProcessor.h"
 #import "BlazeFieldProcessor.h"
+#import "BlazePickerFieldMultipleProcessor.h"
 #import "BlazePickerFieldProcessor.h"
 #import "BlazeTextFieldProcessor.h"
 #import "BlazeInputTile.h"
@@ -33,6 +42,7 @@
 #import "BlazeTableHeaderFooterView.h"
 #import "BlazeDatePickerField.h"
 #import "BlazePickerViewField.h"
+#import "BlazePickerViewMultipleField.h"
 #import "BlazeTextField.h"
 #import "BlazeTextView.h"
 

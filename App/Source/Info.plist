@@ -22,6 +22,8 @@
 	<string>1</string>
 	<key>HockeyApp</key>
 	<string></string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>instagram</string>
