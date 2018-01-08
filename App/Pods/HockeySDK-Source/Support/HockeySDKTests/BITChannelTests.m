@@ -14,113 +14,146 @@
 
 @interface BITChannelTests : XCTestCase
 
+@property(nonatomic, strong) BITChannel *sut;
+@property(nonatomic, strong) BITPersistence *mockPersistence;
+
 @end
 
-
-@implementation BITChannelTests {
-  BITChannel *_sut;
-  BITPersistence *_mockPersistence;
-}
+@implementation BITChannelTests
 
 - (void)setUp {
   [super setUp];
-  _mockPersistence = OCMPartialMock([[BITPersistence alloc] init]);
+  self.mockPersistence = OCMPartialMock([[BITPersistence alloc] init]);
   BITTelemetryContext *mockContext = mock(BITTelemetryContext.class);
   
-  _sut = [[BITChannel alloc]initWithTelemetryContext:mockContext persistence:_mockPersistence];
-  bit_resetSafeJsonStream(&BITSafeJsonEventsString);
+  self.sut = [[BITChannel alloc]initWithTelemetryContext:mockContext persistence:self.mockPersistence];
+  bit_resetEventBuffer(&BITTelemetryEventBuffer);
 }
 
 #pragma mark - Setup Tests
 
 - (void)testNewInstanceWasInitialisedCorrectly {
   XCTAssertNotNil([BITChannel new]);
-  XCTAssertNotNil(_sut.dataItemsOperations);
+  XCTAssertNotNil(self.sut.dataItemsOperations);
 }
 
 #pragma mark - Queue management
 
 - (void)testEnqueueEnvelopeWithOneEnvelopeAndJSONStream {
-  _sut = OCMPartialMock(_sut);
-  _sut.maxBatchSize = 3;
+  self.sut = OCMPartialMock(self.sut);
+  self.sut.maxBatchSize = 3;
   BITTelemetryData *testData = [BITTelemetryData new];
   
-  [_sut enqueueTelemetryItem:testData];
+  __weak XCTestExpectation *expectation = [self expectationWithDescription:@"Enqueued a telemetry item."];
   
-  dispatch_sync(_sut.dataItemsOperations, ^{
-    assertThatUnsignedInteger(_sut.dataItemCount, equalToUnsignedInteger(1));
-    XCTAssertTrue(strlen(BITSafeJsonEventsString) > 0);
-  });
+  [self.sut enqueueTelemetryItem:testData completionHandler:^{
+    assertThatUnsignedInteger(self.sut.dataItemCount, equalToUnsignedInteger(1));
+    XCTAssertTrue(strlen(BITTelemetryEventBuffer) > 0);
+    
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectationsWithTimeout:5.0
+                               handler:^(NSError *_Nullable error) {
+                                 if (error) {
+                                   XCTFail(@"Expectation Failed with error: %@", error);
+                                 }
+                               }];
 }
 
 - (void)testEnqueueEnvelopeWithMultipleEnvelopesAndJSONStream {
-  _sut = OCMPartialMock(_sut);
-  _sut.maxBatchSize = 3;
+  self.sut = OCMPartialMock(self.sut);
+  self.sut.maxBatchSize = 3;
   
   BITTelemetryData *testData = [BITTelemetryData new];
   
-  assertThatUnsignedInteger(_sut.dataItemCount, equalToUnsignedInteger(0));
+  assertThatUnsignedInteger(self.sut.dataItemCount, equalToUnsignedInteger(0));
   
-  [_sut enqueueTelemetryItem:testData];
-  dispatch_sync(_sut.dataItemsOperations, ^{
-    assertThatUnsignedInteger(_sut.dataItemCount, equalToUnsignedInteger(1));
-    XCTAssertTrue(strlen(BITSafeJsonEventsString) > 0);
-  });
+  __weak XCTestExpectation *expectation = [self expectationWithDescription:@"Enqueued a telemetry item."];
   
-  [_sut enqueueTelemetryItem:testData];
-  dispatch_sync(_sut.dataItemsOperations, ^{
-    assertThatUnsignedInteger(_sut.dataItemCount, equalToUnsignedInteger(2));
-    XCTAssertTrue(strlen(BITSafeJsonEventsString) > 0);
-  });
+  [self.sut enqueueTelemetryItem:testData completionHandler:^{
+    assertThatUnsignedInteger(self.sut.dataItemCount, equalToUnsignedInteger(1));
+    XCTAssertTrue(strlen(BITTelemetryEventBuffer) > 0);
+    [expectation fulfill];
+  }];
   
-  [_sut enqueueTelemetryItem:testData];
-  dispatch_sync(_sut.dataItemsOperations, ^{
-    assertThatUnsignedInteger(_sut.dataItemCount, equalToUnsignedInteger(0));
-    XCTAssertTrue(strcmp(BITSafeJsonEventsString, "") == 0);
-  });
+  [self waitForExpectationsWithTimeout:5.0
+                               handler:^(NSError *_Nullable error) {
+                                 if (error) {
+                                   XCTFail(@"Expectation Failed with error: %@", error);
+                                 }
+                               }];
+  
+  expectation = [self expectationWithDescription:@"Enqueued a second telemetry item."];
+
+  [self.sut enqueueTelemetryItem:testData completionHandler:^{
+    assertThatUnsignedInteger(self.sut.dataItemCount, equalToUnsignedInteger(2));
+    XCTAssertTrue(strlen(BITTelemetryEventBuffer) > 0);
+    [expectation fulfill];
+  }];
+  
+  [self waitForExpectationsWithTimeout:5.0
+                               handler:^(NSError *_Nullable error) {
+                                 if (error) {
+                                   XCTFail(@"Expectation Failed with error: %@", error);
+                                 }
+                               }];
+  
+  expectation = [self expectationWithDescription:@"Enqueued a third telemetry item."];
+  
+  [self.sut enqueueTelemetryItem:testData completionHandler:^{
+    assertThatUnsignedInteger(self.sut.dataItemCount, equalToUnsignedInteger(0));
+    XCTAssertTrue(strcmp(BITTelemetryEventBuffer, "") == 0);
+    [expectation fulfill];
+  }];
+  
+  [self waitForExpectationsWithTimeout:5.0
+                               handler:^(NSError *_Nullable error) {
+                                 if (error) {
+                                   XCTFail(@"Expectation Failed with error: %@", error);
+                                 }
+                               }];
 }
 
 #pragma mark - Safe JSON Stream Tests
 
-- (void)testAppendStringToSafeJsonStream {
+- (void)testAppendStringToEventBuffer {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-  bit_appendStringToSafeJsonStream(nil, 0);
+  bit_appendStringToEventBuffer(nil, 0);
 #pragma clang diagnostic pop
-  XCTAssertEqual(strcmp(BITSafeJsonEventsString,""), 0);
+  XCTAssertEqual(strcmp(BITTelemetryEventBuffer,""), 0);
   
-//  BITSafeJsonEventsString = NULL;
-  bit_resetSafeJsonStream(&BITSafeJsonEventsString);
+  bit_resetEventBuffer(&BITTelemetryEventBuffer);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-  bit_appendStringToSafeJsonStream(nil, &BITSafeJsonEventsString);
+  bit_appendStringToEventBuffer(nil, &BITTelemetryEventBuffer);
 #pragma clang diagnostic pop
-  XCTAssertEqual(strcmp(BITSafeJsonEventsString,""), 0);
+  XCTAssertEqual(strcmp(BITTelemetryEventBuffer,""), 0);
   
-  bit_appendStringToSafeJsonStream(@"", &BITSafeJsonEventsString);
-  XCTAssertEqual(strcmp(BITSafeJsonEventsString,""), 0);
+  bit_appendStringToEventBuffer(@"", &BITTelemetryEventBuffer);
+  XCTAssertEqual(strcmp(BITTelemetryEventBuffer,""), 0);
   
-  bit_appendStringToSafeJsonStream(@"{\"Key1\":\"Value1\"}", &BITSafeJsonEventsString);
-  XCTAssertEqual(strcmp(BITSafeJsonEventsString,"{\"Key1\":\"Value1\"}\n"), 0);
+  bit_appendStringToEventBuffer(@"{\"Key1\":\"Value1\"}", &BITTelemetryEventBuffer);
+  XCTAssertEqual(strcmp(BITTelemetryEventBuffer,"{\"Key1\":\"Value1\"}\n"), 0);
 }
 
 - (void)testResetSafeJsonStream {
-  bit_resetSafeJsonStream(&BITSafeJsonEventsString);
-  XCTAssertEqual(strcmp(BITSafeJsonEventsString,""), 0);
+  bit_resetEventBuffer(&BITTelemetryEventBuffer);
+  XCTAssertEqual(strcmp(BITTelemetryEventBuffer,""), 0);
   
-//  BITSafeJsonEventsString = NULL;
-  bit_resetSafeJsonStream(&BITSafeJsonEventsString);
+  bit_resetEventBuffer(&BITTelemetryEventBuffer);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-  bit_resetSafeJsonStream(nil);
+  bit_resetEventBuffer(nil);
 #pragma clang diagnostic pop
-  XCTAssertEqual(strcmp(BITSafeJsonEventsString,""), 0);
+  XCTAssertEqual(strcmp(BITTelemetryEventBuffer,""), 0);
   
-  BITSafeJsonEventsString = strdup("test string");
-  bit_resetSafeJsonStream(&BITSafeJsonEventsString);
-  XCTAssertEqual(strcmp(BITSafeJsonEventsString,""), 0);
+  BITTelemetryEventBuffer = strdup("test string");
+  bit_resetEventBuffer(&BITTelemetryEventBuffer);
+  XCTAssertEqual(strcmp(BITTelemetryEventBuffer,""), 0);
 }
 
 @end

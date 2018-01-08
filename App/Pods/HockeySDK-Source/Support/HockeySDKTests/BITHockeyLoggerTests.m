@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#import "OCMock.h"
+#import <OCMock/OCMock.h>
 #import "BITHockeyLoggerPrivate.h"
 
 static char *const testFile = "Filename";
@@ -29,7 +29,7 @@ static uint const testLine = 42;
 
 - (void)testSetLogHandler {
   XCTestExpectation *expectation = [self expectationWithDescription:@"Expected logHandler to be called"];
-  BITLogHandler testLogHandler = ^(BITLogMessageProvider messageProvider, BITLogLevel logLevel, const char *file, const char *function, uint line) {
+  BITLogHandler testLogHandler = ^(BITLogMessageProvider __unused messageProvider, BITLogLevel __unused logLevel, const char __unused *file, const char __unused *function, uint __unused line) {
     [expectation fulfill];
   };
 

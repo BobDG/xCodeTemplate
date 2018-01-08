@@ -59,7 +59,6 @@ NSString *bit_appIdentifierToGuid(NSString *appIdentifier);
 NSString *bit_appName(NSString *placeHolderString);
 NSString *bit_UUID(void);
 NSString *bit_appAnonID(BOOL forceNewAnonID);
-BOOL bit_isPreiOS8Environment(void);
 BOOL bit_isPreiOS10Environment(void);
 BOOL bit_isAppStoreReceiptSandbox(void);
 BOOL bit_hasEmbeddedMobileProvision(void);
@@ -77,7 +76,6 @@ BOOL bit_isDebuggerAttached(void);
 
 /* NSString helpers */
 NSString *bit_URLEncodedString(NSString *inputString);
-NSString *bit_base64String(NSData * data, unsigned long length);
 
 /* Context helpers */
 NSString *bit_utcDateString(NSDate *date);
@@ -98,9 +96,9 @@ NSString *bit_validAppIconStringFromIcons(NSBundle *resourceBundle, NSArray *ico
 NSString *bit_validAppIconFilename(NSBundle *bundle, NSBundle *resourceBundle);
 
 /* UIImage helpers */
-UIImage *bit_roundedCornerImage(UIImage *inputImage, NSInteger cornerSize, NSInteger borderSize);
+UIImage *bit_roundedCornerImage(UIImage *inputImage, CGFloat cornerSize, NSInteger borderSize);
 UIImage *bit_imageToFitSize(UIImage *inputImage, CGSize fitSize, BOOL honorScaleFactor);
-UIImage *bit_reflectedImageWithHeight(UIImage *inputImage, NSUInteger height, float fromAlpha, float toAlpha);
+UIImage *bit_reflectedImageWithHeight(UIImage *inputImage, NSUInteger height, CGFloat fromAlpha, CGFloat toAlpha);
 
 UIImage *bit_newWithContentsOfResolutionIndependentFile(NSString * path);
 UIImage *bit_imageWithContentsOfResolutionIndependentFile(NSString * path);

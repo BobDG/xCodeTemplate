@@ -49,11 +49,11 @@
 #import "BITHockeyAttachment.h"
 #import "BITHockeyBaseManager.h"
 #import "BITHockeyBaseViewController.h"
+#import "BITHockeyHelper+Application.h"
 #import "BITHockeyHelper.h"
 #import "BITHockeyLogger.h"
 #import "BITHockeyManager.h"
 #import "BITHockeyManagerDelegate.h"
-#import "BITHTTPOperation.h"
 #import "BITImageAnnotation.h"
 #import "BITImageAnnotationViewController.h"
 #import "BITInternal.h"
@@ -79,7 +79,6 @@
 #import "HockeySDK.h"
 #import "HockeySDKEnums.h"
 #import "HockeySDKFeatureConfig.h"
-#import "HockeySDKFeatureConfig_CP.h"
 #import "HockeySDKNullability.h"
 
 FOUNDATION_EXPORT double HockeySDK_SourceVersionNumber;

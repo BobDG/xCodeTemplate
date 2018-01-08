@@ -17,6 +17,7 @@
 
 //Standard cells
 #import "BlazeTableViewCell.h"
+#import "BlazeTextViewTableViewCell.h"
 
 //TableViewHeaders
 #import "BlazeTableHeaderFooterView.h"
@@ -219,12 +220,12 @@
     self.floatingActionButton = nil;
 }
 
--(void)setupFloatingActionButtonWithImage:(UIImage *)image padding:(float)padding tapped:(void (^)())tapped
+-(void)setupFloatingActionButtonWithImage:(UIImage *)image padding:(float)padding tapped:(void (^)(void))tapped
 {
     [self setupFloatingActionButtonWithImage:image padding:padding tapped:tapped animated:FALSE];
 }
 
--(void)setupFloatingActionButtonWithImage:(UIImage *)image padding:(float)padding tapped:(void (^)())tapped animated:(BOOL)animated
+-(void)setupFloatingActionButtonWithImage:(UIImage *)image padding:(float)padding tapped:(void (^)(void))tapped animated:(BOOL)animated
 {
     //Clear
     if(self.floatingActionButton) {
@@ -517,8 +518,14 @@
     //Get next indexPath in the same section
     NSIndexPath *nextRowIndexPath = [NSIndexPath indexPathForRow:indexPath.row+1 inSection:indexPath.section];
     BlazeTableViewCell *nextRowCell = [self.tableView cellForRowAtIndexPath:nextRowIndexPath];
-    if(nextRowCell) {        
-        if(nextRowCell.row.disableEditing) {
+    if(nextRowCell) {
+        if([nextRowCell isKindOfClass:[BlazeTextViewTableViewCell class]]) {
+            BlazeTextViewTableViewCell *c = (BlazeTextViewTableViewCell*)nextRowCell;
+            if(!c.row.disableEditing && c.canBecomeFirstResponder) {
+                return c;
+            }
+        }
+        if(nextRowCell.row.disableEditing || nextRowCell.fieldProcessors.count == 0) {
             return [self nextCellFromIndexPath:nextRowIndexPath];
         }
         return nextRowCell;
@@ -528,7 +535,7 @@
     NSIndexPath *nextSectionIndexPath = [NSIndexPath indexPathForRow:0 inSection:indexPath.section+1];
     BlazeTableViewCell *nextSectionCell = [self.tableView cellForRowAtIndexPath:nextSectionIndexPath];
     if(nextSectionCell) {
-        if(nextSectionCell.row.disableEditing) {
+        if(nextSectionCell.row.disableEditing || nextRowCell.fieldProcessors.count == 0) {
             return [self nextCellFromIndexPath:nextSectionIndexPath];
         }
         return nextSectionCell;
@@ -544,10 +551,25 @@
     NSIndexPath *previousRowIndexPath = [NSIndexPath indexPathForRow:indexPath.row-1 inSection:indexPath.section];
     BlazeTableViewCell *previousRowCell = [self.tableView cellForRowAtIndexPath:previousRowIndexPath];
     if(previousRowCell) {
-        if(previousRowCell.row.disableEditing) {
+        if([previousRowCell isKindOfClass:[BlazeTextViewTableViewCell class]]) {
+            BlazeTextViewTableViewCell *c = (BlazeTextViewTableViewCell*)previousRowCell;
+            if(!c.row.disableEditing && c.canBecomeFirstResponder) {
+                return c;
+            }
+        }
+        if(previousRowCell.row.disableEditing || previousRowCell.fieldProcessors.count == 0) {
             return [self previousCellFromIndexPath:previousRowIndexPath];
         }
         return previousRowCell;
+    }
+    else if(indexPath.row>0) {
+        //The row DOES exist but simply out of view
+        [self.tableView scrollToRowAtIndexPath:previousRowIndexPath atScrollPosition:UITableViewScrollPositionTop animated:TRUE];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self activatePreviousFieldFromIndexPath:indexPath];
+        });
+        //Returning existing cell, otherwise the keyboard will dismiss and then pop back
+        return [self.tableView cellForRowAtIndexPath:indexPath];
     }
     
     //Get previous indexpath for the previous section
@@ -564,10 +586,25 @@
     NSIndexPath *previousSectionIndexPath = [NSIndexPath indexPathForRow:section.rows.count-1 inSection:previousSectionIndex];
     BlazeTableViewCell *previousSectionCell = [self.tableView cellForRowAtIndexPath:previousSectionIndexPath];
     if(previousSectionCell) {
-        if(previousSectionCell.row.disableEditing) {
+        if([previousSectionCell isKindOfClass:[BlazeTextViewTableViewCell class]]) {
+            BlazeTextViewTableViewCell *c = (BlazeTextViewTableViewCell*)previousSectionCell;
+            if(!c.row.disableEditing && c.canBecomeFirstResponder) {
+                return c;
+            }
+        }
+        if(previousSectionCell.row.disableEditing || previousSectionCell.fieldProcessors.count == 0) {
             return [self previousCellFromIndexPath:previousSectionIndexPath];
         }
         return previousSectionCell;
+    }
+    else if(section.rows.count>0) {
+        //The row DOES exist but simply out of view
+        [self.tableView scrollToRowAtIndexPath:previousSectionIndexPath atScrollPosition:UITableViewScrollPositionTop animated:TRUE];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self activatePreviousFieldFromIndexPath:indexPath];
+        });
+        //Returning existing cell, otherwise the keyboard will dismiss and then pop back
+        return [self.tableView cellForRowAtIndexPath:indexPath];
     }
     
     //Nothing..
@@ -1299,8 +1336,10 @@
     BlazeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellName forIndexPath:indexPath];
     //You could choose to return the cell here and configure in willdisplay but I found out that the UITableViewAutomaticDimension does not work anymore when you do that... So I will configure the cell here...
     
-    //Assuming the bundle will be the same
-    cell.bundle = self.bundle;
+    //Assuming the bundle will be the same (unless specified it's not)
+    if(!row.disableBundle) {
+        cell.bundle = self.bundle;
+    }
     
     //Update row object
     cell.row = row;
@@ -1516,6 +1555,11 @@
 -(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView
 {
     return self.emptyVerticalOffset;
+}
+
+-(NSNumber *)verticalTopPadding:(UIScrollView *)scrollView
+{
+    return self.emptyVerticalTopPadding;
 }
 
 -(BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView

@@ -38,6 +38,12 @@
     
     //Editable
     self.textView.userInteractionEnabled = !self.row.disableEditing;
+    
+    //AccessoryInputView
+    self.textView.inputAccessoryView = self.defaultInputAccessoryViewToolbar;
+    
+    //Reset height constraint because height will be resetted otherwise
+    [self updateHeightConstraint];
 }
 
 -(void)awakeFromNib
@@ -54,21 +60,6 @@
     //Set constant
     self.previousHeight = self.textViewHeightConstraint.constant;
     self.preferredHeightOneLine = self.previousHeight;
-    
-    //AccessoryInputView
-    UIToolbar *toolBar = [[UIToolbar alloc] initWithFrame:CGRectZero];
-    toolBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    NSMutableArray *barbuttonItemsArray = [NSMutableArray new];
-    [barbuttonItemsArray addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Arrow_Left" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] style:UIBarButtonItemStylePlain target:self action:@selector(previousField:)]];
-    UIBarButtonItem *fixedSpaceBB = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
-    fixedSpaceBB.width = 20.0f;
-    [barbuttonItemsArray addObject:fixedSpaceBB];
-    [barbuttonItemsArray addObject:[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"Arrow_Right" inBundle:[NSBundle bundleForClass:[self class]] compatibleWithTraitCollection:nil] style:UIBarButtonItemStylePlain target:self action:@selector(nextField:)]];
-    [barbuttonItemsArray addObject:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil]];
-    [barbuttonItemsArray addObject:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(done)]];
-    [toolBar setItems:barbuttonItemsArray];
-    [toolBar sizeToFit];
-    self.textView.inputAccessoryView = toolBar;
 }
 
 -(void)setSelected:(BOOL)selected animated:(BOOL)animated
@@ -83,19 +74,11 @@
     [self.textView resignFirstResponder];    
 }
 
-#pragma mark - UITextViewDelegate
+#pragma mark - Constraint
 
--(void)textViewDidEndEditing:(UITextView *)textView
+-(BOOL)updateHeightConstraint
 {
-    if(self.row.doneChanging) {
-        self.row.doneChanging();
-    }
-}
-
--(void)textViewDidChange:(UITextView *)textView
-{
-    //Set height constraint
-    float heightThatFitsTextView = [textView sizeThatFits:CGSizeMake(textView.frame.size.width, CGFLOAT_MAX)].height;
+    float heightThatFitsTextView = [self.textView sizeThatFits:CGSizeMake(self.textView.frame.size.width, CGFLOAT_MAX)].height;
     float newConstant;
     if(heightThatFitsTextView>self.preferredHeightOneLine) {
         newConstant = heightThatFitsTextView;
@@ -108,12 +91,27 @@
         self.previousHeight = newConstant;
         [self setNeedsUpdateConstraints];
         [self layoutIfNeeded];
-        
+        return TRUE;
+    }
+    return FALSE;
+}
+
+#pragma mark - UITextViewDelegate
+
+-(void)textViewDidEndEditing:(UITextView *)textView
+{
+    if(self.row.doneChanging) {
+        self.row.doneChanging();
+    }
+}
+
+-(void)textViewDidChange:(UITextView *)textView
+{
+    if([self updateHeightConstraint]) {
         if(self.heightUpdated) {
             self.heightUpdated();
         }
     }
-    
     self.row.value = textView.text;
     [self.row updatedValue:self.row.value];
 }

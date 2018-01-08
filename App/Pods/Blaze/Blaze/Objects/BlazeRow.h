@@ -93,9 +93,11 @@ typedef NS_ENUM(NSInteger, ImageType) {
 
 //Row primitives
 @property(nonatomic) int ID;
+@property(nonatomic) bool disableBundle;
 @property(nonatomic) bool enableDeleting;
 @property(nonatomic) bool disableEditing;
 @property(nonatomic) bool rowHeightDynamic;
+@property(nonatomic) bool disableFirstResponderOnCellTap;
 
 //Heights
 @property(nonatomic,strong) NSNumber *rowHeight;
@@ -126,6 +128,9 @@ typedef NS_ENUM(NSInteger, ImageType) {
 
 //InputAccessoryViewType
 @property(nonatomic) InputAccessoryViewType inputAccessoryViewType;
+
+//Constraints
+@property(nonatomic,strong) NSArray <NSNumber *> *constraintConstants;
 
 //Title
 @property(nonatomic,strong) NSString *title;

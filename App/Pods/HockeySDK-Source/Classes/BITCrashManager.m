@@ -37,6 +37,7 @@
 
 #import "HockeySDKPrivate.h"
 #import "BITHockeyHelper.h"
+#import "BITHockeyHelper+Application.h"
 #import "BITHockeyAppClient.h"
 
 #import "BITCrashManager.h"
@@ -88,8 +89,14 @@ static NSString *const kBITFakeCrashDeviceModel = @"BITFakeCrashDeviceModel";
 static NSString *const kBITFakeCrashAppBinaryUUID = @"BITFakeCrashAppBinaryUUID";
 static NSString *const kBITFakeCrashReport = @"BITFakeCrashAppString";
 
+// We need BIT_UNUSED macro to make sure there aren't any warnings when building
+// HockeySDK Distribution scheme. Since several configurations are build in this scheme
+// and different features can be turned on and off we can't just use __unused attribute.
 #if HOCKEYSDK_FEATURE_METRICS
 static char const *BITSaveEventsFilePath;
+#define BIT_UNUSED
+#else
+#define BIT_UNUSED __unused
 #endif
 
 static BITCrashManagerCallbacks bitCrashCallbacks = {
@@ -98,10 +105,10 @@ static BITCrashManagerCallbacks bitCrashCallbacks = {
 };
 
 #if HOCKEYSDK_FEATURE_METRICS
-static void bit_save_events_callback(siginfo_t *info, ucontext_t *uap, void *context) {
+static void bit_save_events_callback(siginfo_t __unused *info, ucontext_t __unused *uap, void __unused *context) {
   
   // Do not flush metrics queue if queue is empty (metrics module disabled) to not freeze the app
-  if (!BITSafeJsonEventsString) {
+  if (!BITTelemetryEventBuffer) {
     return;
   }
   
@@ -111,17 +118,17 @@ static void bit_save_events_callback(siginfo_t *info, ucontext_t *uap, void *con
     return;
   }
   
-  size_t len = strlen(BITSafeJsonEventsString);
+  size_t len = strlen(BITTelemetryEventBuffer);
   if (len > 0) {
     // Simply write the whole string to disk
-    write(fd, BITSafeJsonEventsString, len);
+    write(fd, BITTelemetryEventBuffer, len);
   }
   close(fd);
 }
 #endif
 
 // Proxy implementation for PLCrashReporter to keep our interface stable while this can change
-static void plcr_post_crash_callback (siginfo_t *info, ucontext_t *uap, void *context) {
+static void plcr_post_crash_callback (BIT_UNUSED siginfo_t *info, BIT_UNUSED ucontext_t *uap, void *context) {
 #if HOCKEYSDK_FEATURE_METRICS
   bit_save_events_callback(info, uap, context);
 #endif
@@ -142,31 +149,33 @@ static PLCrashReporterCallbacks plCrashCallbacks = {
 // This code provides us access to the C++ exception message, including a correct stack trace.
 //
 @interface BITCrashCXXExceptionWrapperException : NSException
+
 - (instancetype)initWithCXXExceptionInfo:(const BITCrashUncaughtCXXExceptionInfo *)info;
+
+@property (nonatomic, readonly) const BITCrashUncaughtCXXExceptionInfo *info;
+
 @end
 
-@implementation BITCrashCXXExceptionWrapperException {
-  const BITCrashUncaughtCXXExceptionInfo *_info;
-}
+@implementation BITCrashCXXExceptionWrapperException
 
 - (instancetype)initWithCXXExceptionInfo:(const BITCrashUncaughtCXXExceptionInfo *)info {
   extern char* __cxa_demangle(const char* mangled_name, char* output_buffer, size_t* length, int* status);
   char *demangled_name = &__cxa_demangle ? __cxa_demangle(info->exception_type_name ?: "", NULL, NULL, NULL) : NULL;
-
+  
   if ((self = [super
-                initWithName:[NSString stringWithUTF8String:demangled_name ?: info->exception_type_name ?: ""]
-                reason:[NSString stringWithUTF8String:info->exception_message ?: ""]
-                userInfo:nil])) {
+               initWithName:(NSString *)[NSString stringWithUTF8String:demangled_name ?: info->exception_type_name ?: ""]
+               reason:[NSString stringWithUTF8String:info->exception_message ?: ""]
+               userInfo:nil])) {
     _info = info;
   }
   return self;
 }
 
 - (NSArray *)callStackReturnAddresses {
-  NSMutableArray *cxxFrames = [NSMutableArray arrayWithCapacity:_info->exception_frames_count];
+  NSMutableArray *cxxFrames = [NSMutableArray arrayWithCapacity:self.info->exception_frames_count];
   
-  for (uint32_t i = 0; i < _info->exception_frames_count; ++i) {
-    [cxxFrames addObject:[NSNumber numberWithUnsignedLongLong:_info->exception_frames[i]]];
+  for (uint32_t i = 0; i < self.info->exception_frames_count; ++i) {
+    [cxxFrames addObject:[NSNumber numberWithUnsignedLongLong:self.info->exception_frames[i]]];
   }
   return cxxFrames;
 }
@@ -175,36 +184,38 @@ static PLCrashReporterCallbacks plCrashCallbacks = {
 
 
 // C++ Exception Handler
-static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInfo *info) {
+__attribute__((noreturn)) static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInfo *info) {
   // This relies on a LOT of sneaky internal knowledge of how PLCR works and should not be considered a long-term solution.
   NSGetUncaughtExceptionHandler()([[BITCrashCXXExceptionWrapperException alloc] initWithCXXExceptionInfo:info]);
   abort();
 }
 
+@interface BITCrashManager ()
 
-@implementation BITCrashManager {
-  NSMutableDictionary *_approvedCrashReports;
-  
-  NSMutableArray *_crashFiles;
-  NSString       *_lastCrashFilename;
-  NSString       *_settingsFile;
-  NSString       *_analyzerInProgressFile;
-  NSFileManager  *_fileManager;
-  
-  BOOL _crashIdenticalCurrentVersion;
-  
-  BOOL _sendingInProgress;
-  BOOL _isSetup;
-  
-  BOOL _didLogLowMemoryWarning;
-  
-  id _appDidBecomeActiveObserver;
-  id _appWillTerminateObserver;
-  id _appDidEnterBackgroundObserver;
-  id _appWillEnterForegroundObserver;
-  id _appDidReceiveLowMemoryWarningObserver;
-  id _networkDidBecomeReachableObserver;
-}
+@property (nonatomic, strong) NSMutableDictionary *approvedCrashReports;
+@property (nonatomic, strong) NSMutableArray *crashFiles;
+@property (nonatomic, copy) NSString *settingsFile;
+@property (nonatomic, copy) NSString *analyzerInProgressFile;
+@property (nonatomic) BOOL crashIdenticalCurrentVersion;
+@property (nonatomic) BOOL sendingInProgress;
+@property (nonatomic) BOOL isSetup;
+@property (nonatomic) BOOL didLogLowMemoryWarning;
+@property (nonatomic, weak) id appDidBecomeActiveObserver;
+@property (nonatomic, weak) id appWillTerminateObserver;
+@property (nonatomic, weak) id appDidEnterBackgroundObserver;
+@property (nonatomic, weak) id appWillEnterForegroundObserver;
+@property (nonatomic, weak) id appDidReceiveLowMemoryWarningObserver;
+@property (nonatomic, weak) id networkDidBecomeReachableObserver;
+
+// Redeclare BITCrashManager properties with readwrite attribute
+@property (nonatomic, readwrite) NSTimeInterval timeIntervalCrashInLastSessionOccurred;
+@property (nonatomic, readwrite) BITCrashDetails *lastSessionCrashDetails;
+@property (nonatomic, readwrite) BOOL didCrashInLastSession;
+@property (nonatomic, readwrite) BOOL didReceiveMemoryWarningInLastSession;
+
+@end
+
+@implementation BITCrashManager
 
 - (instancetype)initWithAppIdentifier:(NSString *)appIdentifier appEnvironment:(BITEnvironment)environment hockeyAppClient:(BITHockeyAppClient *)hockeyAppClient {
   if ((self = [super initWithAppIdentifier:appIdentifier appEnvironment:environment])) {
@@ -226,7 +237,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
     _didLogLowMemoryWarning = NO;
     
     _approvedCrashReports = [[NSMutableDictionary alloc] init];
-
+    
     _fileManager = [[NSFileManager alloc] init];
     _crashFiles = [[NSMutableArray alloc] init];
     
@@ -246,7 +257,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
     _crashesDir = bit_settingsDir();
     _settingsFile = [_crashesDir stringByAppendingPathComponent:BITHOCKEY_CRASH_SETTINGS];
     _analyzerInProgressFile = [_crashesDir stringByAppendingPathComponent:BITHOCKEY_CRASH_ANALYZER];
-
+    
     
     if (!BITHockeyBundle() && !bit_isRunningInAppExtension()) {
       BITHockeyLogWarning(@"[HockeySDK] WARNING: %@ is missing, will send reports automatically!", BITHOCKEYSDK_BUNDLE);
@@ -269,7 +280,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 
 - (void)setServerURL:(NSString *)serverURL {
   if ([serverURL isEqualToString:super.serverURL]) { return; }
-
+  
   super.serverURL = serverURL;
   self.hockeyAppClient = [[BITHockeyAppClient alloc] initWithBaseURL:[NSURL URLWithString:serverURL]];
 }
@@ -285,14 +296,14 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   NSError *error = nil;
   
   NSMutableDictionary *rootObj = [NSMutableDictionary dictionaryWithCapacity:2];
-  if (_approvedCrashReports && [_approvedCrashReports count] > 0) {
-    [rootObj setObject:_approvedCrashReports forKey:kBITCrashApprovedReports];
+  if (self.approvedCrashReports && [self.approvedCrashReports count] > 0) {
+    [rootObj setObject:self.approvedCrashReports forKey:kBITCrashApprovedReports];
   }
-
+  
   NSData *plist = [NSPropertyListSerialization dataWithPropertyList:(id)rootObj format:NSPropertyListBinaryFormat_v1_0 options:0 error:&error];
   
   if (plist) {
-    [plist writeToFile:_settingsFile atomically:YES];
+    [plist writeToFile:self.settingsFile atomically:YES];
   } else {
     BITHockeyLogError(@"ERROR: Writing settings. %@", [error description]);
   }
@@ -307,10 +318,10 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   NSError *error = nil;
   NSPropertyListFormat format;
   
-  if (![_fileManager fileExistsAtPath:_settingsFile])
+  if (![self.fileManager fileExistsAtPath:self.settingsFile])
     return;
   
-  NSData *plist = [NSData dataWithContentsOfFile:_settingsFile];
+  NSData *plist = [NSData dataWithContentsOfFile:self.settingsFile];
   if (plist) {
     NSDictionary *rootObj = (NSDictionary *)[NSPropertyListSerialization
                                              propertyListWithData:plist
@@ -319,7 +330,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
                                              error:&error];
     
     if ([rootObj objectForKey:kBITCrashApprovedReports])
-      [_approvedCrashReports setDictionary:[rootObj objectForKey:kBITCrashApprovedReports]];
+      [self.approvedCrashReports setDictionary:(NSDictionary *)[rootObj objectForKey:kBITCrashApprovedReports]];
   } else {
     BITHockeyLogError(@"ERROR: Reading crash manager settings.");
   }
@@ -336,18 +347,18 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   
   NSError *error = NULL;
   
-  [_fileManager removeItemAtPath:filename error:&error];
-  [_fileManager removeItemAtPath:[filename stringByAppendingString:@".data"] error:&error];
-  [_fileManager removeItemAtPath:[filename stringByAppendingString:@".meta"] error:&error];
-  [_fileManager removeItemAtPath:[filename stringByAppendingString:@".desc"] error:&error];
+  [self.fileManager removeItemAtPath:filename error:&error];
+  [self.fileManager removeItemAtPath:[filename stringByAppendingString:@".data"] error:&error];
+  [self.fileManager removeItemAtPath:[filename stringByAppendingString:@".meta"] error:&error];
+  [self.fileManager removeItemAtPath:[filename stringByAppendingString:@".desc"] error:&error];
   
   NSString *cacheFilename = [filename lastPathComponent];
   [self removeKeyFromKeychain:[NSString stringWithFormat:@"%@.%@", cacheFilename, kBITCrashMetaUserName]];
   [self removeKeyFromKeychain:[NSString stringWithFormat:@"%@.%@", cacheFilename, kBITCrashMetaUserEmail]];
   [self removeKeyFromKeychain:[NSString stringWithFormat:@"%@.%@", cacheFilename, kBITCrashMetaUserID]];
   
-  [_crashFiles removeObject:filename];
-  [_approvedCrashReports removeObjectForKey:filename];
+  [self.crashFiles removeObject:filename];
+  [self.approvedCrashReports removeObjectForKey:filename];
   
   [self saveSettings];
 }
@@ -358,8 +369,8 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
  * This is currently only used as a helper method for tests
  */
 - (void)cleanCrashReports {
-  for (NSUInteger i=0; i < [_crashFiles count]; i++) {
-    [self cleanCrashReportWithFilename:[_crashFiles objectAtIndex:i]];
+  for (NSUInteger i=0; i < [self.crashFiles count]; i++) {
+    [self cleanCrashReportWithFilename:[self.crashFiles objectAtIndex:i]];
   }
 }
 
@@ -377,23 +388,23 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 
 - (void)persistUserProvidedMetaData:(BITCrashMetaData *)userProvidedMetaData {
   if (!userProvidedMetaData) return;
-
+  
   if (userProvidedMetaData.userProvidedDescription && [userProvidedMetaData.userProvidedDescription length] > 0) {
     NSError *error;
-    [userProvidedMetaData.userProvidedDescription writeToFile:[NSString stringWithFormat:@"%@.desc", [_crashesDir stringByAppendingPathComponent: _lastCrashFilename]] atomically:YES encoding:NSUTF8StringEncoding error:&error];
+    [userProvidedMetaData.userProvidedDescription writeToFile:[NSString stringWithFormat:@"%@.desc", [self.crashesDir stringByAppendingPathComponent: self.lastCrashFilename]] atomically:YES encoding:NSUTF8StringEncoding error:&error];
   }
   
   if (userProvidedMetaData.userName && [userProvidedMetaData.userName length] > 0) {
-    [self addStringValueToKeychain:userProvidedMetaData.userName forKey:[NSString stringWithFormat:@"%@.%@", _lastCrashFilename, kBITCrashMetaUserName]];
-
+    [self addStringValueToKeychain:userProvidedMetaData.userName forKey:[NSString stringWithFormat:@"%@.%@", self.lastCrashFilename, kBITCrashMetaUserName]];
+    
   }
-
+  
   if (userProvidedMetaData.userEmail && [userProvidedMetaData.userEmail length] > 0) {
-    [self addStringValueToKeychain:userProvidedMetaData.userEmail forKey:[NSString stringWithFormat:@"%@.%@", _lastCrashFilename, kBITCrashMetaUserEmail]];
+    [self addStringValueToKeychain:userProvidedMetaData.userEmail forKey:[NSString stringWithFormat:@"%@.%@", self.lastCrashFilename, kBITCrashMetaUserEmail]];
   }
-
+  
   if (userProvidedMetaData.userID && [userProvidedMetaData.userID length] > 0) {
-    [self addStringValueToKeychain:userProvidedMetaData.userID forKey:[NSString stringWithFormat:@"%@.%@", _lastCrashFilename, kBITCrashMetaUserID]];
+    [self addStringValueToKeychain:userProvidedMetaData.userID forKey:[NSString stringWithFormat:@"%@.%@", self.lastCrashFilename, kBITCrashMetaUserID]];
     
   }
 }
@@ -408,20 +419,20 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 - (BITHockeyAttachment *)attachmentForCrashReport:(NSString *)filename {
   NSString *attachmentFilename = [filename stringByAppendingString:@".data"];
   
-  if (![_fileManager fileExistsAtPath:attachmentFilename])
+  if (![self.fileManager fileExistsAtPath:attachmentFilename])
     return nil;
   
-    
+  
   NSData *codedData = [[NSData alloc] initWithContentsOfFile:attachmentFilename];
   if (!codedData)
     return nil;
   
   NSKeyedUnarchiver *unarchiver = nil;
-      
+  
   @try {
     unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:codedData];
   }
-  @catch (NSException *exception) {
+  @catch (NSException __unused *exception) {
     return nil;
   }
   
@@ -463,82 +474,113 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 - (void) registerObservers {
   __weak typeof(self) weakSelf = self;
   
-  if(nil == _appDidBecomeActiveObserver) {
-    _appDidBecomeActiveObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification
-                                                                                    object:nil
-                                                                                     queue:NSOperationQueue.mainQueue
-                                                                                usingBlock:^(NSNotification *note) {
-                                                                                  typeof(self) strongSelf = weakSelf;
-                                                                                  [strongSelf triggerDelayedProcessing];
-                                                                                }];
+  if(nil == self.appDidBecomeActiveObserver) {
+    NSNotificationName name = UIApplicationDidBecomeActiveNotification;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
+    if (bit_isRunningInAppExtension() && &NSExtensionHostDidBecomeActiveNotification != NULL) {
+      name = NSExtensionHostDidBecomeActiveNotification;
+    }
+#pragma clang diagnostic pop
+    self.appDidBecomeActiveObserver = [[NSNotificationCenter defaultCenter] addObserverForName:name
+                                                                                        object:nil
+                                                                                         queue:NSOperationQueue.mainQueue
+                                                                                    usingBlock:^(NSNotification __unused *note) {
+                                                                                      typeof(self) strongSelf = weakSelf;
+                                                                                      [strongSelf triggerDelayedProcessing];
+                                                                                    }];
   }
   
-  if(nil == _networkDidBecomeReachableObserver) {
-    _networkDidBecomeReachableObserver = [[NSNotificationCenter defaultCenter] addObserverForName:BITHockeyNetworkDidBecomeReachableNotification
+  if(nil == self.networkDidBecomeReachableObserver) {
+    self.networkDidBecomeReachableObserver = [[NSNotificationCenter defaultCenter] addObserverForName:BITHockeyNetworkDidBecomeReachableNotification
+                                                                                               object:nil
+                                                                                                queue:NSOperationQueue.mainQueue
+                                                                                           usingBlock:^(NSNotification __unused *note) {
+                                                                                             typeof(self) strongSelf = weakSelf;
+                                                                                             [strongSelf triggerDelayedProcessing];
+                                                                                           }];
+  }
+  
+  if (nil ==  self.appWillTerminateObserver) {
+    self.appWillTerminateObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillTerminateNotification
+                                                                                      object:nil
+                                                                                       queue:NSOperationQueue.mainQueue
+                                                                                  usingBlock:^(NSNotification __unused *note) {
+                                                                                    typeof(self) strongSelf = weakSelf;
+                                                                                    [strongSelf leavingAppSafely];
+                                                                                  }];
+  }
+  
+  if (nil ==  self.appDidEnterBackgroundObserver) {
+    NSNotificationName name = UIApplicationDidEnterBackgroundNotification;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
+    if (bit_isRunningInAppExtension() && &NSExtensionHostDidEnterBackgroundNotification != NULL) {
+      name = NSExtensionHostDidEnterBackgroundNotification;
+    }
+#pragma clang diagnostic pop
+    self.appDidEnterBackgroundObserver = [[NSNotificationCenter defaultCenter] addObserverForName:name
                                                                                            object:nil
                                                                                             queue:NSOperationQueue.mainQueue
-                                                                                       usingBlock:^(NSNotification *note) {
+                                                                                       usingBlock:^(NSNotification __unused *note) {
                                                                                          typeof(self) strongSelf = weakSelf;
-                                                                                         [strongSelf triggerDelayedProcessing];
+                                                                                         [strongSelf leavingAppSafely];
                                                                                        }];
   }
   
-  if (nil ==  _appWillTerminateObserver) {
-    _appWillTerminateObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillTerminateNotification
-                                                                                  object:nil
-                                                                                   queue:NSOperationQueue.mainQueue
-                                                                              usingBlock:^(NSNotification *note) {
-                                                                                typeof(self) strongSelf = weakSelf;
-                                                                                [strongSelf leavingAppSafely];
-                                                                              }];
+  if (nil == self.appWillEnterForegroundObserver) {
+    NSNotificationName name = UIApplicationWillEnterForegroundNotification;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
+    if (bit_isRunningInAppExtension() && &NSExtensionHostWillEnterForegroundNotification != NULL) {
+      name = NSExtensionHostWillEnterForegroundNotification;
+    }
+#pragma clang diagnostic pop
+    self.appWillEnterForegroundObserver = [[NSNotificationCenter defaultCenter] addObserverForName:name
+                                                                                            object:nil
+                                                                                             queue:NSOperationQueue.mainQueue
+                                                                                        usingBlock:^(NSNotification __unused *note) {
+                                                                                          typeof(self) strongSelf = weakSelf;
+                                                                                          [strongSelf appEnteredForeground];
+                                                                                        }];
   }
   
-  if (nil ==  _appDidEnterBackgroundObserver) {
-    _appDidEnterBackgroundObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification
-                                                                                       object:nil
-                                                                                        queue:NSOperationQueue.mainQueue
-                                                                                   usingBlock:^(NSNotification *note) {
-                                                                                     typeof(self) strongSelf = weakSelf;
-                                                                                     [strongSelf leavingAppSafely];
-                                                                                   }];
-  }
-  
-  if (nil == _appWillEnterForegroundObserver) {
-    _appWillEnterForegroundObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification
-                                                                                        object:nil
-                                                                                         queue:NSOperationQueue.mainQueue
-                                                                                    usingBlock:^(NSNotification *note) {
-                                                                                      typeof(self) strongSelf = weakSelf;
-                                                                                      [strongSelf appEnteredForeground];
-                                                                                    }];
-  }
+  if (nil == self.appDidReceiveLowMemoryWarningObserver) {
+    if (bit_isRunningInAppExtension()) {
+      static dispatch_once_t onceToken;
+      dispatch_once(&onceToken, ^{
+        dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_MEMORYPRESSURE, 0, DISPATCH_MEMORYPRESSURE_WARN|DISPATCH_MEMORYPRESSURE_CRITICAL, dispatch_get_main_queue());
+        dispatch_source_set_event_handler(source, ^{
+          if (!self.didLogLowMemoryWarning) {
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kBITAppDidReceiveLowMemoryNotification];
+            self.didLogLowMemoryWarning = YES;
+          }
+        });
+      });
+    } else {
+      self.appDidReceiveLowMemoryWarningObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
+                                                                                                     object:nil
+                                                                                                      queue:NSOperationQueue.mainQueue
+                                                                                                 usingBlock:^(NSNotification __unused *note) {
+                                                                                                   // we only need to log this once
+                                                                                                   if (!self.didLogLowMemoryWarning) {
+                                                                                                     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kBITAppDidReceiveLowMemoryNotification];
+                                                                                                     self.didLogLowMemoryWarning = YES;
 
-  if (nil == _appDidReceiveLowMemoryWarningObserver) {
-    _appDidReceiveLowMemoryWarningObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
-                                                                                               object:nil
-                                                                                                queue:NSOperationQueue.mainQueue
-                                                                                           usingBlock:^(NSNotification *note) {
-                                                                                             // we only need to log this once
-                                                                                             if (!_didLogLowMemoryWarning) {
-                                                                                               [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kBITAppDidReceiveLowMemoryNotification];
-                                                                                               _didLogLowMemoryWarning = YES;
-                                                                                               if(bit_isPreiOS8Environment()) {
-                                                                                                 // calling synchronize in pre-iOS 8 takes longer to sync than in iOS 8+, calling synchronize explicitly.
-                                                                                                 [[NSUserDefaults standardUserDefaults] synchronize];
-                                                                                               }
-                                                                                             }
-                                                                                           }];
+                                                                                                   }
+                                                                                                 }];
+    }
   }
 }
 
 - (void) unregisterObservers {
-  [self unregisterObserver:_appDidBecomeActiveObserver];
-  [self unregisterObserver:_appWillTerminateObserver];
-  [self unregisterObserver:_appDidEnterBackgroundObserver];
-  [self unregisterObserver:_appWillEnterForegroundObserver];
-  [self unregisterObserver:_appDidReceiveLowMemoryWarningObserver];
+  [self unregisterObserver:self.appDidBecomeActiveObserver];
+  [self unregisterObserver:self.appWillTerminateObserver];
+  [self unregisterObserver:self.appDidEnterBackgroundObserver];
+  [self unregisterObserver:self.appWillEnterForegroundObserver];
+  [self unregisterObserver:self.appDidReceiveLowMemoryWarningObserver];
   
-  [self unregisterObserver:_networkDidBecomeReachableObserver];
+  [self unregisterObserver:self.networkDidBecomeReachableObserver];
 }
 
 - (void) unregisterObserver:(id)observer {
@@ -551,10 +593,6 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 - (void)leavingAppSafely {
   if (self.isAppNotTerminatingCleanlyDetectionEnabled) {
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kBITAppWentIntoBackgroundSafely];
-    if(bit_isPreiOS8Environment()) {
-      // calling synchronize in pre-iOS 8 takes longer to sync than in iOS 8+, calling synchronize explicitly.
-      [[NSUserDefaults standardUserDefaults] synchronize];
-    }
   }
 }
 
@@ -566,7 +604,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kBITAppWentIntoBackgroundSafely];
     
     static dispatch_once_t predAppData;
-      
+    
     dispatch_once(&predAppData, ^{
       id marketingVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
       if (marketingVersion && [marketingVersion isKindOfClass:[NSString class]])
@@ -583,12 +621,8 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
                              [self deviceArchitecture],
                              [self executableUUID]
                              ];
-
+      
       [[NSUserDefaults standardUserDefaults] setObject:uuidString forKey:kBITAppUUIDs];
-      if(bit_isPreiOS8Environment()) {
-        // calling synchronize in pre-iOS 8 takes longer to sync than in iOS 8+, calling synchronize explicitly.
-        [[NSUserDefaults standardUserDefaults] synchronize];
-      }
     });
   }
 }
@@ -602,11 +636,11 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   size = sizeof(type);
   if (sysctlbyname("hw.cputype", &type, &size, NULL, 0))
     return archName;
-
+  
   size = sizeof(subtype);
   if (sysctlbyname("hw.cpusubtype", &subtype, &size, NULL, 0))
     return archName;
-
+  
   archName = [BITCrashReportTextFormatter bit_archNameFromCPUType:type subType:subtype] ?: @"???";
   
   return archName;
@@ -647,13 +681,10 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   if (userIdFromKeychain) {
     userID = userIdFromKeychain;
   }
-  
-  if ([[BITHockeyManager sharedHockeyManager].delegate respondsToSelector:@selector(userIDForHockeyManager:componentManager:)]) {
-    userID = [[BITHockeyManager sharedHockeyManager].delegate
-                userIDForHockeyManager:[BITHockeyManager sharedHockeyManager]
-                componentManager:self];
+  id strongDelegate = [BITHockeyManager sharedHockeyManager].delegate;
+  if ([strongDelegate respondsToSelector:@selector(userIDForHockeyManager:componentManager:)]) {
+    userID = [strongDelegate userIDForHockeyManager:[BITHockeyManager sharedHockeyManager] componentManager:self];
   }
-  
   return userID  ?: @"";
 }
 
@@ -665,13 +696,10 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 - (NSString *)userNameForCrashReport {
   // first check the global keychain storage
   NSString *username = [self stringValueFromKeychainForKey:kBITHockeyMetaUserName] ?: @"";
-  
-  if ([[BITHockeyManager sharedHockeyManager].delegate respondsToSelector:@selector(userNameForHockeyManager:componentManager:)]) {
-    username = [[BITHockeyManager sharedHockeyManager].delegate
-                userNameForHockeyManager:[BITHockeyManager sharedHockeyManager]
-                componentManager:self] ?: @"";
+  id strongDelegate = [BITHockeyManager sharedHockeyManager].delegate;
+  if ([strongDelegate respondsToSelector:@selector(userNameForHockeyManager:componentManager:)]) {
+    username = [strongDelegate userNameForHockeyManager:[BITHockeyManager sharedHockeyManager] componentManager:self] ?: @"";
   }
-  
   return username;
 }
 
@@ -695,13 +723,10 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
     useremail = self.installationIdentification;
   }
 #endif
-
-  if ([[BITHockeyManager sharedHockeyManager].delegate respondsToSelector:@selector(userEmailForHockeyManager:componentManager:)]) {
-    useremail = [[BITHockeyManager sharedHockeyManager].delegate
-                 userEmailForHockeyManager:[BITHockeyManager sharedHockeyManager]
-                 componentManager:self] ?: @"";
+  id strongDelegate = [BITHockeyManager sharedHockeyManager].delegate;
+  if ([strongDelegate respondsToSelector:@selector(userEmailForHockeyManager:componentManager:)]) {
+    useremail = [strongDelegate userEmailForHockeyManager:[BITHockeyManager sharedHockeyManager] componentManager:self] ?: @"";
   }
-  
   return useremail;
 }
 
@@ -714,7 +739,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
  */
 - (void)setCrashCallbacks:(BITCrashManagerCallbacks *)callbacks {
   if (!callbacks) return;
-  if (_isSetup) {
+  if (self.isSetup) {
     BITHockeyLogWarning(@"WARNING: CrashCallbacks need to be configured before calling startManager!");
   }
   
@@ -771,18 +796,18 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   [self addStringValueToKeychain:[self userNameForCrashReport] forKey:[NSString stringWithFormat:@"%@.%@", filename, kBITCrashMetaUserName]];
   [self addStringValueToKeychain:[self userEmailForCrashReport] forKey:[NSString stringWithFormat:@"%@.%@", filename, kBITCrashMetaUserEmail]];
   [self addStringValueToKeychain:[self userIDForCrashReport] forKey:[NSString stringWithFormat:@"%@.%@", filename, kBITCrashMetaUserID]];
-  
-  if ([self.delegate respondsToSelector:@selector(applicationLogForCrashManager:)]) {
-    applicationLog = [self.delegate applicationLogForCrashManager:self] ?: @"";
+  id strongDelegate = self.delegate;
+  if ([strongDelegate respondsToSelector:@selector(applicationLogForCrashManager:)]) {
+    applicationLog = [strongDelegate applicationLogForCrashManager:self] ?: @"";
   }
   [metaDict setObject:applicationLog forKey:kBITCrashMetaApplicationLog];
   
-  if ([self.delegate respondsToSelector:@selector(attachmentForCrashManager:)]) {
+  if ([strongDelegate respondsToSelector:@selector(attachmentForCrashManager:)]) {
     BITHockeyLogVerbose(@"VERBOSE: Processing attachment for crash report with filename %@", filename);
-    BITHockeyAttachment *attachment = [self.delegate attachmentForCrashManager:self];
+    BITHockeyAttachment *attachment = [strongDelegate attachmentForCrashManager:self];
     
     if (attachment && attachment.hockeyAttachmentData) {
-      BOOL success = [self persistAttachment:attachment withFilename:[_crashesDir stringByAppendingPathComponent: filename]];
+      BOOL success = [self persistAttachment:attachment withFilename:[self.crashesDir stringByAppendingPathComponent: filename]];
       if (!success) {
         BITHockeyLogError(@"ERROR: Persisting the crash attachment failed");
       } else {
@@ -798,7 +823,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
                                                             options:0
                                                               error:&error];
   if (plist) {
-    BOOL success = [plist writeToFile:[_crashesDir stringByAppendingPathComponent: [filename stringByAppendingPathExtension:@"meta"]] atomically:YES];
+    BOOL success = [plist writeToFile:[self.crashesDir stringByAppendingPathComponent:(NSString *)[filename stringByAppendingPathExtension:@"meta"]] atomically:YES];
     if (!success) {
       BITHockeyLogError(@"ERROR: Writing crash meta data failed.");
     }
@@ -809,14 +834,15 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 }
 
 - (BOOL)handleUserInput:(BITCrashManagerUserInput)userInput withUserProvidedMetaData:(BITCrashMetaData *)userProvidedMetaData {
+  id strongDelegate = self.delegate;
   switch (userInput) {
     case BITCrashManagerUserInputDontSend:
-      if ([self.delegate respondsToSelector:@selector(crashManagerWillCancelSendingCrashReport:)]) {
-        [self.delegate crashManagerWillCancelSendingCrashReport:self];
+      if ([strongDelegate respondsToSelector:@selector(crashManagerWillCancelSendingCrashReport:)]) {
+        [strongDelegate crashManagerWillCancelSendingCrashReport:self];
       }
       
-      if (_lastCrashFilename)
-        [self cleanCrashReportWithFilename:[_crashesDir stringByAppendingPathComponent: _lastCrashFilename]];
+      if (self.lastCrashFilename)
+        [self cleanCrashReportWithFilename:[self.crashesDir stringByAppendingPathComponent: self.lastCrashFilename]];
       
       return YES;
       
@@ -829,11 +855,11 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
       return YES;
       
     case BITCrashManagerUserInputAlwaysSend:
-      _crashManagerStatus = BITCrashManagerStatusAutoSend;
-      [[NSUserDefaults standardUserDefaults] setInteger:_crashManagerStatus forKey:kBITCrashManagerStatus];
-
-      if ([self.delegate respondsToSelector:@selector(crashManagerWillSendCrashReportsAlways:)]) {
-        [self.delegate crashManagerWillSendCrashReportsAlways:self];
+      self.crashManagerStatus = BITCrashManagerStatusAutoSend;
+      [[NSUserDefaults standardUserDefaults] setInteger:self.crashManagerStatus forKey:kBITCrashManagerStatus];
+      
+      if ([strongDelegate respondsToSelector:@selector(crashManagerWillSendCrashReportsAlways:)]) {
+        [strongDelegate crashManagerWillSendCrashReportsAlways:self];
       }
       
       if (userProvidedMetaData)
@@ -859,13 +885,13 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 - (void) handleCrashReport {
   BITHockeyLogVerbose(@"VERBOSE: Handling crash report");
   NSError *error = NULL;
-	
+  
   if (!self.plCrashReporter) return;
   
   // check if the next call ran successfully the last time
-  if (![_fileManager fileExistsAtPath:_analyzerInProgressFile]) {
+  if (![self.fileManager fileExistsAtPath:self.analyzerInProgressFile]) {
     // mark the start of the routine
-    [_fileManager createFileAtPath:_analyzerInProgressFile contents:nil attributes:nil];
+    [self.fileManager createFileAtPath:self.analyzerInProgressFile contents:nil attributes:nil];
     BITHockeyLogVerbose(@"VERBOSE: AnalyzerInProgress file created");
     
     [self saveSettings];
@@ -874,7 +900,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
     NSData *crashData = [[NSData alloc] initWithData:[self.plCrashReporter loadPendingCrashReportDataAndReturnError: &error]];
     
     NSString *cacheFilename = [NSString stringWithFormat: @"%.0f", [NSDate timeIntervalSinceReferenceDate]];
-    _lastCrashFilename = cacheFilename;
+    self.lastCrashFilename = cacheFilename;
     
     if (crashData == nil) {
       BITHockeyLogError(@"ERROR: Could not load crash report: %@", error);
@@ -891,11 +917,11 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
           if (report.systemInfo.timestamp && report.processInfo.processStartTime) {
             appStartTime = report.processInfo.processStartTime;
             appCrashTime =report.systemInfo.timestamp;
-            _timeIntervalCrashInLastSessionOccurred = [report.systemInfo.timestamp timeIntervalSinceDate:report.processInfo.processStartTime];
+            self.timeIntervalCrashInLastSessionOccurred = [report.systemInfo.timestamp timeIntervalSinceDate:report.processInfo.processStartTime];
           }
         }
         
-        [crashData writeToFile:[_crashesDir stringByAppendingPathComponent: cacheFilename] atomically:YES];
+        [crashData writeToFile:[self.crashesDir stringByAppendingPathComponent: cacheFilename] atomically:YES];
         
         NSString *incidentIdentifier = @"???";
         if (report.uuidRef != NULL) {
@@ -903,21 +929,21 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
         }
         
         NSString *reporterKey = bit_appAnonID(NO) ?: @"";
-
-        _lastSessionCrashDetails = [[BITCrashDetails alloc] initWithIncidentIdentifier:incidentIdentifier
-                                                                           reporterKey:reporterKey
-                                                                                signal:report.signalInfo.name
-                                                                         exceptionName:report.exceptionInfo.exceptionName
-                                                                       exceptionReason:report.exceptionInfo.exceptionReason
-                                                                          appStartTime:appStartTime
-                                                                             crashTime:appCrashTime
-                                                                             osVersion:report.systemInfo.operatingSystemVersion
-                                                                               osBuild:report.systemInfo.operatingSystemBuild
-                                                                            appVersion:report.applicationInfo.applicationMarketingVersion
-                                                                              appBuild:report.applicationInfo.applicationVersion
-                                                                  appProcessIdentifier:report.processInfo.processID
-                                    ];
-
+        
+        self.lastSessionCrashDetails = [[BITCrashDetails alloc] initWithIncidentIdentifier:incidentIdentifier
+                                                                               reporterKey:reporterKey
+                                                                                    signal:report.signalInfo.name
+                                                                             exceptionName:report.exceptionInfo.exceptionName
+                                                                           exceptionReason:report.exceptionInfo.exceptionReason
+                                                                              appStartTime:appStartTime
+                                                                                 crashTime:appCrashTime
+                                                                                 osVersion:report.systemInfo.operatingSystemVersion
+                                                                                   osBuild:report.systemInfo.operatingSystemBuild
+                                                                                appVersion:report.applicationInfo.applicationMarketingVersion
+                                                                                  appBuild:report.applicationInfo.applicationVersion
+                                                                      appProcessIdentifier:report.processInfo.processID
+                                        ];
+        
         // fetch and store the meta data after setting _lastSessionCrashDetails, so the property can be used in the protocol methods
         [self storeMetaDataForCrashReportFilename:cacheFilename];
       }
@@ -925,13 +951,13 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   } else {
     BITHockeyLogWarning(@"WARNING: AnalyzerInProgress file found, handling crash report skipped");
   }
-	
+  
   // Purge the report
   // mark the end of the routine
-  if ([_fileManager fileExistsAtPath:_analyzerInProgressFile]) {
-    [_fileManager removeItemAtPath:_analyzerInProgressFile error:&error];
+  if ([self.fileManager fileExistsAtPath:self.analyzerInProgressFile]) {
+    [self.fileManager removeItemAtPath:self.analyzerInProgressFile error:&error];
   }
-
+  
   [self saveSettings];
   
   [self.plCrashReporter purgePendingCrashReport];
@@ -943,14 +969,14 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
  @return NSString Filename of the first found not approved crash report
  */
 - (NSString *)firstNotApprovedCrashReport {
-  if ((!_approvedCrashReports || [_approvedCrashReports count] == 0) && [_crashFiles count] > 0) {
-    return [_crashFiles objectAtIndex:0];
+  if ((!self.approvedCrashReports || [self.approvedCrashReports count] == 0) && [self.crashFiles count] > 0) {
+    return [self.crashFiles objectAtIndex:0];
   }
   
-  for (NSUInteger i=0; i < [_crashFiles count]; i++) {
-    NSString *filename = [_crashFiles objectAtIndex:i];
+  for (NSUInteger i=0; i < [self.crashFiles count]; i++) {
+    NSString *filename = [self.crashFiles objectAtIndex:i];
     
-    if (![_approvedCrashReports objectForKey:filename]) return filename;
+    if (![self.approvedCrashReports objectForKey:filename]) return filename;
   }
   
   return nil;
@@ -962,16 +988,16 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
  *	@return	`YES` if there is at least one new crash report found, `NO` otherwise
  */
 - (BOOL)hasPendingCrashReport {
-  if (_crashManagerStatus == BITCrashManagerStatusDisabled) return NO;
-    
-  if ([self.fileManager fileExistsAtPath:_crashesDir]) {
+  if (self.crashManagerStatus == BITCrashManagerStatusDisabled) return NO;
+  
+  if ([self.fileManager fileExistsAtPath:self.crashesDir]) {
     NSError *error = NULL;
     
-    NSArray *dirArray = [self.fileManager contentsOfDirectoryAtPath:_crashesDir error:&error];
+    NSArray *dirArray = [self.fileManager contentsOfDirectoryAtPath:self.crashesDir error:&error];
     
     for (NSString *file in dirArray) {
-      NSString *filePath = [_crashesDir stringByAppendingPathComponent:file];
-
+      NSString *filePath = [self.crashesDir stringByAppendingPathComponent:file];
+      
       NSDictionary *fileAttributes = [self.fileManager attributesOfItemAtPath:filePath error:&error];
       if ([[fileAttributes objectForKey:NSFileType] isEqualToString:NSFileTypeRegular] &&
           [[fileAttributes objectForKey:NSFileSize] intValue] > 0 &&
@@ -981,21 +1007,22 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
           ![file hasSuffix:@".data"] &&
           ![file hasSuffix:@".meta"] &&
           ![file hasSuffix:@".desc"]) {
-        [_crashFiles addObject:filePath];
+        [self.crashFiles addObject:filePath];
       }
     }
   }
   
-  if ([_crashFiles count] > 0) {
-    BITHockeyLogDebug(@"INFO: %lu pending crash reports found.", (unsigned long)[_crashFiles count]);
+  if ([self.crashFiles count] > 0) {
+    BITHockeyLogDebug(@"INFO: %lu pending crash reports found.", (unsigned long)[self.crashFiles count]);
     return YES;
   } else {
-    if (_didCrashInLastSession) {
-      if ([self.delegate respondsToSelector:@selector(crashManagerWillCancelSendingCrashReport:)]) {
-        [self.delegate crashManagerWillCancelSendingCrashReport:self];
+    if (self.didCrashInLastSession) {
+      id strongDelegate = self.delegate;
+      if ([strongDelegate respondsToSelector:@selector(crashManagerWillCancelSendingCrashReport:)]) {
+        [strongDelegate crashManagerWillCancelSendingCrashReport:self];
       }
-
-      _didCrashInLastSession = NO;
+      
+      self.didCrashInLastSession = NO;
     }
     
     return NO;
@@ -1007,7 +1034,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 
 // store the latest crash report as user approved, so if it fails it will retry automatically
 - (void)approveLatestCrashReport {
-  [_approvedCrashReports setObject:[NSNumber numberWithBool:YES] forKey:[_crashesDir stringByAppendingPathComponent: _lastCrashFilename]];
+  [self.approvedCrashReports setObject:[NSNumber numberWithBool:YES] forKey:[self.crashesDir stringByAppendingPathComponent: self.lastCrashFilename]];
   [self saveSettings];
 }
 
@@ -1026,8 +1053,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
  */
 - (void)invokeDelayedProcessing {
 #if !defined (HOCKEYSDK_CONFIGURATION_ReleaseCrashOnlyExtensions)
-  if (!bit_isRunningInAppExtension() &&
-      [[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) {
+  if ([BITHockeyHelper applicationState] != BITApplicationStateActive) {
     return;
   }
 #endif
@@ -1038,7 +1064,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   if (self.exceptionHandler) {
     // get the current top level error handler
     NSUncaughtExceptionHandler *currentHandler = NSGetUncaughtExceptionHandler();
-  
+    
     // If the top level error handler differs from our own, then at least another one was added.
     // This could cause exception crashes not to be reported to HockeyApp. See log message for details.
     if (self.exceptionHandler != currentHandler) {
@@ -1046,26 +1072,26 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
     }
   }
   
-  if (!_sendingInProgress && [self hasPendingCrashReport]) {
-    _sendingInProgress = YES;
+  if (!self.sendingInProgress && [self hasPendingCrashReport]) {
+    self.sendingInProgress = YES;
     
     NSString *notApprovedReportFilename = [self firstNotApprovedCrashReport];
-
+    
     // this can happen in case there is a non approved crash report but it didn't happen in the previous app session
-    if (notApprovedReportFilename && !_lastCrashFilename) {
-      _lastCrashFilename = [notApprovedReportFilename lastPathComponent];
+    if (notApprovedReportFilename && !self.lastCrashFilename) {
+      self.lastCrashFilename = [notApprovedReportFilename lastPathComponent];
     }
-
+    
     if (!BITHockeyBundle() || bit_isRunningInAppExtension()) {
       [self approveLatestCrashReport];
       [self sendNextCrashReport];
       
 #if !defined (HOCKEYSDK_CONFIGURATION_ReleaseCrashOnlyExtensions)
-
-    } else if (_crashManagerStatus != BITCrashManagerStatusAutoSend && notApprovedReportFilename) {
       
-      if ([self.delegate respondsToSelector:@selector(crashManagerWillShowSubmitCrashReportAlert:)]) {
-        [self.delegate crashManagerWillShowSubmitCrashReportAlert:self];
+    } else if (self.crashManagerStatus != BITCrashManagerStatusAutoSend && notApprovedReportFilename) {
+      id strongDelegate = self.delegate;
+      if ([strongDelegate respondsToSelector:@selector(crashManagerWillShowSubmitCrashReportAlert:)]) {
+        [strongDelegate crashManagerWillShowSubmitCrashReportAlert:self];
       }
       
       NSString *appName = bit_appName(BITHockeyLocalizedString(@"HockeyAppNamePlaceholder"));
@@ -1075,75 +1101,46 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
       NSString *userid = [self userIDForCrashReport];
       NSString *username = [self userNameForCrashReport];
       NSString *useremail = [self userEmailForCrashReport];
-            
+      
       if ((userid && [userid length] > 0) ||
           (username && [username length] > 0) ||
           (useremail && [useremail length] > 0)) {
         alertDescription = [NSString stringWithFormat:BITHockeyLocalizedString(@"CrashDataFoundDescription"), appName];
       }
       
-      if (_alertViewHandler) {
-        _alertViewHandler();
+      if (self.alertViewHandler) {
+        self.alertViewHandler();
       } else {
-        /* We won't use this for now until we have a more robust solution for displaying UIAlertController
-        // requires iOS 8
-        id uialertcontrollerClass = NSClassFromString(@"UIAlertController");
-        if (uialertcontrollerClass) {
-          __weak typeof(self) weakSelf = self;
-          
-          UIAlertController *alertController = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:BITHockeyLocalizedString(@"CrashDataFoundTitle"), appName]
-                                                                                   message:alertDescription
-                                                                            preferredStyle:UIAlertControllerStyleAlert];
-          
-          
-          UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:BITHockeyLocalizedString(@"CrashDontSendReport")
-                                                                 style:UIAlertActionStyleCancel
-                                                               handler:^(UIAlertAction * action) {
-                                                                 typeof(self) strongSelf = weakSelf;
-                                                                 
-                                                                 [strongSelf handleUserInput:BITCrashManagerUserInputDontSend withUserProvidedMetaData:nil];
-                                                               }];
-          
-          [alertController addAction:cancelAction];
-          
-          UIAlertAction *sendAction = [UIAlertAction actionWithTitle:BITHockeyLocalizedString(@"CrashSendReport")
-                                                               style:UIAlertActionStyleDefault
-                                                             handler:^(UIAlertAction * action) {
+        __weak typeof(self) weakSelf = self;
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:BITHockeyLocalizedString(@"CrashDataFoundTitle"), appName]
+                                                                                 message:alertDescription
+                                                                          preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:BITHockeyLocalizedString(@"CrashDontSendReport")
+                                                               style:UIAlertActionStyleCancel
+                                                             handler:^(UIAlertAction __unused *action) {
                                                                typeof(self) strongSelf = weakSelf;
-                                                               [strongSelf handleUserInput:BITCrashManagerUserInputSend withUserProvidedMetaData:nil];
+                                                               [strongSelf handleUserInput:BITCrashManagerUserInputDontSend withUserProvidedMetaData:nil];
                                                              }];
+        [alertController addAction:cancelAction];
+        UIAlertAction *sendAction = [UIAlertAction actionWithTitle:BITHockeyLocalizedString(@"CrashSendReport")
+                                                             style:UIAlertActionStyleDefault
+                                                           handler:^(UIAlertAction __unused *action) {
+                                                             typeof(self) strongSelf = weakSelf;
+                                                             [strongSelf handleUserInput:BITCrashManagerUserInputSend withUserProvidedMetaData:nil];
+                                                           }];
+        [alertController addAction:sendAction];
+        if (self.shouldShowAlwaysButton) {
+          UIAlertAction *alwaysSendAction = [UIAlertAction actionWithTitle:BITHockeyLocalizedString(@"CrashSendReportAlways")
+                                                                     style:UIAlertActionStyleDefault
+                                                                   handler:^(UIAlertAction __unused *action) {
+                                                                     typeof(self) strongSelf = weakSelf;
+                                                                     [strongSelf handleUserInput:BITCrashManagerUserInputAlwaysSend withUserProvidedMetaData:nil];
+                                                                   }];
           
-          [alertController addAction:sendAction];
-          
-          if (self.shouldShowAlwaysButton) {
-            UIAlertAction *alwaysSendAction = [UIAlertAction actionWithTitle:BITHockeyLocalizedString(@"CrashSendReportAlways")
-                                                                       style:UIAlertActionStyleDefault
-                                                                     handler:^(UIAlertAction * action) {
-                                                                       typeof(self) strongSelf = weakSelf;
-                                                                       [strongSelf handleUserInput:BITCrashManagerUserInputAlwaysSend withUserProvidedMetaData:nil];
-                                                                     }];
-            
-            [alertController addAction:alwaysSendAction];
-          }
-          
-          [self showAlertController:alertController];
-        } else {
-         */
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-          UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:BITHockeyLocalizedString(@"CrashDataFoundTitle"), appName]
-                                                              message:alertDescription
-                                                             delegate:self
-                                                    cancelButtonTitle:BITHockeyLocalizedString(@"CrashDontSendReport")
-                                                    otherButtonTitles:BITHockeyLocalizedString(@"CrashSendReport"), nil];
-          
-          if (self.shouldShowAlwaysButton) {
-            [alertView addButtonWithTitle:BITHockeyLocalizedString(@"CrashSendReportAlways")];
-          }
-          
-          [alertView show];
-#pragma clang diagnostic pop
-        /*}*/
+          [alertController addAction:alwaysSendAction];
+        }
+        
+        [self showAlertController:alertController];
       }
 #endif /* !defined (HOCKEYSDK_CONFIGURATION_ReleaseCrashOnlyExtensions) */
       
@@ -1158,17 +1155,17 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
  *	 Main startup sequence initializing PLCrashReporter if it wasn't disabled
  */
 - (void)startManager {
-  if (_crashManagerStatus == BITCrashManagerStatusDisabled) return;
+  if (self.crashManagerStatus == BITCrashManagerStatusDisabled) return;
   
   [self registerObservers];
   
   [self loadSettings];
   
-  if (!_isSetup) {
+  if (!self.isSetup) {
     static dispatch_once_t plcrPredicate;
     dispatch_once(&plcrPredicate, ^{
       /* Configure our reporter */
-        
+      
       PLCrashReporterSignalHandlerType signalHandlerType = PLCrashReporterSignalHandlerTypeBSD;
       if (self.isMachExceptionHandlerEnabled) {
         signalHandlerType = PLCrashReporterSignalHandlerTypeMach;
@@ -1185,7 +1182,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
       
       // Check if we previously crashed
       if ([self.plCrashReporter hasPendingCrashReport]) {
-        _didCrashInLastSession = YES;
+        self.didCrashInLastSession = YES;
         [self handleCrashReport];
       }
       
@@ -1250,37 +1247,37 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
         // Add the C++ uncaught exception handler, which is currently not handled by PLCrashReporter internally
         [BITCrashUncaughtCXXExceptionHandlerManager addCXXExceptionHandler:uncaught_cxx_exception_handler];
       }
-      _isSetup = YES;
+      self.isSetup = YES;
     });
   }
-
+  
   if ([[NSUserDefaults standardUserDefaults] valueForKey:kBITAppDidReceiveLowMemoryNotification])
-    _didReceiveMemoryWarningInLastSession = [[NSUserDefaults standardUserDefaults] boolForKey:kBITAppDidReceiveLowMemoryNotification];
-
-  if (!_didCrashInLastSession && self.isAppNotTerminatingCleanlyDetectionEnabled) {
+    self.didReceiveMemoryWarningInLastSession = [[NSUserDefaults standardUserDefaults] boolForKey:kBITAppDidReceiveLowMemoryNotification];
+  
+  if (!self.didCrashInLastSession && self.isAppNotTerminatingCleanlyDetectionEnabled) {
     BOOL didAppSwitchToBackgroundSafely = YES;
     
     if ([[NSUserDefaults standardUserDefaults] valueForKey:kBITAppWentIntoBackgroundSafely])
       didAppSwitchToBackgroundSafely = [[NSUserDefaults standardUserDefaults] boolForKey:kBITAppWentIntoBackgroundSafely];
-
+    
     if (!didAppSwitchToBackgroundSafely) {
       BOOL considerReport = YES;
-      
-      if ([self.delegate respondsToSelector:@selector(considerAppNotTerminatedCleanlyReportForCrashManager:)]) {
-        considerReport = [self.delegate considerAppNotTerminatedCleanlyReportForCrashManager:self];
+      id strongDelegate = self.delegate;
+      if ([strongDelegate respondsToSelector:@selector(considerAppNotTerminatedCleanlyReportForCrashManager:)]) {
+        considerReport = [strongDelegate considerAppNotTerminatedCleanlyReportForCrashManager:self];
       }
       
       if (considerReport) {
         BITHockeyLogVerbose(@"INFO: App kill detected, creating crash report.");
         [self createCrashReportForAppKill];
-      
-        _didCrashInLastSession = YES;
+        
+        self.didCrashInLastSession = YES;
       }
     }
   }
   
 #if !defined (HOCKEYSDK_CONFIGURATION_ReleaseCrashOnlyExtensions)
-  if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+  if ([BITHockeyHelper applicationState] != BITApplicationStateActive) {
     [self appEnteredForeground];
   }
 #else
@@ -1288,11 +1285,6 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 #endif
   
   [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kBITAppDidReceiveLowMemoryNotification];
-  
-  if(bit_isPreiOS8Environment()) {
-    // calling synchronize in pre-iOS 8 takes longer to sync than in iOS 8+, calling synchronize explicitly.
-    [[NSUserDefaults standardUserDefaults] synchronize];
-  }
   
   [self triggerDelayedProcessing];
   BITHockeyLogVerbose(@"VERBOSE: CrashManager startManager has finished.");
@@ -1306,7 +1298,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   NSString *fakeReporterKey = bit_appAnonID(NO) ?: @"???";
   
   NSString *fakeReportAppMarketingVersion = [[NSUserDefaults standardUserDefaults] objectForKey:kBITAppMarketingVersion];
-
+  
   NSString *fakeReportAppVersion = [[NSUserDefaults standardUserDefaults] objectForKey:kBITAppVersion];
   if (!fakeReportAppVersion)
     return;
@@ -1326,14 +1318,14 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   NSString *fakeSignalName = kBITCrashKillSignal;
   
   NSMutableString *fakeReportString = [NSMutableString string];
-
+  
   [fakeReportString appendFormat:@"Incident Identifier: %@\n", fakeReportUUID];
   [fakeReportString appendFormat:@"CrashReporter Key:   %@\n", fakeReporterKey];
   [fakeReportString appendFormat:@"Hardware Model:      %@\n", fakeReportDeviceModel];
   [fakeReportString appendFormat:@"Identifier:      %@\n", fakeReportAppBundleIdentifier];
   
   NSString *fakeReportAppVersionString = fakeReportAppMarketingVersion ? [NSString stringWithFormat:@"%@ (%@)", fakeReportAppMarketingVersion, fakeReportAppVersion] : fakeReportAppVersion;
-
+  
   [fakeReportString appendFormat:@"Version:         %@\n", fakeReportAppVersionString];
   [fakeReportString appendString:@"Code Type:       ARM\n"];
   [fakeReportString appendString:@"\n"];
@@ -1344,7 +1336,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   [rfc3339Formatter setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'"];
   [rfc3339Formatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
   NSString *fakeCrashTimestamp = [rfc3339Formatter stringFromDate:[NSDate date]];
-
+  
   // we use the current date, since we don't know when the kill actually happened
   [fakeReportString appendFormat:@"Date/Time:       %@\n", fakeCrashTimestamp];
   [fakeReportString appendFormat:@"OS Version:      %@\n", fakeReportOSVersionString];
@@ -1375,26 +1367,26 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   [rootObj setObject:fakeReportAppUUIDs forKey:kBITFakeCrashAppBinaryUUID];
   [rootObj setObject:fakeReportString forKey:kBITFakeCrashReport];
   
-  _lastSessionCrashDetails = [[BITCrashDetails alloc] initWithIncidentIdentifier:fakeReportUUID
-                                                                     reporterKey:fakeReporterKey
-                                                                          signal:fakeSignalName
-                                                                   exceptionName:nil
-                                                                 exceptionReason:nil
-                                                                    appStartTime:nil
-                                                                       crashTime:nil
-                                                                       osVersion:fakeReportOSVersion
-                                                                         osBuild:fakeReportOSBuild
-                                                                      appVersion:fakeReportAppMarketingVersion
-                                                                        appBuild:fakeReportAppVersion
-                                                            appProcessIdentifier:[[NSProcessInfo processInfo] processIdentifier]
-                              ];
-
+  self.lastSessionCrashDetails = [[BITCrashDetails alloc] initWithIncidentIdentifier:fakeReportUUID
+                                                                         reporterKey:fakeReporterKey
+                                                                              signal:fakeSignalName
+                                                                       exceptionName:nil
+                                                                     exceptionReason:nil
+                                                                        appStartTime:nil
+                                                                           crashTime:nil
+                                                                           osVersion:fakeReportOSVersion
+                                                                             osBuild:fakeReportOSBuild
+                                                                          appVersion:fakeReportAppMarketingVersion
+                                                                            appBuild:fakeReportAppVersion
+                                                                appProcessIdentifier:[[NSProcessInfo processInfo] processIdentifier]
+                                  ];
+  
   NSData *plist = [NSPropertyListSerialization dataWithPropertyList:(id)rootObj
                                                              format:NSPropertyListBinaryFormat_v1_0
                                                             options:0
                                                               error:&error];
   if (plist) {
-    if ([plist writeToFile:[_crashesDir stringByAppendingPathComponent:[fakeReportFilename stringByAppendingPathExtension:@"fake"]] atomically:YES]) {
+    if ([plist writeToFile:[self.crashesDir stringByAppendingPathComponent:(NSString *)[fakeReportFilename stringByAppendingPathExtension:@"fake"]] atomically:YES]) {
       [self storeMetaDataForCrashReportFilename:fakeReportFilename];
     }
   } else {
@@ -1410,16 +1402,16 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
 - (void)sendNextCrashReport {
   NSError *error = NULL;
   
-  _crashIdenticalCurrentVersion = NO;
+  self.crashIdenticalCurrentVersion = NO;
   
-  if ([_crashFiles count] == 0)
+  if ([self.crashFiles count] == 0)
     return;
   
   NSString *crashXML = nil;
   BITHockeyAttachment *attachment = nil;
   
   // we start sending always with the oldest pending one
-  NSString *filename = [_crashFiles objectAtIndex:0];
+  NSString *filename = [self.crashFiles objectAtIndex:0];
   NSString *attachmentFilename = filename;
   NSString *cacheFilename = [filename lastPathComponent];
   NSData *crashData = [NSData dataWithContentsOfFile:filename];
@@ -1458,8 +1450,8 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
       metaFilename = [cacheFilename stringByReplacingOccurrencesOfString:@".fake" withString:@".meta"];
       attachmentFilename = [attachmentFilename stringByReplacingOccurrencesOfString:@".fake" withString:@""];
       
-      if ([appBundleVersion compare:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]] == NSOrderedSame) {
-        _crashIdenticalCurrentVersion = YES;
+      if ([appBundleVersion compare:(NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]] == NSOrderedSame) {
+        self.crashIdenticalCurrentVersion = YES;
       }
       
     } else {
@@ -1489,13 +1481,13 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
       osVersion = report.systemInfo.operatingSystemVersion;
       deviceModel = [self getDevicePlatform];
       appBinaryUUIDs = [self extractAppUUIDs:report];
-      if ([report.applicationInfo.applicationVersion compare:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]] == NSOrderedSame) {
-        _crashIdenticalCurrentVersion = YES;
+      if ([report.applicationInfo.applicationVersion compare:(NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]] == NSOrderedSame) {
+        self.crashIdenticalCurrentVersion = YES;
       }
     }
     
-    if ([report.applicationInfo.applicationVersion compare:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]] == NSOrderedSame) {
-      _crashIdenticalCurrentVersion = YES;
+    if ([report.applicationInfo.applicationVersion compare:(NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]] == NSOrderedSame) {
+      self.crashIdenticalCurrentVersion = YES;
     }
     
     NSString *username = @"";
@@ -1504,19 +1496,19 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
     NSString *applicationLog = @"";
     NSString *description = @"";
     
-    NSData *plist = [NSData dataWithContentsOfFile:[_crashesDir stringByAppendingPathComponent:metaFilename]];
+    NSData *plist = [NSData dataWithContentsOfFile:[self.crashesDir stringByAppendingPathComponent:metaFilename]];
     if (plist) {
       NSDictionary *metaDict = (NSDictionary *)[NSPropertyListSerialization
                                                 propertyListWithData:plist
                                                 options:NSPropertyListMutableContainersAndLeaves
                                                 format:&format
                                                 error:&error];
-
+      
       username = [self stringValueFromKeychainForKey:[NSString stringWithFormat:@"%@.%@", attachmentFilename.lastPathComponent, kBITCrashMetaUserName]] ?: @"";
       useremail = [self stringValueFromKeychainForKey:[NSString stringWithFormat:@"%@.%@", attachmentFilename.lastPathComponent, kBITCrashMetaUserEmail]] ?: @"";
       userid = [self stringValueFromKeychainForKey:[NSString stringWithFormat:@"%@.%@", attachmentFilename.lastPathComponent, kBITCrashMetaUserID]] ?: @"";
       applicationLog = [metaDict objectForKey:kBITCrashMetaApplicationLog] ?: @"";
-      description = [NSString stringWithContentsOfFile:[NSString stringWithFormat:@"%@.desc", [_crashesDir stringByAppendingPathComponent: cacheFilename]] encoding:NSUTF8StringEncoding error:&error];
+      description = [NSString stringWithContentsOfFile:[NSString stringWithFormat:@"%@.desc", [self.crashesDir stringByAppendingPathComponent: cacheFilename]] encoding:NSUTF8StringEncoding error:&error];
       attachment = [self attachmentForCrashReport:attachmentFilename];
     } else {
       BITHockeyLogError(@"ERROR: Reading crash meta data. %@", error);
@@ -1555,36 +1547,12 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   }
 }
 
-#if !defined (HOCKEYSDK_CONFIGURATION_ReleaseCrashOnlyExtensions)
-
-#pragma mark - UIAlertView Delegate
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-  switch (buttonIndex) {
-    case 0:
-      [self handleUserInput:BITCrashManagerUserInputDontSend withUserProvidedMetaData:nil];
-      break;
-    case 1:
-      [self handleUserInput:BITCrashManagerUserInputSend withUserProvidedMetaData:nil];
-      break;
-    case 2:
-      [self handleUserInput:BITCrashManagerUserInputAlwaysSend withUserProvidedMetaData:nil];
-      break;
-  }
-}
-#pragma clang diagnostic pop
-
-#endif /* !defined (HOCKEYSDK_CONFIGURATION_ReleaseCrashOnlyExtensions) */
-
-
 #pragma mark - Networking
 
 - (NSData *)postBodyWithXML:(NSString *)xml attachment:(BITHockeyAttachment *)attachment boundary:(NSString *)boundary {
   NSMutableData *postBody =  [NSMutableData data];
   
-//  [postBody appendData:[[NSString stringWithFormat:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+  //  [postBody appendData:[[NSString stringWithFormat:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
   [postBody appendData:[BITHockeyAppClient dataWithPostValue:BITHOCKEY_NAME
                                                       forKey:@"sdk"
                                                     boundary:boundary]];
@@ -1615,7 +1583,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
                                                       filename:attachmentFilename]];
   }
   
-  [postBody appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+  [postBody appendData:(NSData *)[[NSString stringWithFormat:@"\r\n--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
   
   return postBody;
 }
@@ -1633,7 +1601,7 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   
   NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
   [request setValue:contentType forHTTPHeaderField:@"Content-type"];
-
+  
   return request;
 }
 
@@ -1642,8 +1610,8 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
   __block NSError *theError = error;
   
   dispatch_async(dispatch_get_main_queue(), ^{
-    _sendingInProgress = NO;
-    
+    self.sendingInProgress = NO;
+    id strongDelegate = self.delegate;
     if (nil == theError) {
       if (nil == responseData || [responseData length] == 0) {
         theError = [NSError errorWithDomain:kBITCrashErrorDomain
@@ -1661,9 +1629,8 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
                                                                                    format:nil
                                                                                     error:&theError];
         BITHockeyLogDebug(@"INFO: Received API response: %@", response);
-        
-        if ([self.delegate respondsToSelector:@selector(crashManagerDidFinishSendingCrashReport:)]) {
-          [self.delegate crashManagerDidFinishSendingCrashReport:self];
+        if ([strongDelegate respondsToSelector:@selector(crashManagerDidFinishSendingCrashReport:)]) {
+          [strongDelegate crashManagerDidFinishSendingCrashReport:self];
         }
         
         // only if sending the crash report went successfully, continue with the next one (if there are more)
@@ -1688,8 +1655,8 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
     }
     
     if (theError) {
-      if ([self.delegate respondsToSelector:@selector(crashManager:didFailWithError:)]) {
-        [self.delegate crashManager:self didFailWithError:theError];
+      if ([strongDelegate respondsToSelector:@selector(crashManager:didFailWithError:)]) {
+        [strongDelegate crashManager:self didFailWithError:theError];
       }
       
       BITHockeyLogError(@"ERROR: %@", [theError localizedDescription]);
@@ -1705,55 +1672,31 @@ static void uncaught_cxx_exception_handler(const BITCrashUncaughtCXXExceptionInf
  *	@param	xml	The XML data that needs to be send to the server
  */
 - (void)sendCrashReportWithFilename:(NSString *)filename xml:(NSString*)xml attachment:(BITHockeyAttachment *)attachment {
-  BOOL sendingWithURLSession = NO;
+  NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+  __block NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
   
-  if ([BITHockeyHelper isURLSessionSupported]) {
-    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    __block NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
-    
-    NSURLRequest *request = [self requestWithBoundary:kBITHockeyAppClientBoundary];
-    NSData *data = [self postBodyWithXML:xml attachment:attachment boundary:kBITHockeyAppClientBoundary];
-
-    if (request && data) {
-      __weak typeof (self) weakSelf = self;
-      NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request
-                                                                 fromData:data
-                                                        completionHandler:^(NSData *responseData, NSURLResponse *response, NSError *error) {
-                                                          typeof (self) strongSelf = weakSelf;
-                                                          
-                                                          [session finishTasksAndInvalidate];
-                                                          
-                                                          NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-                                                          NSInteger statusCode = [httpResponse statusCode];
-                                                          [strongSelf processUploadResultWithFilename:filename responseData:responseData statusCode:statusCode error:error];
-                                                        }];
-      
-      [uploadTask resume];
-      sendingWithURLSession = YES;
-    }
-  }
+  NSURLRequest *request = [self requestWithBoundary:kBITHockeyAppClientBoundary];
+  NSData *data = [self postBodyWithXML:xml attachment:attachment boundary:kBITHockeyAppClientBoundary];
   
-  if (!sendingWithURLSession) {
-    NSMutableURLRequest *request = [self requestWithBoundary:kBITHockeyAppClientBoundary];
-    
-    NSData *postBody = [self postBodyWithXML:xml attachment:attachment boundary:kBITHockeyAppClientBoundary];
-    [request setHTTPBody:postBody];
-    
+  if (request && data) {
     __weak typeof (self) weakSelf = self;
-    BITHTTPOperation *operation = [self.hockeyAppClient
-                                   operationWithURLRequest:request
-                                   completion:^(BITHTTPOperation *operation, NSData* responseData, NSError *error) {
-                                     typeof (self) strongSelf = weakSelf;
-                                     
-                                     NSInteger statusCode = [operation.response statusCode];
-                                     [strongSelf processUploadResultWithFilename:filename responseData:responseData statusCode:statusCode error:error];
-                                   }];
+    NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request
+                                                               fromData:data
+                                                      completionHandler:^(NSData *responseData, NSURLResponse *response, NSError *error) {
+                                                        typeof (self) strongSelf = weakSelf;
+                                                        
+                                                        [session finishTasksAndInvalidate];
+                                                        
+                                                        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+                                                        NSInteger statusCode = [httpResponse statusCode];
+                                                        [strongSelf processUploadResultWithFilename:filename responseData:responseData statusCode:statusCode error:error];
+                                                      }];
     
-    [self.hockeyAppClient enqeueHTTPOperation:operation];
+    [uploadTask resume];
   }
-  
-  if ([self.delegate respondsToSelector:@selector(crashManagerWillSendCrashReport:)]) {
-    [self.delegate crashManagerWillSendCrashReport:self];
+  id strongDelegate = self.delegate;
+  if ([strongDelegate respondsToSelector:@selector(crashManagerWillSendCrashReport:)]) {
+    [strongDelegate crashManagerWillSendCrashReport:self];
   }
   
   BITHockeyLogDebug(@"INFO: Sending crash reports started.");

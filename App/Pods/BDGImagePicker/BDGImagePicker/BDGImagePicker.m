@@ -5,6 +5,8 @@
 //  Copyright (c) 2015 GraafICT. All rights reserved.
 //
 
+#import <BDGCategories/UIImage+Helper.h>
+
 #import "BDGImagePicker.h"
 
 @interface BDGImagePicker () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
@@ -137,7 +139,7 @@
     [self pickImageFromViewController:viewController];
 }
 
--(void)pickImageFromViewController:(UIViewController *)viewController imagePicked:(void(^)(UIImage *image))imagePicked pickerDismissed:(void(^)())pickerDismissed
+-(void)pickImageFromViewController:(UIViewController *)viewController imagePicked:(void(^)(UIImage *image))imagePicked pickerDismissed:(void(^)(void))pickerDismissed
 {
     self.pickerDismissed = pickerDismissed;
     [self pickImageFromViewController:viewController imagePicked:imagePicked];
@@ -149,7 +151,7 @@
     [self pickImageFromViewController:viewController sourceRect:sourceRect];
 }
 
--(void)pickImageFromViewController:(UIViewController *)viewController sourceRect:(CGRect)sourceRect imagePicked:(void(^)(UIImage *image))imagePicked pickerDismissed:(void(^)())pickerDismissed
+-(void)pickImageFromViewController:(UIViewController *)viewController sourceRect:(CGRect)sourceRect imagePicked:(void(^)(UIImage *image))imagePicked pickerDismissed:(void(^)(void))pickerDismissed
 {
     self.imagePicked = imagePicked;
     self.pickerDismissed = pickerDismissed;
@@ -170,10 +172,22 @@
 -(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     UIImage *selectedImage = nil;
+    
     //Edited
     if(self.allowsEditing) {
-        selectedImage = [info objectForKey:UIImagePickerControllerEditedImage];
+        if(self.takingPicture) {
+            selectedImage = [info objectForKey:UIImagePickerControllerEditedImage];
+        }
+        else {
+            //There's a bug causing black bars when choosing from the camera roll
+            selectedImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+            selectedImage = [selectedImage fixOrientation];
+            
+            CGRect crop = [[info valueForKey:UIImagePickerControllerCropRect] CGRectValue];
+            selectedImage = [selectedImage cropToRect:crop];
+        }
     }
+    
     //Original
     if(!selectedImage) {
         selectedImage = [info objectForKey:UIImagePickerControllerOriginalImage];

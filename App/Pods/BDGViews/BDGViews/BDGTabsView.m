@@ -70,10 +70,24 @@
         [label addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tagSelected:)]];
         [self.scrollView addSubview:label];
         [self.tagLabelsArray addObject:label];
+        
+        if(self.cornerRadius>0) {
+            label.clipsToBounds = TRUE;
+            label.layer.cornerRadius = self.cornerRadius;
+        }
     }
     
     //Layout
     [self layoutSubviews];
+}
+
+-(void)setLineColor:(UIColor *)lineColor
+{
+    _lineColor = lineColor;
+    
+    if(self.lineView) {
+        self.lineView.backgroundColor = lineColor;
+    }
 }
 
 -(void)setActiveTag:(id)activeTag
@@ -84,52 +98,66 @@
     for(int i = 0; i < self.tags.count; i++) {
         UILabel *label = self.tagLabelsArray[i];
         if(activeTag == self.tags[i]) {
-            label.textColor = self.activeColor;
+            if(self.fillBackground) {
+                label.textColor = [UIColor whiteColor];
+                label.backgroundColor = self.activeColor;
+            }
+            else {
+                label.textColor = self.activeColor;
+            }
             float animationDuration = self.lineView.frame.size.width>0 ? 0.25f : 0.0f;
             
             //Scroll a bit if not fully visible
-            CGRect labelFrame = label.frame;
-            CGRect containerFrame = CGRectMake(self.scrollView.contentOffset.x, self.scrollView.contentOffset.y, self.scrollView.frame.size.width, self.scrollView.frame.size.height);
             float offset = self.scrollView.contentOffset.x;
-            NSLog(@"Offset: %f", offset);
-            if(!CGRectContainsRect(containerFrame, labelFrame)) {
-                //If it's either the first or last one, simply scroll all the way - otherwise enough to see the next/previous one
-                if(labelFrame.origin.x < self.scrollView.contentOffset.x) {
-                    if(i <= 1) {
-                        offset = 0;
+            if(!self.centered && !self.disableScrolling) {
+                CGRect labelFrame = label.frame;
+                CGRect containerFrame = CGRectMake(self.scrollView.contentOffset.x, self.scrollView.contentOffset.y, self.scrollView.frame.size.width, self.scrollView.frame.size.height);
+                if(!CGRectContainsRect(containerFrame, labelFrame)) {
+                    //If it's either the first or last one, simply scroll all the way - otherwise enough to see the next/previous one
+                    if(labelFrame.origin.x < self.scrollView.contentOffset.x) {
+                        if(i <= 1) {
+                            offset = 0;
+                        }
+                        else {
+                            offset = labelFrame.origin.x-self.paddingBetween*3;
+                        }
                     }
                     else {
-                        offset = labelFrame.origin.x-self.paddingBetween*3;
+                        if(i >= self.tagLabelsArray.count-2) {
+                            offset = self.scrollView.contentSize.width-self.scrollView.frame.size.width;
+                        }
+                        else {
+                            offset = labelFrame.origin.x-self.scrollView.frame.size.width+labelFrame.size.width+self.paddingBetween*3;
+                        }
                     }
                 }
                 else {
-                    if(i >= self.tagLabelsArray.count-2) {
-                        offset = self.scrollView.contentSize.width-self.scrollView.frame.size.width;
-                    }
-                    else {
-                        offset = labelFrame.origin.x-self.scrollView.frame.size.width+labelFrame.size.width+self.paddingBetween*3;
+                    if(i != self.tags.count-1) {
+                        if((labelFrame.origin.x-offset) > (self.scrollView.frame.size.width/2)) {
+                            offset += 20.0;
+                        }
+                        else {
+                            offset = MAX(0, offset-20);
+                        }
                     }
                 }
             }
-            else {
-                if(i != self.tags.count-1) {
-                    if((labelFrame.origin.x-offset) > (self.scrollView.frame.size.width/2)) {
-                        offset += 20.0;
-                    }
-                    else {
-                        offset = MAX(0, offset-20);
-                    }
-                }
-            }         
             
             //Animate line/offset changes
+            float lineOriginX = label.frame.origin.x;
+            float lineWidth = label.frame.size.width;
+            if(self.lineWidthExcludesPadding) {
+                lineOriginX += self.paddingBetween;
+                lineWidth -= self.paddingBetween * 2;
+            }
             [UIView animateWithDuration:animationDuration animations:^{
                 self.scrollView.contentOffset = CGPointMake(offset, 0);
-                self.lineView.frame = CGRectMake(label.frame.origin.x, self.scrollView.frame.size.height-2, label.frame.size.width, self.lineHeight);
+                self.lineView.frame = CGRectMake(lineOriginX, self.scrollView.frame.size.height-self.lineHeight, lineWidth, self.lineHeight);
             }];
         }
         else {
             label.textColor = self.inactiveColor;
+            label.backgroundColor = [UIColor clearColor];
         }
     }
 }
@@ -173,12 +201,41 @@
     
     //Tags
     if(self.disableScrolling) {
+        width -= self.paddingSides*2;
         //Not scrollable, use full width divided by number of tags
         float labelWidth = width/self.tagLabelsArray.count;
         for(int i = 0; i < self.tagLabelsArray.count; i++) {
             UILabel *label = self.tagLabelsArray[i];
             labelWidth += self.paddingBetween*2;
-            label.frame = CGRectMake(i*labelWidth, 0, labelWidth, height);
+            label.frame = CGRectMake(self.paddingSides+(i*labelWidth), 0, labelWidth, height);
+        }
+    }
+    else if(self.centered) {
+        width -= self.paddingSides*2;
+        //Centered, calculate total width first
+        float labelsWidth = 0;
+        for(int i = 0; i < self.tagLabelsArray.count; i++) {
+            UILabel *label = self.tagLabelsArray[i];
+            float labelWidth = [label.text sizeWithAttributes:@{NSFontAttributeName:label.font}].width;
+            labelsWidth += labelWidth;
+        }
+        //Add padding (for all labels, 1 left & 1 right)
+        labelsWidth += self.tagLabelsArray.count*(self.paddingBetween*2);
+        
+        //Calculate start position
+        float startX = width/2-labelsWidth/2;
+        
+        //Fix visually better-looking offset
+        startX += self.paddingBetween/2;
+        
+        //Set frames
+        for(int i = 0; i < self.tagLabelsArray.count; i++) {
+            UILabel *label = self.tagLabelsArray[i];
+            float labelWidth = [label.text sizeWithAttributes:@{NSFontAttributeName:label.font}].width;
+            labelWidth += self.paddingBetween;
+            label.frame = CGRectMake(startX, 0, labelWidth, height);
+            labelWidth += self.paddingBetween;
+            startX += labelWidth;
         }
     }
     else {

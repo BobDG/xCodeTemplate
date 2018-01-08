@@ -1,8 +1,8 @@
 CONFIGURATION_BUILD_DIR = $PODS_CONFIGURATION_BUILD_DIR/HockeySDK-Source
 FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/HockeySDK-Source/Vendor"
-GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1 $(inherited) BITHOCKEY_VERSION="@\"4.1.6\"" BITHOCKEY_C_VERSION="\"4.1.6\"" BITHOCKEY_BUILD="@\"101\"" BITHOCKEY_C_BUILD="\"101\""
-HEADER_SEARCH_PATHS = "${PODS_ROOT}/Headers/Private" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/BDGMacros"
-OTHER_LDFLAGS = -l"c++" -l"z" -framework "AssetsLibrary" -framework "CoreGraphics" -framework "CoreTelephony" -framework "CoreText" -framework "CrashReporter" -framework "MobileCoreServices" -framework "Photos" -framework "QuartzCore" -framework "QuickLook" -framework "Security" -framework "SystemConfiguration" -framework "UIKit"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1 $(inherited) BITHOCKEY_VERSION="@\"5.1.1\"" BITHOCKEY_C_VERSION="\"5.1.1\"" BITHOCKEY_BUILD="@\"107\"" BITHOCKEY_C_BUILD="\"107\""
+HEADER_SEARCH_PATHS = "${PODS_ROOT}/Headers/Private" "${PODS_ROOT}/Headers/Public"
+OTHER_LDFLAGS = -l"c++" -l"z" -framework "CoreGraphics" -framework "CoreTelephony" -framework "CoreText" -framework "CrashReporter" -framework "MobileCoreServices" -framework "Photos" -framework "QuartzCore" -framework "QuickLook" -framework "Security" -framework "SystemConfiguration" -framework "UIKit"
 PODS_BUILD_DIR = $BUILD_DIR
 PODS_CONFIGURATION_BUILD_DIR = $PODS_BUILD_DIR/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
 PODS_ROOT = ${SRCROOT}
