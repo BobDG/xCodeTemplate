@@ -1,32 +1,31 @@
 PODS:
-  - AFNetworking (3.1.0):
-    - AFNetworking/NSURLSession (= 3.1.0)
-    - AFNetworking/Reachability (= 3.1.0)
-    - AFNetworking/Security (= 3.1.0)
-    - AFNetworking/Serialization (= 3.1.0)
-    - AFNetworking/UIKit (= 3.1.0)
-  - AFNetworking/NSURLSession (3.1.0):
+  - AFNetworking (3.2.0):
+    - AFNetworking/NSURLSession (= 3.2.0)
+    - AFNetworking/Reachability (= 3.2.0)
+    - AFNetworking/Security (= 3.2.0)
+    - AFNetworking/Serialization (= 3.2.0)
+    - AFNetworking/UIKit (= 3.2.0)
+  - AFNetworking/NSURLSession (3.2.0):
     - AFNetworking/Reachability
     - AFNetworking/Security
     - AFNetworking/Serialization
-  - AFNetworking/Reachability (3.1.0)
-  - AFNetworking/Security (3.1.0)
-  - AFNetworking/Serialization (3.1.0)
-  - AFNetworking/UIKit (3.1.0):
+  - AFNetworking/Reachability (3.2.0)
+  - AFNetworking/Security (3.2.0)
+  - AFNetworking/Serialization (3.2.0)
+  - AFNetworking/UIKit (3.2.0):
     - AFNetworking/NSURLSession
   - BDGCategories (0.0.31)
   - BDGImagePicker (0.0.15):
     - BDGCategories
-  - BDGMacros (0.0.21)
+  - BDGMacros (0.0.22)
   - BDGScreenshot (0.0.2)
   - BDGShare (0.0.11)
   - BDGViews (0.0.8)
-  - Blaze (1.0.97):
+  - Blaze (1.0.99):
     - AFNetworking
     - BDGImagePicker
-  - DTTJailbreakDetection (0.4.0)
-  - HockeySDK-Source (5.1.1)
-  - SVProgressHUD (2.2.2)
+  - HockeySDK-Source (5.1.2)
+  - SVProgressHUD (2.2.5)
 
 DEPENDENCIES:
   - AFNetworking
@@ -36,23 +35,21 @@ DEPENDENCIES:
   - BDGShare
   - BDGViews
   - Blaze
-  - DTTJailbreakDetection
   - HockeySDK-Source
   - SVProgressHUD
 
 SPEC CHECKSUMS:
-  AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
+  AFNetworking: 8ac6017b94ea105479f7776e5288e48ae9c59bb4
   BDGCategories: f396ee3b36da1410f958fa78ec56d0ab8616b5e7
   BDGImagePicker: e580ba56516afa4238ac14907edf2a97c3a63a1f
-  BDGMacros: b21e5212db9366b9d151d93940e3c1156e70049f
+  BDGMacros: 57f9ce27325b196824b134cffa35951fd42525cc
   BDGScreenshot: f493d124c9935132da9e0ca9e8f2e6be180f7dd5
   BDGShare: 32748bcc08221d403115d68d76f9ee9ed1734883
   BDGViews: 38dfff7f4d3ecaa4ddadf068d552e6425a0145e7
-  Blaze: 43f29ffcb871edc19393024baba7811f5ed468fd
-  DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
-  HockeySDK-Source: 5b212d6945042fef3cb031c889db03f336f76b1c
-  SVProgressHUD: 59b2d3dabacbd051576d21d32293ca7228dc18b0
+  Blaze: a804f9f74ea1cad488048c98bde0668e7cd68c9d
+  HockeySDK-Source: 0e72e55e35cec26eaba207ec212fd1870961798a
+  SVProgressHUD: 1428aafac632c1f86f62aa4243ec12008d7a51d6
 
-PODFILE CHECKSUM: 93f8b8a7c84bcf31ece74f1146531f86e602c5e6
+PODFILE CHECKSUM: 6e91df281ab03c0a0d6f102a802698d45255dbf8
 
-COCOAPODS: 1.3.1
+COCOAPODS: 1.4.0

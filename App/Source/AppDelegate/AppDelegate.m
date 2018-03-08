@@ -10,7 +10,6 @@
 #import "AppDelegate.h"
 #import "BDGScreenshot.h"
 #import "NotificationsManager.h"
-#import "DTTJailbreakDetection.h"
 
 @interface AppDelegate ()
 {
@@ -26,15 +25,7 @@
 #pragma mark Application Launch
 
 -(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-    //Check jailbreak
-    if([DTTJailbreakDetection isJailbroken]) {
-        [NotificationsManager showMessage:NSLocalizedString(@"Jailbrake_Popup_Title", @"") fromViewController:self.window.rootViewController];        
-    }
-    
-    //Data protection
-    #warning Based on App Privacy -> Turn on Data Protection in Target Capabilities
-    
+{        
     //Appearance
     [AppAppearance setupAppearance];
     

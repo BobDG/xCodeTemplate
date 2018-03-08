@@ -21,13 +21,5 @@
 
 //Notifications
 
-//Fonts
-#define kFontLatoBlack              @"Lato-Black"
-#define kFontLatoBold               @"Lato-Bold"
-#define kFontLatoRegular            @"Lato-Regular"
-#define kFontLatoLight              @"Lato-Light"
-#define kFontLatoItalic             @"Lato-Italic"
-#define kFontLatoLightItalic        @"Lato-LightItalic"
-
 //Delegate
 #define kAppDelegate                ((AppDelegate *)[UIApplication sharedApplication].delegate)

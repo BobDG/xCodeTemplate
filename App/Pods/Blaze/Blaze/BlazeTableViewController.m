@@ -16,7 +16,6 @@
 #import "BlazeTileCollectionViewCell.h"
 
 //Standard cells
-#import "BlazeTableViewCell.h"
 #import "BlazeTextViewTableViewCell.h"
 
 //TableViewHeaders
@@ -284,6 +283,7 @@
     
     //Header container
     UIView *headerContainer = [[UIView alloc] initWithFrame:self.zoomTableHeaderView.bounds];
+    zoomTableHeaderView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     [headerContainer addSubview:self.zoomTableHeaderView];
     [headerContainer setClipsToBounds:NO];
     self.tableView.tableHeaderView = headerContainer;
@@ -444,6 +444,15 @@
     }
     
     return [NSIndexPath indexPathForRow:rowIndex inSection:sectionIndex];
+}
+
+-(BlazeTableViewCell *)cellForRow:(BlazeRow *)row
+{
+    NSIndexPath *indexPath = [self indexPathForRow:row];
+    if(!indexPath) {
+        return nil;
+    }
+    return [self tableView:self.tableView cellForRowAtIndexPath:indexPath];
 }
 
 -(NSIndexPath *)indexPathForRowID:(int)rowID

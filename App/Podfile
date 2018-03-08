@@ -3,19 +3,22 @@ use_frameworks!
 inhibit_all_warnings!
 
 def shared_pods
+    pod 'Blaze'
     pod 'BDGShare'
     pod 'BDGViews'
     pod 'BDGMacros'
     pod 'BDGCategories'
     pod 'BDGScreenshot'
     
-    pod 'Blaze'
     pod 'AFNetworking'
     pod 'SVProgressHUD'
     pod 'HockeySDK-Source'
-    pod 'DTTJailbreakDetection'
 end
 
 target 'Template' do
+    shared_pods
+end
+
+target 'Template AppStore' do
     shared_pods
 end

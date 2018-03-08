@@ -10,8 +10,7 @@
 #endif
 #endif
 
-#import "DTTJailbreakDetection.h"
 
-FOUNDATION_EXPORT double DTTJailbreakDetectionVersionNumber;
-FOUNDATION_EXPORT const unsigned char DTTJailbreakDetectionVersionString[];
+FOUNDATION_EXPORT double Pods_Template_AppStoreVersionNumber;
+FOUNDATION_EXPORT const unsigned char Pods_Template_AppStoreVersionString[];
 
