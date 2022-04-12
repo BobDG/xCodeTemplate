@@ -1,6 +1,0 @@
-framework module Pods_Template_AppStore {
-  umbrella header "Pods-Template AppStore-umbrella.h"
-
-  export *
-  module * { export * }
-}
